@@ -11,7 +11,7 @@
     "@reduxjs/toolkit": "v1.9.7",
     "@styled-system/theme-get": "^5.1.2",
     "animate.css": "^4.1.1",
-    "gatsby": "^3.8.0",
+    "gatsby": "^4.0.0",
     "gatsby-plugin-image": "^1.7.1",
     "gatsby-plugin-manifest": "^3.7.1",
     "gatsby-plugin-offline": "^4.7.1",
