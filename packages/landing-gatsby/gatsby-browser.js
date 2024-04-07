@@ -5,3 +5,10 @@
  */
 
 // You can delete this file if you're not using it
+import React from 'react';
+//import ReactDOM from 'react-dom';
+import IndexRoutes from './src/pages/index';
+
+export const wrapRootElement = ({ element }) => {
+  return <IndexRoutes>{element}</IndexRoutes>;
+};

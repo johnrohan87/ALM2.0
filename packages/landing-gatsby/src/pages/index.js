@@ -6,19 +6,19 @@ import store from '../ALM/store/store'
 import Home from '../ALM/pages/hosting';
 import Portfolio from '../ALM/pages/portfolio';
 import Login from '../ALM/pages/login';
-import PrivateRoute from '../ALM/pages/hosting';
+import ProtectedRoute from '../ALM/pages/hosting';
 
 const IndexRoutes = () => {
   return (
     <Provider store={store}>
-    <Router>
-      <Home path="/" />
-      <Portfolio path="/portfolio" />
-      <Login path="/login" />
-      <PrivateRoute
-        path="/private"
-        />
-    </Router>
+      <Router>
+        <Home path="/" />
+        <Portfolio path="/portfolio" />
+        <Login path="/login" />
+        <ProtectedRoute path="/private">
+          <Portfolio />
+        </ProtectedRoute>
+      </Router>
     </Provider>
     
   );

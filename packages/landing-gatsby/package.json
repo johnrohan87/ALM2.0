@@ -8,7 +8,7 @@
     "@reach/accordion": "^0.16.1",
     "@reach/router": "^1.3.4",
     "@redq/reuse-modal": "^1.2.4",
-    "@reduxjs/toolkit": "v1.9.7",
+    "@reduxjs/toolkit": "v2.0.0",
     "@styled-system/theme-get": "^5.1.2",
     "animate.css": "^4.1.1",
     "gatsby": "^4.0.0",
