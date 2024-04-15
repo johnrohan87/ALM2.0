@@ -19,8 +19,12 @@ exports.createPages = async ({ actions }) => {
     component: path.resolve('./src/ALM/pages/portfolio.js'),
   });
   createPage({
-    path: '/private/*',
-    component: path.resolve('./src/ALM/pages/private.js'),
+    path: '/account/*',
+    component: path.resolve('./src/ALM/pages/account.js'),
+  });
+  createPage({
+    path: '/admin/*',
+    component: path.resolve('./src/ALM/pages/admin.js'),
   });
 };
 

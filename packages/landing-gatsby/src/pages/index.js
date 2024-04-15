@@ -6,7 +6,8 @@ import store from '../ALM/store/store'
 import Home from '../ALM/pages/hosting';
 import Portfolio from '../ALM/pages/portfolio';
 import Login from '../ALM/pages/login';
-import ProtectedRoute from '../ALM/pages/hosting';
+import Account from '../ALM/pages/account';
+import Admin from '../ALM/pages/admin';
 
 const IndexRoutes = () => {
   return (
@@ -15,9 +16,8 @@ const IndexRoutes = () => {
         <Home path="/" />
         <Portfolio path="/portfolio" />
         <Login path="/login" />
-        <ProtectedRoute path="/private">
-          <Portfolio />
-        </ProtectedRoute>
+        <Account path="/account"/>
+        <Admin path="/admin" />
       </Router>
     </Provider>
     
