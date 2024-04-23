@@ -48,7 +48,7 @@ const ContactSection = ({
         <Box {...row} >
           <Box {...contactForm}>
             <ContactFromWrapper>
-              <form action="#" name="contact" data-netlify="true" method="post">
+              <form name="contact" data-netlify="true" method="post">
               <Input
                 inputType="email"
                 placeholder="Email address"
