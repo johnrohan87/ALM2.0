@@ -14,6 +14,7 @@ const Input = ({
   iconPosition,
   passwordShowHide,
   className,
+  name,
   ...props
 }) => {
   // use toggle hooks
@@ -106,7 +107,8 @@ const Input = ({
         <textarea
           {...props}
           id={htmlFor}
-          name={htmlFor}
+          //name={htmlFor}
+          name={name}
           value={state.value}
           onChange={handleOnChange}
           onBlur={handleOnBlur}
@@ -121,7 +123,8 @@ const Input = ({
           <input
             {...props}
             id={htmlFor}
-            name={htmlFor}
+            //name={htmlFor}
+            name={name}
             type={state.toggle ? 'password' : 'text'}
             value={state.value}
             onChange={handleOnChange}
@@ -146,7 +149,8 @@ const Input = ({
           <input
             {...props}
             id={htmlFor}
-            name={htmlFor}
+            //name={htmlFor}
+            name={name}
             type={inputType}
             value={state.value}
             onChange={handleOnChange}
@@ -174,6 +178,9 @@ const Input = ({
 Input.propTypes = {
   /** className of the Input component. */
   className: PropTypes.string,
+
+  /** Set input name value. */
+  name: PropTypes.string,
 
   /** Set input label value. */
   label: PropTypes.string,
@@ -225,6 +232,7 @@ Input.propTypes = {
 
 /** Inout default type. */
 Input.defaultProps = {
+  name: 'text',
   inputType: 'text',
   isMaterial: false,
   iconPosition: 'left',
