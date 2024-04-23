@@ -1,6 +1,8 @@
-import React from "react"
-import { Router } from "@reach/router"
+import React, { useEffect } from "react"
+import { Router, navigate } from "@reach/router"
 import { login, logout, isAuthenticated, getProfile } from "../utils/auth"
+import { useDispatch, useSelector } from "react-redux"
+import { fetchUserRoles } from "../store/apiSlice"
 import { Link } from "gatsby"
 
 const Home = ({ user }) => {
@@ -17,12 +19,18 @@ const Settings = () => <p>Settings</p>
 const Billing = () => <p>Billing</p>
 
 const Account = () => {
+  const dispatch = useDispatch()
+  const user = getProfile()
+  const roles = useSelector(state => state.userRoles.roles)
+
+  useEffect(() => {
+    dispatch(fetchUserRoles())
+  }, [dispatch])
+
   if (!isAuthenticated()) {
     login()
     return <p>Redirecting to login...</p>
   }
-
-  const user = getProfile()
 
   return (
     <>
@@ -42,7 +50,7 @@ const Account = () => {
       </nav>
       <Router>
         <Home path="/account" user={user} />
-        <Settings path="/account/settings" />
+        {roles.includes("admin") && <Settings path="/account/settings" />}
         <Billing path="/account/billing" />
       </Router>
     </>
