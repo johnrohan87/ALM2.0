@@ -23,16 +23,18 @@ const ContactSection = ({
 }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
-    
-    console.log(event.currentTarget)
-    const formData = new FormData(event.currentTarget);
   
+    const myForm = event.target;
+    console.log(myForm)
+    const formData = new FormData(myForm);
+    console.log(formData)
+    
     fetch("/", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams(formData).toString(),
     })
-      .then(() => alert("Thank you for your submission"))
+      .then(() => console.log("Form successfully submitted"))
       .catch((error) => alert(error));
   };
   return (
