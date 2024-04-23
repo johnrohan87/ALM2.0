@@ -1,6 +1,6 @@
 import React, { useEffect } from "react"
 import { Router, navigate } from "@reach/router"
-import { login, logout, isAuthenticated, getProfile } from "../utils/auth"
+import { login, logout, isAuthenticated, getProfile, isBrowser } from "../utils/auth"
 import { useDispatch, useSelector } from "react-redux"
 import fetchUserRoles from "../store/apiSlice"
 import { Link } from "gatsby"
@@ -24,6 +24,9 @@ const Account = () => {
   const roles = useSelector(state => state.userRoles.roles)
 
   useEffect(() => {
+    if (!isBrowser) {
+      return
+    }
     dispatch(fetchUserRoles())
   }, [dispatch])
 
