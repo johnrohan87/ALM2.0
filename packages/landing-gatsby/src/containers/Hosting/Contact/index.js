@@ -23,8 +23,9 @@ const ContactSection = ({
 }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
-  
-    const formData = new FormData(event.target);
+    
+    console.log(event.currentTarget)
+    const formData = new FormData(event.currentTarget);
   
     fetch("/", {
       method: "POST",
@@ -47,7 +48,7 @@ const ContactSection = ({
         <Box {...row} >
           <Box {...contactForm}>
             <ContactFromWrapper>
-              <form name="contact" data-netlify="true">
+              <form name="contact" data-netlify="true" onSubmit={handleSubmit}>
               <Input
                 inputType="email"
                 placeholder="Email address"
@@ -67,7 +68,7 @@ const ContactSection = ({
                 name="message"
               />
               
-              <Button {...button} title="SEND MESSAGE" onClick={(event)=>{handleSubmit(event)}} />
+              <Button {...button} title="SEND MESSAGE" type="submit" />
               
               </form>
             </ContactFromWrapper>
