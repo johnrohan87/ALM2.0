@@ -26,7 +26,9 @@ const ContactSection = ({
     event.preventDefault();
   
     const myForm = event.target;
+    console.log("myForm",myForm)
     const formData = new FormData(myForm);
+    console.log("formData",formData)
     
     fetch("/", {
       method: "POST",
