@@ -26,7 +26,7 @@ const ContactSection = ({
   
     const myForm = event.target;
     console.log(myForm)
-    const formData = new FormData(myForm);
+    const formData = new FormData(document.forms["contact"]);
     console.log(formData)
     
     fetch("/", {
