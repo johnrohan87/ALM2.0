@@ -14,8 +14,8 @@ const IndexRoutes = () => {
     <Provider store={store}>
       <Router>
         <Home path="/" />
-        <Portfolio path="/portfolio" />
-        {/*<Login path="/login" />
+        {/*<Portfolio path="/portfolio" />
+        <Login path="/login" />
         <Admin path="/admin" />*/}
         <Account path="/account"/>
       </Router>
