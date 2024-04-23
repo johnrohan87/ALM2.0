@@ -75,5 +75,5 @@ export const getProfile = () => {
 
 export const logout = () => {
   localStorage.setItem("isLoggedIn", false)
-  auth.logout()
+  auth.logout({ returnTo: "/" })
 }
