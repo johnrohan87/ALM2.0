@@ -34,7 +34,6 @@ const ContactSection = ({
     })
       .then(() => alert("Thank you for your submission"))
       .catch((error) => alert(error));
-      event.preventDefault();
   };
   return (
     <Box {...sectionWrapper}>
@@ -49,7 +48,7 @@ const ContactSection = ({
         <Box {...row} >
           <Box {...contactForm}>
             <ContactFromWrapper>
-              <form form-name="contact" data-netlify="true" method="POST">
+              <form action="#" name="contact" data-netlify="true" method="post">
               <Input
                 inputType="email"
                 placeholder="Email address"
@@ -69,7 +68,7 @@ const ContactSection = ({
                 name="message"
               />
               
-              <Button {...button} title="SEND MESSAGE" type="submit" onClick={(e)=>{handleSubmit()}} />
+              <Button {...button} title="SEND MESSAGE" type="submit" />
               
               </form>
             </ContactFromWrapper>
