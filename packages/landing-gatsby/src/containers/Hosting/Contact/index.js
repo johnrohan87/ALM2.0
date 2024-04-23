@@ -1,4 +1,5 @@
 import React from 'react';
+import {navigate} from 'gatsby'
 import PropTypes from 'prop-types';
 import Box from 'common/components/Box';
 import Text from 'common/components/Text';
@@ -20,6 +21,20 @@ const ContactSection = ({
   button,
   note,
 }) => {
+  const handleSubmit = (event) => {
+    event.preventDefault();
+  
+    const myForm = event.target;
+    const formData = new FormData(myForm);
+  
+    fetch("/", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(formData).toString(),
+    })
+      .then(() => navigate("/thank-you/"))
+      .catch((error) => alert(error));
+  };
   return (
     <Box {...sectionWrapper}>
       <Container>
@@ -33,7 +48,7 @@ const ContactSection = ({
         <Box {...row} >
           <Box {...contactForm}>
             <ContactFromWrapper>
-              <div name="contact" data-netlify="true">
+              <form name="contact" data-netlify="true" method="POST">
               <Input
                 inputType="email"
                 placeholder="Email address"
@@ -53,9 +68,9 @@ const ContactSection = ({
                 name="message"
               />
               
-              <button className='Button'{...button} title="SEND MESSAGE" type="submit" />
+              <Button {...button} title="SEND MESSAGE" type="submit" onClick={(e)=>{handleSubmit()}} />
               
-              </div>
+              </form>
             </ContactFromWrapper>
             {/*<Text
               {...note}
