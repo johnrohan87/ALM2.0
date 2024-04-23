@@ -44,7 +44,7 @@ const FeatureSection = ({
             <Text {...secText} content="OUR SERVICES" />
             <Heading
               {...secHeading}
-              content="Our Featured Service that We Provide"
+              content="Website Development and Management"
             />
           </Fade>
         </Box>

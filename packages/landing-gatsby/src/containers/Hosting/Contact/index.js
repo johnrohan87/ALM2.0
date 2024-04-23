@@ -26,7 +26,7 @@ const ContactSection = ({
           <Text {...secText} content="CONTACT US" />
           <Heading
             {...secHeading}
-            content="Are you Interested to meet with us?"
+            content="Send us your contact information here "
           />
         </Box>
         <Box {...row}>
@@ -40,12 +40,20 @@ const ContactSection = ({
                 className="email_input"
                 aria-label="email"
               />
+              <Input
+                inputType="message"
+                placeholder="Your Message"
+                iconPosition="right"
+                isMaterial={false}
+                className="email_input"
+                aria-label="message"
+              />
               <Button {...button} title="SEND MESSAGE" />
             </ContactFromWrapper>
-            <Text
+            {/*<Text
               {...note}
               content="Note: Please call us at 12pm to 8am. otherwise our customer supporter will not  available to reach your call, but you can drop mail anytime."
-            />
+            />*/}
           </Box>
         </Box>
       </Container>

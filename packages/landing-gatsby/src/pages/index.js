@@ -5,9 +5,9 @@ import store from '../ALM/store/store'
 
 import Home from '../ALM/pages/hosting';
 import Portfolio from '../ALM/pages/portfolio';
-import Login from '../ALM/pages/login';
+//import Login from '../ALM/pages/login';
 import Account from '../ALM/pages/account';
-import Admin from '../ALM/pages/admin';
+//import Admin from '../ALM/pages/admin';
 
 const IndexRoutes = () => {
   return (
@@ -15,9 +15,9 @@ const IndexRoutes = () => {
       <Router>
         <Home path="/" />
         <Portfolio path="/portfolio" />
-        <Login path="/login" />
+        {/*<Login path="/login" />
+        <Admin path="/admin" />*/}
         <Account path="/account"/>
-        <Admin path="/admin" />
       </Router>
     </Provider>
     

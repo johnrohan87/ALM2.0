@@ -6,15 +6,17 @@ import { GlobalStyle, ContentWrapper } from 'containers/Hosting/hosting.style';
 import { ResetCSS } from 'common/assets/css/style';
 import Navbar from 'containers/Hosting/Navbar';
 import FeatureSection from 'containers/Hosting/Features';
-import InfoSection from 'containers/Hosting/Info';
+
+/*import InfoSection from 'containers/Hosting/Info';
 import DomainSection from 'containers/Hosting/Domain';
 import PaymentSection from 'containers/Hosting/Payment';
 import GuaranteeSection from 'containers/Hosting/Guarantee';
 import FaqSection from 'containers/Hosting/Faq';
-import ServicesSection from 'containers/Hosting/Services';
+import ServicesSection from 'containers/Hosting/Services';*/
+
 import BannerSection from 'containers/Hosting/Banner';
-import PricingSection from 'containers/Hosting/Pricing';
-import TestimonialSection from 'containers/Hosting/Testimonials';
+/*import PricingSection from 'containers/Hosting/Pricing';
+import TestimonialSection from 'containers/Hosting/Testimonials';*/
 import ContactSection from 'containers/Hosting/Contact';
 import Footer from 'containers/Hosting/Footer';
 import { DrawerProvider } from 'common/contexts/DrawerContext';
@@ -25,7 +27,7 @@ const Hosting = () => {
   return (
     <ThemeProvider theme={hostingTheme}>
       <ParallaxProvider>
-        <Seo title="Hosting | A react next landing page" />
+        <Seo title="Affiliate Lead Marketing | Your website development company" />
 
         <ResetCSS />
         <GlobalStyle />
@@ -39,14 +41,14 @@ const Hosting = () => {
 
           <BannerSection />
           <FeatureSection />
-          <InfoSection />
+          {/*<InfoSection />
           <PricingSection />
           <DomainSection />
           <ServicesSection />
           <PaymentSection />
           <TestimonialSection />
           <GuaranteeSection />
-          <FaqSection />
+          <FaqSection />*/}
           <ContactSection />
           <Footer />
         </ContentWrapper>

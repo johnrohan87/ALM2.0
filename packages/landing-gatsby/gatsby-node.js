@@ -10,21 +10,25 @@ const path = require('path');
 exports.createPages = async ({ actions }) => {
   const { createPage } = actions;
 
-  createPage({
+  /*createPage({
     path: '/login',
     component: path.resolve('./src/ALM/pages/login.js'),
   });
   createPage({
     path: '/portfolio',
     component: path.resolve('./src/ALM/pages/portfolio.js'),
-  });
+  });*/
   createPage({
-    path: '/account/*',
+    path: '/account',
     component: path.resolve('./src/ALM/pages/account.js'),
   });
-  createPage({
+  /*createPage({
     path: '/admin/*',
     component: path.resolve('./src/ALM/pages/admin.js'),
+  });*/
+  createPage({
+    path: '/callback',
+    component: path.resolve('./src/ALM/pages/callback.js'),
   });
 };
 
@@ -34,11 +38,18 @@ exports.onCreateWebpackConfig = ({ actions, stage, plugins, getConfig }) => {
       modules: [path.resolve(__dirname, 'src'), 'node_modules'],
     },
   });
-
-  /**
-   * MiniCssExtractPlugin css order warning
-   * @link https://github.com/gatsbyjs/gatsby/discussions/30169#discussioncomment-621285
-   */
+  if (stage === "build-html") {
+    actions.setWebpackConfig({
+      module: {
+        rules: [
+          {
+            test: /auth0-js/,
+            use: loaders.null(),
+          },
+        ],
+      },
+    })
+  }
   if (stage === 'build-javascript' || stage === 'develop') {
     const config = getConfig();
 

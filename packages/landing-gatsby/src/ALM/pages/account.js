@@ -1,26 +1,49 @@
-import React from "react";
-import { Link } from "gatsby";
-import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
+import React from "react"
+import { Router } from "@reach/router"
+import { login, logout, isAuthenticated, getProfile } from "../utils/auth"
+import { Link } from "gatsby"
+
+const Home = ({ user }) => {
+  console.log(user)
+  return (<div>
+    <img src={user.picture?user.picture:""} alt={user.name?user.name:""}/>
+    <p>Hi, {user.name ? user.name : "friend"}!</p>
+    </div>)
+}
+const Settings = () => <p>Settings</p>
+const Billing = () => <p>Billing</p>
 
 const Account = () => {
-  const { user, isAuthenticated, isLoading } = useAuth0();
-  const isAdmin = user?.app_metadata?.includes('admin');
-  console.log(user)
-  console.log(isAdmin)
-
-  if (isLoading) {
-    return <div>Loading...</div>;
+  if (!isAuthenticated()) {
+    login()
+    return <p>Redirecting to login...</p>
   }
+
+  const user = getProfile()
 
   return (
     <>
       <nav>
-        <Link to="/">Home</Link>
-        {isAdmin && <Link to="/admin">Admin</Link>} 
-        <p>Email: {user.email}</p>
+        <Link to="/account">Home</Link>{" "}
+        <Link to="/account/settings">Settings</Link>{" "}
+        <Link to="/account/billing">Billing</Link>{" "}
+        <a
+          href="#logout"
+          onClick={e => {
+            logout()
+            e.preventDefault()
+          }}
+        >
+          Log Out
+        </a>
       </nav>
+      <Router>
+        <Home path="/account" user={user} />
+        <Settings path="/account/settings" />
+        <Billing path="/account/billing" />
+      </Router>
     </>
-  );
-};
+  )
+}
 
-export default withAuthenticationRequired(Account); 
+export default Account

@@ -15,21 +15,19 @@ export const FEATURES_DATA = [
   {
     title: 'Domain Registration & Web Hosting',
     description:
-      'We have support team for 24/7 operation. They provide help and ongoing assistance at any time.',
-    icon: 'flaticon-trophy violate',
+      'We provide domain registration and hosting solutions based on your needs.',
     animation: true,
   },
   {
     title: 'Website Design & Development',
     description:
-      'Transferring from another host? Our expert support team is standing by to transfer your site.',
-    icon: 'flaticon-startup yellow',
+      'Our expert support team is standing by to build or transfer your website.',
     animation: true,
   },
   {
     title: 'Dedicated Server & Cloud Hosting',
     description:
-      'LiteSpeed Web Server is a high-performance HTTP server and known for its high performance.',
+      'Netlify DNS Web Server is a high-performance HTTPS server and known for its high performance and Cloud Support.',
     icon: 'flaticon-creative green',
     animation: true,
   },
