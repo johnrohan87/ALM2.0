@@ -75,5 +75,5 @@ export const getProfile = () => {
 
 export const logout = () => {
   localStorage.setItem("isLoggedIn", false)
-  auth.logout({ returnTo: process.env.GATSBY_AUTH0_DOMAIN })
+  auth.logout({ returnTo: process.env.GATSBY_AUTH0_LOGOUT_URL })
 }
