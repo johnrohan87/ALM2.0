@@ -48,7 +48,7 @@ const ContactSection = ({
         <Box {...row} >
           <Box {...contactForm}>
             <ContactFromWrapper>
-              <form name="contact" data-netlify="true" method="post">
+              <form name="contact" data-netlify="true">
               <Input
                 inputType="email"
                 placeholder="Email address"
@@ -68,7 +68,7 @@ const ContactSection = ({
                 name="message"
               />
               
-              <Button {...button} title="SEND MESSAGE" type="submit" />
+              <Button {...button} title="SEND MESSAGE" type="submit" onClick={()=>{handleSubmit()}} />
               
               </form>
             </ContactFromWrapper>
