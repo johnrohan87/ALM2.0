@@ -1,5 +1,5 @@
 import React from 'react';
-import {navigate} from 'gatsby'
+//import {navigate} from 'gatsby'
 import PropTypes from 'prop-types';
 import Box from 'common/components/Box';
 import Text from 'common/components/Text';
@@ -24,8 +24,7 @@ const ContactSection = ({
   const handleSubmit = (event) => {
     event.preventDefault();
   
-    const myForm = event.target;
-    const formData = new FormData(myForm);
+    const formData = new FormData(event.target);
   
     fetch("/", {
       method: "POST",
