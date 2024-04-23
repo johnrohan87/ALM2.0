@@ -68,7 +68,7 @@ const ContactSection = ({
                 name="message"
               />
               
-              <Button {...button} title="SEND MESSAGE" onClick={()=>{handleSubmit()}} />
+              <Button {...button} title="SEND MESSAGE" onClick={(event)=>{handleSubmit(event)}} />
               
               </form>
             </ContactFromWrapper>
