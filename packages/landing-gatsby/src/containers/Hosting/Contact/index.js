@@ -4,6 +4,7 @@ import Box from 'common/components/Box';
 import Text from 'common/components/Text';
 import Heading from 'common/components/Heading';
 import Button from 'common/components/Button';
+//import {ButtonStyle} from '../../../common/components/Button/button.style';
 import Input from 'common/components/Input';
 import Container from 'common/components/UI/Container';
 
@@ -52,7 +53,7 @@ const ContactSection = ({
                 name="message"
               />
               
-              <Button {...button} title="SEND MESSAGE" type="submit" />
+              <button className='Button'{...button} title="SEND MESSAGE" type="submit" />
               
               </div>
             </ContactFromWrapper>
