@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 //import {navigate} from 'gatsby'
 import PropTypes from 'prop-types';
 import Box from 'common/components/Box';
@@ -21,15 +21,12 @@ const ContactSection = ({
   button,
   note,
 }) => {
-  const formRef = useRef(null);
-
+  
   const handleSubmit = (event) => {
     event.preventDefault();
   
-    //const myForm = event.target;
-    //console.log(myForm)
-    const formData = new FormData(formRef.current);
-    console.log("formData",formData)
+    const myForm = event.target;
+    const formData = new FormData(myForm);
     
     fetch("/", {
       method: "POST",
@@ -39,6 +36,7 @@ const ContactSection = ({
       .then(() => console.log("Form successfully submitted"))
       .catch((error) => alert(error));
   };
+
   return (
     <Box {...sectionWrapper}>
       <Container>
@@ -52,7 +50,8 @@ const ContactSection = ({
         <Box {...row} >
           <Box {...contactForm}>
             <ContactFromWrapper>
-              <form name="contact" data-netlify="true" method="POST" actopn="#">
+              <form name="contact" data-netlify="true" onSubmit={handleSubmit}>
+              <input type="hidden" name="form-name" value="contact" />
               <Input
                 inputType="email"
                 placeholder="Email address"
