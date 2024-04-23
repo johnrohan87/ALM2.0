@@ -32,7 +32,7 @@ const ContactSection = ({
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams(formData).toString(),
     })
-      .then(() => navigate("/"))
+      .then(() => alert("Thank you for your submission"))
       .catch((error) => alert(error));
   };
   return (
