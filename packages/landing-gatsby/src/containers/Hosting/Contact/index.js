@@ -29,9 +29,10 @@ const ContactSection = ({
             content="Send us your contact information here "
           />
         </Box>
-        <Box {...row}>
+        <Box {...row} >
           <Box {...contactForm}>
             <ContactFromWrapper>
+              <div name="contact" data-netlify="true">
               <Input
                 inputType="email"
                 placeholder="Email address"
@@ -39,6 +40,7 @@ const ContactSection = ({
                 isMaterial={false}
                 className="email_input"
                 aria-label="email"
+                name="email"
               />
               <Input
                 inputType="message"
@@ -47,8 +49,12 @@ const ContactSection = ({
                 isMaterial={false}
                 className="email_input"
                 aria-label="message"
+                name="message"
               />
-              <Button {...button} title="SEND MESSAGE" />
+              
+              <Button {...button} title="SEND MESSAGE" type="submit" />
+              
+              </div>
             </ContactFromWrapper>
             {/*<Text
               {...note}

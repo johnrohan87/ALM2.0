@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import store from '../ALM/store/store'
 
 import Home from '../ALM/pages/hosting';
-import Portfolio from '../ALM/pages/portfolio';
+//import Portfolio from '../ALM/pages/portfolio';
 //import Login from '../ALM/pages/login';
 import Account from '../ALM/pages/account';
 //import Admin from '../ALM/pages/admin';
