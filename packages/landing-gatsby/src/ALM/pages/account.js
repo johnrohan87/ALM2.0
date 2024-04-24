@@ -19,7 +19,7 @@ const Settings = () => <p>Settings</p>
 const Billing = () => <p>Billing</p>
 
 const Account = () => {
-  const { data, error, isLoading } = useFetchUserRolesQuery();
+  
   const user = getProfile()
 
   useEffect(() => {
@@ -31,14 +31,6 @@ const Account = () => {
       return <p>Redirecting to login...</p>
     }
   }, [])
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
 
   return (
     <>
@@ -58,7 +50,6 @@ const Account = () => {
         <div>
           <img src={user.picture?user.picture:""} alt={user.name?user.name:""}/>
           <p>Hi, {user.name ? user.name : "friend"}!</p>
-          <p>User Roles: {data.join(', ')}</p>
         </div>
       </nav>
       <Router>
