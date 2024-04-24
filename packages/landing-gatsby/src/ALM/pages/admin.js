@@ -1,25 +1,27 @@
-import React from "react";
-import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
-import { navigate } from "gatsby";
+import React from 'react';
+import { useGetRolesQuery } from '../api';
 
 const Admin = () => {
-  const { user, isAuthenticated, isLoading } = useAuth0();
-
-  // Redirect non-admin users to the account page
-  if (isAuthenticated && !user?.role?.includes('admin')) {
-    navigate('/account');
-  }
+  const { data, error, isLoading } = useGetRolesQuery();
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>Error: {error.message}</p>;
+  }
+
+  const userRoles = data.roles;
+
+  if (!userRoles.includes('admin')) {
+    return <p>You do not have access to this page.</p>;
   }
 
   return (
     <div>
-      <h1>Admin Page</h1>
-      <p>This page is only accessible to users with admin privileges.</p>
+      <h1>Admin Dashboard</h1>
     </div>
   );
 };
-
-export default withAuthenticationRequired(Admin);
+export default Admin

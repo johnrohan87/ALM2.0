@@ -2,9 +2,11 @@ import React, { useEffect } from "react"
 import { Router, navigate } from "@reach/router"
 import { login, logout, isAuthenticated, getProfile, isBrowser } from "../utils/auth"
 import { Link } from "gatsby"
+import { useGetRolesQuery } from '../store/api';
 
 const Home = ({ user }) => {
   console.log(user)
+  
   return (<div>
     <img src={user.picture?user.picture:""} alt={user.name?user.name:""}/>
     <p>Hi, {user.name ? user.name : "friend"}!</p>
@@ -17,8 +19,8 @@ const Settings = () => <p>Settings</p>
 const Billing = () => <p>Billing</p>
 
 const Account = () => {
-  
   const user = getProfile()
+  const { data, error, isLoading } = useGetRolesQuery();
 
   useEffect(() => {
     if (!isBrowser) {
@@ -30,12 +32,28 @@ const Account = () => {
     }
   }, [])
 
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>Error: {error.message}</p>;
+  }
+
+  const userRoles = data.roles;
+
+  // Check if the user has an admin role
+  const isAdmin = userRoles.includes('admin');
+
   return (
     <>
       <nav>
         <Link to="/account">Home</Link>{" "}
         <Link to="/account/settings">Settings</Link>{" "}
         <Link to="/account/billing">Billing</Link>{" "}
+        {isAdmin && (
+          <Link to="/admin">Admin Dashboard</Link>
+        )}
         <a
           href="#logout"
           onClick={e => {
@@ -54,6 +72,9 @@ const Account = () => {
         <Home path="/account" user={user} />
         <Settings path="/account/settings" />
         <Billing path="/account/billing" />
+        {isAdmin && (
+          <Home path="/account/billing" user={user} />
+        )}
       </Router>
     </>
   )
