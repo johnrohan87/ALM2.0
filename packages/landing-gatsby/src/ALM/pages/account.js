@@ -2,8 +2,8 @@ import React, { useEffect } from "react"
 import { Router, navigate } from "@reach/router"
 import { login, logout, isAuthenticated, getProfile, isBrowser } from "../utils/auth"
 import { Link } from "gatsby"
-import {getStore} from '../store/store'
-import { Provider, useSelector } from 'react-redux';
+import { getStore } from '../store/store'
+import { Provider, connect } from 'react-redux';
 
 const Home = ({ user }) => {
   return (<div>
@@ -17,12 +17,7 @@ const Home = ({ user }) => {
 const Settings = () => <p>Settings</p>
 const Billing = () => <p>Billing</p>
 
-const Account = () => {
-  const store = getStore();
-  console.log('store instance:', store);
-  const user = getProfile()
-  const apiState = useSelector((state) => state.api.getRoles);
-
+const AccountComponent = ({ apiState, user }) => {
   useEffect(() => {
     if (!isBrowser) {
       return
@@ -62,38 +57,50 @@ const Account = () => {
   console.log(data)
 
   return (
-    <Provider store={store}>
-      <nav>
-        <Link to="/account">Home</Link>{" "}
-        {/*<Link to="/account/settings">Settings</Link>{" "}
-        <Link to="/account/billing">Billing</Link>{" "}*/}
-        {isAdmin && (
-          <Link to="/admin">Admin Dashboard</Link>
-        )}
-        <a
-          href="#logout"
-          onClick={e => {
-            logout()
-            e.preventDefault()
-          }}
-        >
-          Log Out
-        </a>
-        <div>
-          <img src={user.picture?user.picture:""} alt={user.name?user.name:""}/>
-          <p>Hi, {user.name ? user.name : "friend"}!</p>
-        </div>
-      </nav>
-      <Router>
-        <Home path="/account" user={user} />
-        {/*<Settings path="/account/settings" />
-        <Billing path="/account/billing" />*/}
-        {isAdmin && (
-          <Home path="/account/billing" user={user} />
-        )}
-      </Router>
-    </Provider>
+    <>
+    <nav>
+      <Link to="/account">Home</Link>{" "}
+      {/*<Link to="/account/settings">Settings</Link>{" "}
+      <Link to="/account/billing">Billing</Link>{" "}*/}
+      {isAdmin && (
+        <Link to="/admin">Admin Dashboard</Link>
+      )}
+      <a
+        href="#logout"
+        onClick={e => {
+          logout()
+          e.preventDefault()
+        }}
+      >
+        Log Out
+      </a>
+      <div>
+        <img src={user.picture?user.picture:""} alt={user.name?user.name:""}/>
+        <p>Hi, {user.name ? user.name : "friend"}!</p>
+      </div>
+    </nav>
+    <Router>
+      <Home path="/account" user={user} />
+      {/*<Settings path="/account/settings" />
+      <Billing path="/account/billing" />*/}
+      {isAdmin && (
+        <Home path="/account/billing" user={user} />
+      )}
+    </Router>
+    </>
   )
 }
 
-export default Account
+const mapStateToProps = state => {
+  return { apiState: state.api.getRoles };
+};
+
+const Account = connect(mapStateToProps)(AccountComponent);
+
+const store = getStore();
+
+export default () => (
+  <Provider store={store}>
+    <Account />
+  </Provider>
+)
