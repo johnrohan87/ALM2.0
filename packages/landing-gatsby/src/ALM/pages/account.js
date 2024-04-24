@@ -21,7 +21,7 @@ const Billing = () => <p>Billing</p>
 const Account = () => {
   const dispatch = useDispatch()
   const user = getProfile()
-  const roles = useSelector(state => state.userRoles.roles)
+  const roles = useSelector(state => state.userRoles?.roles || [])
 
   useEffect(() => {
     if (!isBrowser) {
