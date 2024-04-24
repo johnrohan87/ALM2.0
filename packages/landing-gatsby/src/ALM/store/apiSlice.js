@@ -10,6 +10,8 @@ const api = createApi({
   }),
 });
 
+const { reducer, middleware } = api;
+
+export { api };
+export { reducer as apiReducer };
 export const { useFetchUserRolesQuery } = api;
-export const { reducer, middleware } = api;
-export default api;
