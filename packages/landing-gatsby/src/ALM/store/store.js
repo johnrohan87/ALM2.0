@@ -11,5 +11,6 @@ export function getStore() {
   if (!store) {
     store = createStore(rootReducer);
   }
+  console.log('getStore called:', store);
   return store;
 }

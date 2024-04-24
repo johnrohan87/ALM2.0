@@ -19,6 +19,7 @@ const Billing = () => <p>Billing</p>
 
 const Account = () => {
   const store = getStore();
+  console.log('store instance:', store);
   const user = getProfile()
   const apiState = useSelector((state) => state.api.getRoles);
 
