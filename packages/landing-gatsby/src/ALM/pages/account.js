@@ -2,7 +2,7 @@ import React, { useEffect } from "react"
 import { Router, navigate } from "@reach/router"
 import { login, logout, isAuthenticated, getProfile, isBrowser } from "../utils/auth"
 import { Link } from "gatsby"
-import store from '../store/store'
+import {getStore} from '../store/store'
 import { Provider, useSelector } from 'react-redux';
 
 const Home = ({ user }) => {
@@ -18,6 +18,7 @@ const Settings = () => <p>Settings</p>
 const Billing = () => <p>Billing</p>
 
 const Account = () => {
+  const store = getStore();
   const user = getProfile()
   const apiState = useSelector((state) => state.api.getRoles);
 
