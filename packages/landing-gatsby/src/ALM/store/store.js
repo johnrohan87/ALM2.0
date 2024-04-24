@@ -1,8 +1,10 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { createStore, combineReducers } from 'redux';
 import { api } from './api';
 
-export const store = configureStore({
-  reducer: {
-    api: api.reducer,
-  },
+const rootReducer = combineReducers({
+  api: api.reducer,
 });
+
+const store = createStore(rootReducer);
+
+export default store;
