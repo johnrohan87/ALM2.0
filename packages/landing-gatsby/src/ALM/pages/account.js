@@ -93,6 +93,8 @@ const AccountComponent = ({ apiState, user }) => {
 }
 
 const mapStateToProps = state => {
+  console.log('State:', state);
+  console.log('apiState:', state.api.getRoles);
   return { apiState: state.api.getRoles };
 };
 
