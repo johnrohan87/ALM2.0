@@ -5,6 +5,11 @@ const rootReducer = combineReducers({
   api: api.reducer,
 });
 
-const store = createStore(rootReducer);
+let store;
 
-export default store;
+export function getStore() {
+  if (!store) {
+    store = createStore(rootReducer);
+  }
+  return store;
+}

@@ -2,22 +2,17 @@ import React, { useEffect } from "react"
 import { Router, navigate } from "@reach/router"
 import { login, logout, isAuthenticated, getProfile, isBrowser } from "../utils/auth"
 import { Link } from "gatsby"
-//import { api } from '../store/api';
 import store from '../store/store'
 import { Provider, useSelector } from 'react-redux';
 
-console.log('store:', store);
-
 const Home = ({ user }) => {
-  console.log(user)
-  
   return (<div>
     <img src={user.picture?user.picture:""} alt={user.name?user.name:""}/>
     <p>Hi, {user.name ? user.name : "friend"}!</p>
     <p>domain: {process.env.GATSBY_AUTH0_DOMAIN}!</p>
     <p>clientID: {process.env.GATSBY_AUTH0_CLIENTID}!</p>
     <p>redirectUri: {process.env.GATSBY_AUTH0_CALLBACK}!</p>
-    </div>)
+  </div>)
 }
 const Settings = () => <p>Settings</p>
 const Billing = () => <p>Billing</p>
@@ -35,6 +30,10 @@ const Account = () => {
       return <p>Redirecting to login...</p>
     }
   }, [])
+
+  if (!isAuthenticated()) {
+    return null; // Don't render anything if not authenticated
+  }
 
   if (!apiState) {
     return <p>No data available</p>;
@@ -61,7 +60,6 @@ const Account = () => {
   console.log(data)
 
   return (
-    <>
     <Provider store={store}>
       <nav>
         <Link to="/account">Home</Link>{" "}
@@ -92,8 +90,7 @@ const Account = () => {
           <Home path="/account/billing" user={user} />
         )}
       </Router>
-      </Provider>
-    </>
+    </Provider>
   )
 }
 

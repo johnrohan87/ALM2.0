@@ -1,6 +1,6 @@
 import React from "react"
 import { silentAuth } from "./src/ALM/utils/auth"
-import store from '../../packages/landing-gatsby/src/ALM/store/store';
+import { getStore } from '../../packages/landing-gatsby/src/ALM/store/store';
 import { Provider } from 'react-redux';
 
 
@@ -30,6 +30,8 @@ class SessionCheck extends React.Component {
 }
 
 export const wrapRootElement = ({ element }) => {
+  const store = getStore();
+  console.log('setting gatsby-browser store',store)
   return (
     <Provider store={store}>
         <SessionCheck>{element}</SessionCheck>
