@@ -1,6 +1,7 @@
 import React from "react"
 import { Provider } from "react-redux"
 import store from "./src/ALM/store/store"
+import { api } from './src/ALM/store/apiSlice';
 import { silentAuth } from "./src/ALM/utils/auth"
 
 class SessionCheck extends React.Component {
@@ -31,6 +32,8 @@ class SessionCheck extends React.Component {
 export const wrapRootElement = ({ element }) => {
   return (
     <Provider store={store}>
-      <SessionCheck>{element}</SessionCheck>
+      <api.ApiProvider api={api}>
+        <SessionCheck>{element}</SessionCheck>
+      </api.ApiProvider>
     </Provider>)
 }

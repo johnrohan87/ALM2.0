@@ -20,8 +20,6 @@ const Billing = () => <p>Billing</p>
 
 const Account = () => {
   const { data, error, isLoading } = useFetchUserRolesQuery();
-  const userRoles = useSelector((state) => state.api.userRoles);
-  const isAdmin = userRoles.includes('admin');
   const user = getProfile()
 
   useEffect(() => {
@@ -33,6 +31,14 @@ const Account = () => {
       return <p>Redirecting to login...</p>
     }
   }, [])
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <>
@@ -49,10 +55,15 @@ const Account = () => {
         >
           Log Out
         </a>
+        <div>
+          <img src={user.picture?user.picture:""} alt={user.name?user.name:""}/>
+          <p>Hi, {user.name ? user.name : "friend"}!</p>
+          <p>User Roles: {data.join(', ')}</p>
+        </div>
       </nav>
       <Router>
         <Home path="/account" user={user} />
-        {isAdmin && <Settings path="/account/settings" />}
+        <Settings path="/account/settings" />
         <Billing path="/account/billing" />
       </Router>
     </>
