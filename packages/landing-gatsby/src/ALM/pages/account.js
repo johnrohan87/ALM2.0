@@ -33,7 +33,8 @@ const AccountComponent = ({ apiState, user }) => {
   }
 
   if (!apiState) {
-    return <p>No data available</p>;
+    //return <p>No data available</p>;
+    console.log('!apiState',apiState)
   }
 
   let data, error, isLoading;
