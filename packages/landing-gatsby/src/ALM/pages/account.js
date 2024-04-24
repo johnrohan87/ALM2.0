@@ -2,7 +2,8 @@ import React, { useEffect } from "react"
 import { Router, navigate } from "@reach/router"
 import { login, logout, isAuthenticated, getProfile, isBrowser } from "../utils/auth"
 import { Link } from "gatsby"
-import { useGetRolesQuery } from '../store/api';
+import { api, store } from '../store/api';
+import { Provider, useSelector } from 'react-redux';
 
 const Home = ({ user }) => {
   console.log(user)
@@ -20,7 +21,7 @@ const Billing = () => <p>Billing</p>
 
 const Account = () => {
   const user = getProfile()
-  const { data, error, isLoading } = useGetRolesQuery();
+  const apiState = useSelector((state) => state.api.getRoles);
 
   useEffect(() => {
     if (!isBrowser) {
@@ -31,6 +32,16 @@ const Account = () => {
       return <p>Redirecting to login...</p>
     }
   }, [])
+
+  if (!apiState) {
+    return <p>No data available</p>;
+  }
+
+  let data, error, isLoading;
+
+  if (apiState) {
+    ({ data, error, isLoading } = apiState);
+  }
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -48,10 +59,11 @@ const Account = () => {
 
   return (
     <>
+    <Provider store={store}>
       <nav>
         <Link to="/account">Home</Link>{" "}
-        <Link to="/account/settings">Settings</Link>{" "}
-        <Link to="/account/billing">Billing</Link>{" "}
+        {/*<Link to="/account/settings">Settings</Link>{" "}
+        <Link to="/account/billing">Billing</Link>{" "}*/}
         {isAdmin && (
           <Link to="/admin">Admin Dashboard</Link>
         )}
@@ -71,12 +83,13 @@ const Account = () => {
       </nav>
       <Router>
         <Home path="/account" user={user} />
-        <Settings path="/account/settings" />
-        <Billing path="/account/billing" />
+        {/*<Settings path="/account/settings" />
+        <Billing path="/account/billing" />*/}
         {isAdmin && (
           <Home path="/account/billing" user={user} />
         )}
       </Router>
+      </Provider>
     </>
   )
 }
