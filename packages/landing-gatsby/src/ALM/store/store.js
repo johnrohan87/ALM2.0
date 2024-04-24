@@ -7,4 +7,4 @@ const rootReducer = combineReducers({
 
 const store = createStore(rootReducer);
 
-export { store as default };
+export default store;
