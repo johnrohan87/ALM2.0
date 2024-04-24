@@ -23,10 +23,6 @@ exports.createPages = async ({ actions }) => {
     component: path.resolve('./src/ALM/pages/account.js'),
   });
   createPage({
-    path: '/account/*',
-    component: path.resolve('./src/ALM/pages/account.js'),
-  });
-  createPage({
     path: '/callback',
     component: path.resolve('./src/ALM/pages/callback.js'),
   });
