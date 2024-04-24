@@ -33,8 +33,7 @@ const AccountComponent = ({ apiState, user }) => {
   }
 
   if (!apiState) {
-    //return <p>No data available</p>;
-    console.log('!apiState',apiState)
+    return <p>No data available</p>;
   }
 
   let data, error, isLoading;
@@ -51,7 +50,7 @@ const AccountComponent = ({ apiState, user }) => {
     return <p>Error: {error.message}</p>;
   }
 
-  const userRoles = data.roles;
+  const userRoles = data.roles ?? [];
 
   // Check if the user has an admin role
   const isAdmin = userRoles.includes('admin');
@@ -95,7 +94,7 @@ const AccountComponent = ({ apiState, user }) => {
 const mapStateToProps = state => {
   console.log('State:', state);
   console.log('apiState:', state.api.getRoles);
-  return { apiState: state.api.getRoles };
+  return { apiState: state.api.getRoles?.data };
 };
 
 const Account = connect(mapStateToProps)(AccountComponent);
