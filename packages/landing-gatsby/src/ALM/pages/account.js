@@ -1,9 +1,10 @@
-import React, { useEffect } from "react"
-import { Router, navigate } from "@reach/router"
-import { login, logout, isAuthenticated, getProfile, isBrowser } from "../utils/auth"
-import { Link } from "gatsby"
-import { getStore } from '../store/store'
-import { Provider, connect } from 'react-redux';
+import React, { useEffect } from "react";
+import { useGetRolesQuery } from '../store/api';
+import { Router } from "@reach/router";
+import { login, logout, isAuthenticated, isBrowser } from "../utils/auth";
+import { Link } from "gatsby";
+import { getStore } from '../store/store';
+import { Provider } from 'react-redux';
 
 const Home = ({ user }) => {
   return (<div>
@@ -14,32 +15,21 @@ const Home = ({ user }) => {
     <p>redirectUri: {process.env.GATSBY_AUTH0_CALLBACK}!</p>
   </div>)
 }
-const Settings = () => <p>Settings</p>
-const Billing = () => <p>Billing</p>
 
-const AccountComponent = ({ apiState, user }) => {
+const AccountComponent = ({ user }) => {
+  const { data, error, isLoading } = useGetRolesQuery();
+
   useEffect(() => {
     if (!isBrowser) {
-      return
+      return;
     }
     if (!isAuthenticated()) {
-      login()
-      return <p>Redirecting to login...</p>
+      login();
     }
-  }, [])
+  }, []);
 
   if (!isAuthenticated()) {
-    return null; // Don't render anything if not authenticated
-  }
-
-  if (!apiState) {
-    return <p>No data available</p>;
-  }
-
-  let data, error, isLoading;
-
-  if (apiState) {
-    ({ data, error, isLoading } = apiState);
+    return null; 
   }
 
   if (isLoading) {
@@ -50,59 +40,41 @@ const AccountComponent = ({ apiState, user }) => {
     return <p>Error: {error.message}</p>;
   }
 
-  const userRoles = data.roles ?? [];
+  if (!data) {
+    return <p>No data available</p>;
+  }
 
-  // Check if the user has an admin role
+  const userRoles = data.roles ?? [];
   const isAdmin = userRoles.includes('admin');
-  console.log(data)
 
   return (
     <>
-    <nav>
-      <Link to="/account">Home</Link>{" "}
-      {/*<Link to="/account/settings">Settings</Link>{" "}
-      <Link to="/account/billing">Billing</Link>{" "}*/}
-      {isAdmin && (
-        <Link to="/admin">Admin Dashboard</Link>
-      )}
-      <a
-        href="#logout"
-        onClick={e => {
-          logout()
-          e.preventDefault()
-        }}
-      >
-        Log Out
-      </a>
-      <div>
-        <img src={user.picture?user.picture:""} alt={user.name?user.name:""}/>
-        <p>Hi, {user.name ? user.name : "friend"}!</p>
-      </div>
-    </nav>
-    <Router>
-      <Home path="/account" user={user} />
-      {/*<Settings path="/account/settings" />
-      <Billing path="/account/billing" />*/}
-      {isAdmin && (
-        <Home path="/account/billing" user={user} />
-      )}
-    </Router>
+      <nav>
+        <Link to="/account">Home</Link>
+        {isAdmin && (
+          <Link to="/admin">Admin Dashboard</Link>
+        )}
+        <a href="#logout" onClick={e => {
+            logout();
+            e.preventDefault();
+          }}>
+          Log Out
+        </a>
+      </nav>
+      <Router>
+        <Home path="/account" user={user} />
+        {isAdmin && (
+          <Home path="/admin" user={user} />
+        )}
+      </Router>
     </>
-  )
+  );
 }
-
-const mapStateToProps = state => {
-  console.log('State:', state);
-  console.log('apiState:', state.api.getRoles);
-  return { apiState: state.api.getRoles?.data };
-};
-
-const Account = connect(mapStateToProps)(AccountComponent);
 
 const store = getStore();
 
 export default () => (
   <Provider store={store}>
-    <Account />
+    <AccountComponent />
   </Provider>
-)
+);
