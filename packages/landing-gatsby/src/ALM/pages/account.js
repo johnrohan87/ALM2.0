@@ -2,7 +2,7 @@ import React, { useEffect } from "react"
 import { Router, navigate } from "@reach/router"
 import { login, logout, isAuthenticated, getProfile, isBrowser } from "../utils/auth"
 import { useDispatch, useSelector } from "react-redux"
-import { fetchUserRoles } from "../store/apiSlice"
+import { useFetchUserRolesQuery } from "../store/apiSlice"
 import { Link } from "gatsby"
 
 const Home = ({ user }) => {
@@ -19,21 +19,20 @@ const Settings = () => <p>Settings</p>
 const Billing = () => <p>Billing</p>
 
 const Account = () => {
-  const dispatch = useDispatch()
+  const { data, error, isLoading } = useFetchUserRolesQuery();
+  const userRoles = useSelector((state) => state.api.userRoles);
+  const isAdmin = userRoles.includes('admin');
   const user = getProfile()
-  const roles = useSelector(state => state.userRoles?.roles || [])
 
   useEffect(() => {
     if (!isBrowser) {
       return
     }
-    //dispatch(fetchUserRoles())
-  }, [dispatch])
-
-  if (!isAuthenticated()) {
-    login()
-    return <p>Redirecting to login...</p>
-  }
+    if (!isAuthenticated()) {
+      login()
+      return <p>Redirecting to login...</p>
+    }
+  }, [])
 
   return (
     <>
@@ -53,7 +52,7 @@ const Account = () => {
       </nav>
       <Router>
         <Home path="/account" user={user} />
-        {roles.includes("admin") && <Settings path="/account/settings" />}
+        {isAdmin && <Settings path="/account/settings" />}
         <Billing path="/account/billing" />
       </Router>
     </>
