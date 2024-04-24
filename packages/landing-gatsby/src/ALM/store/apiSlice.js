@@ -1,15 +1,15 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({ baseUrl: "/api/" }),
-  endpoints: builder => ({
+  endpoints: (builder) => ({
     fetchUserRoles: builder.query({
       query: () => "userRoles",
     }),
   }),
-})
+});
 
-export const { useFetchUserRolesQuery } = api
-
-export default api
+export const { useFetchUserRolesQuery } = api;
+export const { reducer, middleware, enhancers } = api;
+export default api;
