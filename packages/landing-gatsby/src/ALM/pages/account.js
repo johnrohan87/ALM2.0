@@ -44,6 +44,7 @@ const Account = () => {
 
   // Check if the user has an admin role
   const isAdmin = userRoles.includes('admin');
+  console.log(data)
 
   return (
     <>
