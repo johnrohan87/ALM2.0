@@ -1,8 +1,6 @@
 import React, { useEffect } from "react"
 import { Router, navigate } from "@reach/router"
 import { login, logout, isAuthenticated, getProfile, isBrowser } from "../utils/auth"
-import { useDispatch, useSelector } from "react-redux"
-import { useFetchUserRolesQuery } from "../store/apiSlice"
 import { Link } from "gatsby"
 
 const Home = ({ user }) => {

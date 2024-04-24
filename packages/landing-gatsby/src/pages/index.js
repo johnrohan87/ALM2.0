@@ -1,7 +1,5 @@
 import React from 'react';
 import { Router } from '@reach/router';
-import { Provider } from 'react-redux';
-import store from '../ALM/store/store'
 
 import Home from '../ALM/pages/hosting';
 //import Portfolio from '../ALM/pages/portfolio';
@@ -11,7 +9,6 @@ import Account from '../ALM/pages/account';
 
 const IndexRoutes = () => {
   return (
-    <Provider store={store}>
       <Router>
         <Home path="/" />
         {/*<Portfolio path="/portfolio" />
@@ -19,8 +16,6 @@ const IndexRoutes = () => {
         <Admin path="/admin" />*/}
         <Account path="/account"/>
       </Router>
-    </Provider>
-    
   );
 };
 
