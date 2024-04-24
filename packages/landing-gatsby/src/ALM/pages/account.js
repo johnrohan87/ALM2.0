@@ -3,7 +3,7 @@ import { Router, navigate } from "@reach/router"
 import { login, logout, isAuthenticated, getProfile, isBrowser } from "../utils/auth"
 import { Link } from "gatsby"
 //import { api } from '../store/api';
-import { store } from '../store/store'
+import store from '../store/store'
 import { Provider, useSelector } from 'react-redux';
 
 const Home = ({ user }) => {
