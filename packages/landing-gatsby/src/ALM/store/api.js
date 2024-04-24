@@ -9,3 +9,5 @@ export const api = createApi({
     }),
   }),
 });
+
+export const { useGetRolesQuery } = api;
