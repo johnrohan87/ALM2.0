@@ -1,5 +1,5 @@
 import React from 'react';
-import { useGetRolesQuery } from '../api';
+import { useGetRolesQuery } from '../store/api';
 
 const Admin = () => {
   const { data, error, isLoading } = useGetRolesQuery();
