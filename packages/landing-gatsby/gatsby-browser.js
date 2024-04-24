@@ -1,6 +1,6 @@
 import React from "react"
 import { silentAuth } from "./src/ALM/utils/auth"
-import { store } from '../../packages/landing-gatsby/src/ALM/store/store';
+import store from '../../packages/landing-gatsby/src/ALM/store/store';
 import { Provider } from 'react-redux';
 
 
