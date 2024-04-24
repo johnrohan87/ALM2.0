@@ -63,7 +63,7 @@ const ContactSection = ({
                 name="email"
               />
               <Input
-                inputType="message"
+                inputType="text"
                 placeholder="Your Message"
                 iconPosition="right"
                 isMaterial={false}
