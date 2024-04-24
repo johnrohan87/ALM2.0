@@ -6,6 +6,8 @@ import { Link } from "gatsby"
 import store from '../store/store'
 import { Provider, useSelector } from 'react-redux';
 
+console.log('store:', store);
+
 const Home = ({ user }) => {
   console.log(user)
   
