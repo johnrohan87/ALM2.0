@@ -6,6 +6,7 @@ import { Link } from "gatsby";
 import { getStore } from '../store/store';
 import { Provider } from 'react-redux';
 import AdminPanel from "../components/adminPanel";
+import UseAuthToken from "../components/UseAuthToken";
 
 const Home = ({ user }) => {
   return (
@@ -15,7 +16,7 @@ const Home = ({ user }) => {
       <p>domain: {process.env.GATSBY_AUTH0_DOMAIN}</p>
       <p>clientID: {process.env.GATSBY_AUTH0_CLIENTID}</p>
       <p>redirectUri: {process.env.GATSBY_AUTH0_CALLBACK}</p>
-      <AdminPanel />
+      <UseAuthToken />
     </div>
   );
 }
