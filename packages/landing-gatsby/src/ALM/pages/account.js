@@ -1,23 +1,27 @@
 import React, { useEffect } from "react";
-import { useGetRolesQuery } from '../store/api';
 import { Router } from "@reach/router";
-import { login, logout, isAuthenticated, isBrowser } from "../utils/auth";
+import { login, logout, isAuthenticated } from "../utils/auth";
 import { Link } from "gatsby";
+import { useGetRolesQuery } from '../store/api';
 import { getStore } from '../store/store';
 import { Provider } from 'react-redux';
 
 const Home = ({ user }) => {
-  return (<div>
-    <img src={user.picture?user.picture:""} alt={user.name?user.name:""}/>
-    <p>Hi, {user.name ? user.name : "friend"}!</p>
-    <p>domain: {process.env.GATSBY_AUTH0_DOMAIN}!</p>
-    <p>clientID: {process.env.GATSBY_AUTH0_CLIENTID}!</p>
-    <p>redirectUri: {process.env.GATSBY_AUTH0_CALLBACK}!</p>
-  </div>)
+  return (
+    <div>
+      <img src={user.picture ? user.picture : ""} alt={user.name ? user.name : "friend"} />
+      <p>Hi, {user.name ? user.name : "friend"}!</p>
+      <p>domain: {process.env.GATSBY_AUTH0_DOMAIN}</p>
+      <p>clientID: {process.env.GATSBY_AUTH0_CLIENTID}</p>
+      <p>redirectUri: {process.env.GATSBY_AUTH0_CALLBACK}</p>
+    </div>
+  );
 }
 
 const AccountComponent = ({ user }) => {
   const { data, error, isLoading } = useGetRolesQuery();
+
+  const isBrowser = typeof window !== "undefined";
 
   useEffect(() => {
     if (!isBrowser) {
@@ -26,7 +30,7 @@ const AccountComponent = ({ user }) => {
     if (!isAuthenticated()) {
       login();
     }
-  }, []);
+  }, [isBrowser]);
 
   if (!isAuthenticated()) {
     return null; 
