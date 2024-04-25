@@ -41,6 +41,7 @@ const AccountComponent = ({ user }) => {
   }
 
   if (error) {
+    console.log('process.env.GATSBY_AUTH0_DOMAIN',process.env.GATSBY_AUTH0_DOMAIN)
     return <p>Error: {error.message}</p>;
   }
 
