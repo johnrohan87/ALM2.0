@@ -11,8 +11,8 @@ import UseAuthToken from "../components/UseAuthToken";
 const Home = ({ user }) => {
   return (
     <div>
-      <img src={user.picture ? user.picture : ""} alt={user.name ? user.name : "friend"} />
-      <p>Hi, {user.name ? user.name : "friend"}!</p>
+      <img src={user?.picture ? user.picture : ""} alt={user.name ? user.name : "friend"} />
+      <p>Hi, {user?.name ? user.name : "friend"}!</p>
       <p>domain: {process.env.GATSBY_AUTH0_DOMAIN}</p>
       <p>clientID: {process.env.GATSBY_AUTH0_CLIENTID}</p>
       <p>redirectUri: {process.env.GATSBY_AUTH0_CALLBACK}</p>
