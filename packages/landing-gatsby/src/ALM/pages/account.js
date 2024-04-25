@@ -8,10 +8,13 @@ import { Provider } from 'react-redux';
 import AdminPanel from "../components/AdminPanel";
 import UseAuthToken from "../components/UseAuthToken";
 
+const store = getStore();
+
 const Home = ({ user }) => {
+  console.log('store', store)
   return (
     <div>
-      <img src={user?.picture ? user.picture : ""} alt={user.name ? user.name : "friend"} />
+      <img src={user?.picture ? user.picture : ""} alt={user?.name ? user.name : "friend"} />
       <p>Hi, {user?.name ? user.name : "friend"}!</p>
       <p>domain: {process.env.GATSBY_AUTH0_DOMAIN}</p>
       <p>clientID: {process.env.GATSBY_AUTH0_CLIENTID}</p>
@@ -56,8 +59,6 @@ const AccountComponent = ({ user }) => {
     </>
   );
 }
-
-const store = getStore();
 
 export default () => (
   <Provider store={store}>
