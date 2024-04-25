@@ -5,7 +5,7 @@ import { Link } from "gatsby";
 //import { useGetRolesQuery } from '../store/api';
 import { getStore } from '../store/store';
 import { Provider } from 'react-redux';
-import AdminPanel from "../components/adminPanel";
+import AdminPanel from "../components/AdminPanel";
 import UseAuthToken from "../components/UseAuthToken";
 
 const Home = ({ user }) => {
