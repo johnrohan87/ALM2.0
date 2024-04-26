@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import { login, logout, isAuthenticated } from "../utils/auth";
+import { login, isAuthenticated } from "../utils/auth";
 import AdminPanel from '../components/AdminPanel';
 
 const Admin = () => {

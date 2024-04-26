@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useGetRolesQuery } from '../store/api';  
+import { useGetRolesQuery } from '../store/api'; 
+ 
 
 const AdminPanel = () => {
-  const { getAccessTokenSilently } = useAuth0();
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const { data: roles, error, isLoading, refetch } = useGetRolesQuery(undefined, {
-    skip: true,  // Initially skip the query to wait for token
+    skip: !isAuthenticated,
   });
 
   useEffect(() => {
@@ -21,9 +22,10 @@ const AdminPanel = () => {
         console.error('Error fetching access token:', error);
       }
     };
-
-    fetchRoles();
-  }, [getAccessTokenSilently, refetch]);
+    if (isAuthenticated) { // Ensure this check is done, assuming `isAuthenticated` is available from useAuth0
+      fetchRoles();
+    }
+  }, [getAccessTokenSilently, refetch, isAuthenticated]);
 
   if (isLoading) return <p>Loading roles...</p>;
   if (error) return <p>Error fetching roles: {error.message}</p>;
