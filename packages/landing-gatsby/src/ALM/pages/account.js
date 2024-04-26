@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
 import { Router } from "@reach/router";
-import { login, logout, isAuthenticated } from "../utils/auth";
+import { useAuth0 } from "@auth0/auth0-react";  // Import useAuth0
 import { Link } from "gatsby";
-//import { useGetRolesQuery } from '../store/api';
 import { getStore } from '../store/store';
 import { Provider } from 'react-redux';
 import AdminPanel from "../components/AdminPanel";
@@ -10,12 +9,13 @@ import UseAuthToken from "../components/UseAuthToken";
 
 const store = getStore();
 
-const Home = ({ user }) => {
-  console.log('store', store)
+const Home = () => {
+  const { user } = useAuth0();  // Use useAuth0 to get user data
+
   return (
     <div>
-      <img src={user?.picture ? user.picture : ""} alt={user?.name ? user.name : "friend"} />
-      <p>Hi, {user?.name ? user.name : "friend"}!</p>
+      <img src={user?.picture || ""} alt={user?.name || "friend"} />
+      <p>Hi, {user?.name || "friend"}!</p>
       <p>domain: {process.env.GATSBY_AUTH0_DOMAIN}</p>
       <p>clientID: {process.env.GATSBY_AUTH0_CLIENTID}</p>
       <p>redirectUri: {process.env.GATSBY_AUTH0_CALLBACK}</p>
@@ -24,19 +24,16 @@ const Home = ({ user }) => {
   );
 }
 
-const AccountComponent = ({ user }) => {
-  const isBrowser = typeof window !== "undefined";
+const AccountComponent = () => {
+  const { isAuthenticated, loginWithRedirect, logout } = useAuth0();  // Use hooks from Auth0
 
   useEffect(() => {
-    if (!isBrowser) {
-      return;
+    if (!isAuthenticated) {
+      loginWithRedirect();  // Use loginWithRedirect for handling login
     }
-    if (!isAuthenticated()) {
-      login();
-    }
-  }, [isBrowser]);
+  }, [isAuthenticated, loginWithRedirect]);
 
-  if (!isAuthenticated()) {
+  if (!isAuthenticated) {
     return null; 
   }
 
@@ -45,15 +42,12 @@ const AccountComponent = ({ user }) => {
       <nav>
         <Link to="/account">Home</Link>
         <Link to="/admin">Admin Dashboard</Link>
-        <a href="#logout" onClick={e => {
-            logout();
-            e.preventDefault();
-          }}>
+        <a href="#logout" onClick={() => logout({ returnTo: window.location.origin })}>
           Log Out
         </a>
       </nav>
       <Router>
-        <Home path="/account" user={user} />
+        <Home path="/account" />
         <AdminPanel path="/admin" />
       </Router>
     </>
