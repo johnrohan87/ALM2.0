@@ -1,4 +1,5 @@
 import React from "react";
+import { navigate } from "gatsby";
 import { Auth0Provider } from "@auth0/auth0-react";
 import { silentAuth } from "./src/ALM/utils/auth";
 import { getStore } from "./src/ALM/store/store";
@@ -34,14 +35,14 @@ export const wrapRootElement = ({ element }) => {
   // Define Auth0 details
   const auth0Domain = process.env.GATSBY_AUTH0_DOMAIN;
   const auth0ClientId = process.env.GATSBY_AUTH0_CLIENT_ID;
-  const auth0RedirectUri = process.env.GATSBY_AUTH0_CALLBACK_URL; // Make sure this is set in your .env.* files
+  const auth0RedirectUri = process.env.GATSBY_AUTH0_CALLBACK;
 
   return (
     <Auth0Provider
       domain={auth0Domain}
       clientId={auth0ClientId}
       redirectUri={auth0RedirectUri}
-      onRedirectCallback={window.location.origin}
+      onRedirectCallback={() => navigate("/")}
     >
       <Provider store={store}>
         <SessionCheck>{element}</SessionCheck>
