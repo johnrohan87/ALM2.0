@@ -1,31 +1,29 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useGetRolesQuery } from '../store/api'; 
- 
+import { useGetRolesQuery } from '../store/api';  
 
 const AdminPanel = () => {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const [token, setToken] = useState(null);
   const { data: roles, error, isLoading, refetch } = useGetRolesQuery(undefined, {
-    skip: !isAuthenticated,
+    skip: !isAuthenticated || !token,
   });
 
   useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        const token = await getAccessTokenSilently();
-        refetch({
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-      } catch (error) {
-        console.error('Error fetching access token:', error);
-      }
-    };
-    if (isAuthenticated) { // Ensure this check is done, assuming `isAuthenticated` is available from useAuth0
-      fetchRoles();
+    if (isAuthenticated) {
+      const fetchToken = async () => {
+        try {
+          const accessToken = await getAccessTokenSilently();
+          setToken(accessToken);
+          refetch({ headers: { Authorization: `Bearer ${accessToken}` } });
+        } catch (error) {
+          console.error('Error fetching access token:', error);
+          setToken(null);
+        }
+      };
+      fetchToken();
     }
-  }, [getAccessTokenSilently, refetch, isAuthenticated]);
+  }, [getAccessTokenSilently, isAuthenticated, refetch]);
 
   if (isLoading) return <p>Loading roles...</p>;
   if (error) return <p>Error fetching roles: {error.message}</p>;
