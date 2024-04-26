@@ -17,7 +17,7 @@ const Home = () => {
       <img src={user?.picture || ""} alt={user?.name || "friend"} />
       <p>Hi, {user?.name || "friend"}!</p>
       <p>domain: {process.env.GATSBY_AUTH0_DOMAIN}</p>
-      <p>clientID: {process.env.GATSBY_AUTH0_CLIENTID}</p>
+      <p>clientID: {process.env.GATSBY_AUTH0_CLIENT_ID}</p>
       <p>redirectUri: {process.env.GATSBY_AUTH0_CALLBACK}</p>
       <UseAuthToken />
     </div>

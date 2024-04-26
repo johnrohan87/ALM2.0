@@ -30,19 +30,20 @@ class SessionCheck extends React.Component {
 
 export const wrapRootElement = ({ element }) => {
   const store = getStore();
-  console.log('Setting Gatsby-browser store', store);
-
-  // Define Auth0 details
   const auth0Domain = process.env.GATSBY_AUTH0_DOMAIN;
   const auth0ClientId = process.env.GATSBY_AUTH0_CLIENT_ID;
   const auth0RedirectUri = process.env.GATSBY_AUTH0_CALLBACK;
+  
+  const onRedirectCallback = (appState) => {
+    navigate(appState?.returnTo || "/");
+  };
 
   return (
     <Auth0Provider
       domain={auth0Domain}
       clientId={auth0ClientId}
       redirectUri={auth0RedirectUri}
-      onRedirectCallback={() => navigate("/")}
+      onRedirectCallback={onRedirectCallback}
     >
       <Provider store={store}>
         <SessionCheck>{element}</SessionCheck>

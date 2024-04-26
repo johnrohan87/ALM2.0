@@ -6,7 +6,7 @@ export const isBrowser = typeof window !== "undefined"
 const auth = isBrowser
   ? new auth0.WebAuth({
       domain: process.env.GATSBY_AUTH0_DOMAIN,
-      clientID: process.env.GATSBY_AUTH0_CLIENTID,
+      clientID: process.env.GATSBY_AUTH0_CLIENT_ID,
       redirectUri: process.env.GATSBY_AUTH0_CALLBACK,
       responseType: "token id_token",
       scope: "openid profile email",
