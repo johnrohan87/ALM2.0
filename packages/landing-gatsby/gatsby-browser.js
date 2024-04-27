@@ -1,6 +1,19 @@
+import React from 'react';
 import auth0 from 'auth0-js';
 import { navigate } from 'gatsby';
 import jwtDecode from 'jwt-decode';
+import { configureStore } from '@reduxjs/toolkit';
+import { Provider } from 'react-redux';
+import { api } from './path/to/your/apiSlice';  // Update the path to where your api slice is defined
+import { Auth0Provider } from '@auth0/auth0-react';
+
+const store = configureStore({
+  reducer: {
+    [api.reducerPath]: api.reducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(api.middleware),
+});
 
 export const isBrowser = typeof window !== 'undefined';
 
@@ -85,3 +98,22 @@ export const logout = () => {
   localStorage.setItem('isLoggedIn', false);
   auth.logout({ returnTo: process.env.GATSBY_AUTH0_LOGOUT_URL });
 };
+
+const onRedirectCallback = appState => {
+  navigate(appState?.returnTo || "/");
+};
+
+export const wrapRootElement = ({ element }) => (
+  <Auth0Provider
+    domain={process.env.GATSBY_AUTH0_DOMAIN}
+    clientId={process.env.GATSBY_AUTH0_CLIENT_ID}
+    redirectUri={process.env.GATSBY_AUTH0_CALLBACK}
+    onRedirectCallback={onRedirectCallback}
+    audience={process.env.GATSBY_AUTH0_AUDIENCE}
+    scope="openid profile email"
+  >
+    <Provider store={store}>
+      {element}
+    </Provider>
+  </Auth0Provider>
+);
