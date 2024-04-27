@@ -15,7 +15,7 @@ const AdminPanel = () => {
         try {
           const accessToken = await getAccessTokenSilently();
           setToken(accessToken);
-          console.log(accessToken)
+          //console.log(accessToken)
           refetch({ headers: { Authorization: `Bearer ${accessToken}` }, 
           'Content-Type': 'application/json' });
         } catch (error) {
@@ -29,7 +29,7 @@ const AdminPanel = () => {
 
   if (isLoading) return <p>Loading roles...</p>;
   if (error) return <p>Error fetching roles: {error.message}</p>;
-
+  console.log(roles)
   const isAdmin = roles?.some(role => role.name === 'admin');
 
   return (
