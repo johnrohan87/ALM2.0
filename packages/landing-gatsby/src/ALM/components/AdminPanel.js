@@ -18,7 +18,7 @@ const AdminPanel = () => {
     const fetchToken = async () => {
       try {
         const accessToken = await getAccessTokenSilently({
-          audience: `${process.env.GATSBY_AUTH0_AUDIENCE}/api`,
+          audience: `${process.env.GATSBY_AUTH0_AUDIENCE}`,
           scope: 'openid profile email read:roles'
         });
         setToken(accessToken);
