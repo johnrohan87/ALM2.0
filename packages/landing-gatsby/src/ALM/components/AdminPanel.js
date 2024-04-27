@@ -18,8 +18,8 @@ const AdminPanel = () => {
     const fetchToken = async () => {
       try {
         const accessToken = await getAccessTokenSilently({
-          audience: 'https://YOUR_AUTH0_DOMAIN/api/v2/',
-          scope: 'read:users'
+          audience: `${process.env.GATSBY_AUTH0_AUDIENCE}/api`,
+          scope: 'openid profile email read:roles'
         });
         setToken(accessToken);
         console.log("Access Token:", accessToken);
