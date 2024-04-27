@@ -9,7 +9,7 @@ const auth = isBrowser
       clientID: process.env.GATSBY_AUTH0_CLIENT_ID,
       redirectUri: process.env.GATSBY_AUTH0_CALLBACK,
       responseType: "token id_token",
-      scope: "openid profile email",
+      scope: "openid profile email read:roles",
     })
   : {}
 
