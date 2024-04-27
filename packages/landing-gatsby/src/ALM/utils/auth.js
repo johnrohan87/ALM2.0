@@ -34,7 +34,7 @@ export const login = () => {
   if (!isBrowser) {
     return
   }
-
+  console.log("Initiating Auth0 login with audience:", process.env.GATSBY_AUTH0_AUDIENCE, "and scopes: openid profile email read:roles");
   auth.authorize()
 }
 
