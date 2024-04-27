@@ -19,7 +19,7 @@ const AdminPanel = () => {
       try {
         const accessToken = await getAccessTokenSilently({
           audience: 'https://YOUR_AUTH0_DOMAIN/api/v2/',
-          scope: 'read:roles'
+          scope: 'read:users'
         });
         setToken(accessToken);
         console.log("Access Token:", accessToken);
