@@ -42,7 +42,7 @@ const AccountComponent = () => {
       <nav>
         <Link to="/account">Home</Link>
         <Link to="/admin">Admin Dashboard</Link>
-        <a href="#logout" onClick={() => logout({ returnTo: window.location.origin })}>
+        <a href="#logout" onClick={() => logout({ returnTo: process.env.GATSBY_AUTH0_LOGOUT_URL })}>
           Log Out
         </a>
       </nav>
