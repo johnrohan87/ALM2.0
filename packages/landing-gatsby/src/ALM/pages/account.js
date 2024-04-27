@@ -37,14 +37,19 @@ const AccountComponent = () => {
     return null; 
   }
 
+  const handleLogout = () => {
+    // Ensure logout redirects to the specified environment URL
+    logout({
+      returnTo: window.location.origin + process.env.GATSBY_AUTH0_LOGOUT_URL
+    });
+  };
+
   return (
     <>
       <nav>
         <Link to="/account">Home</Link>
         <Link to="/admin">Admin Dashboard</Link>
-        <a href="#logout" onClick={() => logout({ returnTo: process.env.GATSBY_AUTH0_LOGOUT_URL })}>
-          Log Out
-        </a>
+        <button onClick={handleLogout}>Log Out</button>
       </nav>
       <Router>
         <Home path="/account" />
