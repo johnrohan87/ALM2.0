@@ -15,7 +15,9 @@ const AdminPanel = () => {
         try {
           const accessToken = await getAccessTokenSilently();
           setToken(accessToken);
-          refetch({ headers: { Authorization: `Bearer ${accessToken}` } });
+          console.log(accessToken)
+          refetch({ headers: { Authorization: `Bearer ${accessToken}` }, 
+          'Content-Type': 'application/json' });
         } catch (error) {
           console.error('Error fetching access token:', error);
           setToken(null);
