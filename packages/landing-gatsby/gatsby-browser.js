@@ -33,6 +33,7 @@ export const wrapRootElement = ({ element }) => {
   const auth0Domain = process.env.GATSBY_AUTH0_DOMAIN;
   const auth0ClientId = process.env.GATSBY_AUTH0_CLIENT_ID;
   const auth0RedirectUri = process.env.GATSBY_AUTH0_CALLBACK;
+  const auth0Audience = process.env.GATSBY_AUTH0_AUDIENCE;
   
   const onRedirectCallback = (appState) => {
     navigate(appState?.returnTo || "/");
@@ -44,6 +45,8 @@ export const wrapRootElement = ({ element }) => {
       clientId={auth0ClientId}
       redirectUri={auth0RedirectUri}
       onRedirectCallback={onRedirectCallback}
+      audience={auth0Audience}
+      scope="openid profile email read:roles"
     >
       <Provider store={store}>
         <SessionCheck>{element}</SessionCheck>
