@@ -4,7 +4,7 @@ import { navigate } from 'gatsby';
 import jwtDecode from 'jwt-decode';
 import { configureStore } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
-import { api } from './path/to/your/apiSlice';  // Update the path to where your api slice is defined
+import { api } from './src/ALM/store/authSlice'; 
 import { Auth0Provider } from '@auth0/auth0-react';
 
 const store = configureStore({
