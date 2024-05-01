@@ -7,6 +7,7 @@ import { Provider } from 'react-redux';
 import AdminPanel from "../components/AdminPanel";
 import UseAuthToken from "../components/UseAuthToken";
 import jwtDecode from 'jwt-decode';
+import { getTokenRoles } from "../utils/auth";
 
 const store = getStore();
 
@@ -31,8 +32,11 @@ const AccountComponent = () => {
     const getUserRoles = async () => {
       try {
         const token = await getAccessTokenSilently();
-        const decoded = jwtDecode(token);
-        setUserRoles(decoded[`${process.env.GATSBY_AUTH0_DOMAIN}/api/claims/roles`] || []);
+        //const decoded = jwtDecode(token);
+        //setUserRoles(decoded[`${process.env.GATSBY_AUTH0_DOMAIN}/api/claims/roles`] || []);
+        const roles = getTokenRoles(token);
+        setUserRoles(roles)
+        console.log('roles', roles)
       } catch (error) {
         console.error("Error decoding token:", error);
       }

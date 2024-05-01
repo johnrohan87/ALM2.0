@@ -1,5 +1,6 @@
 import auth0 from "auth0-js"
 import { navigate } from "gatsby"
+import jwtDecode from 'jwt-decode';
 
 export const isBrowser = typeof window !== "undefined"
 
@@ -79,3 +80,8 @@ export const logout = () => {
   localStorage.setItem("isLoggedIn", false)
   auth.logout({ returnTo: process.env.GATSBY_AUTH0_LOGOUT_URL })
 }
+
+export const getTokenRoles = (token) => {
+  const decodedToken = jwtDecode(token);
+  return decodedToken['https://voluble-boba-2e3a2e.netlify.app/roles'] || [];
+};
