@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Router } from "@reach/router";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "gatsby";
-import { getStore } from '../store/store';
-import { Provider } from 'react-redux';
-import AdminPanel from "../components/AdminPanel";
-import UseAuthToken from "../components/UseAuthToken";
-import jwtDecode from 'jwt-decode';
-import { getTokenRoles } from "../utils/auth";
 
-const store = getStore();
 
-const Home = ({ user, roles }) => {
+const Home = () => {
+  const { user, isAuthenticated } = useAuth0(); // Using Auth0 React SDK hooks
+
+  if (!isAuthenticated) {
+    return <div>Please log in</div>;
+  }
+
   return (
     <div>
       <img src={user?.picture || ""} alt={user?.name || "friend"} />
@@ -19,35 +18,23 @@ const Home = ({ user, roles }) => {
       <p>Domain: {process.env.GATSBY_AUTH0_DOMAIN}</p>
       <p>Client ID: {process.env.GATSBY_AUTH0_CLIENT_ID}</p>
       <p>Redirect URI: {process.env.GATSBY_AUTH0_CALLBACK}</p>
-      <p>Roles: {roles.join(', ')}</p>
+      <p>Your roles: {user?.['https://voluble-boba-2e3a2e.netlify.app/roles'].join(', ') || "No specific roles"}</p>
     </div>
   );
 }
 
 const AccountComponent = () => {
-  const { isAuthenticated, loginWithRedirect, logout, getAccessTokenSilently, user } = useAuth0();
-  const [userRoles, setUserRoles] = useState([]);
+  const { isAuthenticated, loginWithRedirect, logout } = useAuth0();
 
-  useEffect(() => {
-    const getUserRoles = async () => {
-      try {
-        const token = await getAccessTokenSilently();
-        //const decoded = jwtDecode(token);
-        //setUserRoles(decoded[`${process.env.GATSBY_AUTH0_DOMAIN}/api/claims/roles`] || []);
-        const roles = getTokenRoles(token);
-        setUserRoles(roles)
-        console.log('roles', roles)
-      } catch (error) {
-        console.error("Error decoding token:", error);
+    useEffect(() => {
+      if (!isAuthenticated) {
+        loginWithRedirect();
       }
-    };
+    }, [isAuthenticated, loginWithRedirect]);
 
-    if (isAuthenticated) {
-      getUserRoles();
-    } else {
-      loginWithRedirect();
+    if (!isAuthenticated) {
+      return <div>Loading your profile...</div>;
     }
-  }, [isAuthenticated, loginWithRedirect, getAccessTokenSilently]);
 
   const handleLogout = () => {
     logout({ returnTo: window.location.origin });
@@ -57,19 +44,13 @@ const AccountComponent = () => {
     <>
       <nav>
         <Link to="/account">Home</Link>
-        {userRoles.includes('admin') && <Link to="/admin">Admin Dashboard</Link>}
         <button onClick={handleLogout}>Log Out</button>
       </nav>
       <Router>
-        <Home path="/account" user={user} roles={userRoles} />
-        {userRoles.includes('admin') && <AdminPanel path="/admin" />}
+        <Home path="/account" />
       </Router>
     </>
   );
 }
 
-export default () => (
-  <Provider store={store}>
-    <AccountComponent />
-  </Provider>
-);
+export default AccountComponent;

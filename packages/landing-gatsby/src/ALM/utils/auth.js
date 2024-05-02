@@ -15,9 +15,7 @@ const auth = isBrowser
     })
   : {};
 
-let user = {
-  roles: [],
-};
+  let user = {};
 
 export const login = () => {
   if (!isBrowser) {
