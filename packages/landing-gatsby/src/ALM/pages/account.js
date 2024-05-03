@@ -3,6 +3,7 @@ import { Router } from "@reach/router";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "gatsby";
 import { useGetRolesQuery } from '../store/api';
+import { isBrowser } from "../utils/auth";
 
 const Home = ({user, isAuthenticated}) => {
 
@@ -23,18 +24,21 @@ const Home = ({user, isAuthenticated}) => {
 }
 
 const AccountComponent = () => {
+  
   const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
-  const { data: roles, error, isLoading } = useGetRolesQuery();
-
-    useEffect(() => {
-      if (!isAuthenticated) {
-        loginWithRedirect();
-      }
-    }, [isAuthenticated, loginWithRedirect]);
-
+  const { data: roles, error, isLoading } = useGetRolesQuery(undefined, {
+    skip: !isBrowser
+  });
+  
+  useEffect(() => {
     if (!isAuthenticated) {
-      return <div>Loading your profile...</div>;
+      loginWithRedirect();
     }
+  }, [isAuthenticated, loginWithRedirect]);
+  
+  if (!isAuthenticated) {
+    return <div>Loading your profile...</div>;
+  }
 
   const handleLogout = () => {
     logout({ returnTo: window.location.origin });
