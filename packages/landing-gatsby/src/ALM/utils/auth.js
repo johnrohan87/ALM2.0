@@ -31,7 +31,9 @@ const setSession = (cb = () => {}) => (err, authResult) => {
     cb();
     return;
   }
-
+  if (!isBrowser) {
+    return
+  }
   if (authResult && authResult.accessToken && authResult.idToken) {
     let expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
     const decodedIdToken = jwtDecode(authResult.idToken);
