@@ -6,7 +6,7 @@ import { useSafeGetRolesQuery } from '../hooks/useSafeGetRolesQuery';
 
 const Home = ({ user }) => {
 
-  const roles = user?.['https://voluble-boba-2e3a2e.netlify.app/roles'].join(', ') || "No specific roles";
+  const roles = user?.['https://voluble-boba-2e3a2e.netlify.app/roles'] || [];
 
   return (
     <div>
@@ -15,7 +15,7 @@ const Home = ({ user }) => {
       <p>Domain: {process.env.GATSBY_AUTH0_DOMAIN}</p>
       <p>Client ID: {process.env.GATSBY_AUTH0_CLIENT_ID}</p>
       <p>Redirect URI: {process.env.GATSBY_AUTH0_CALLBACK}</p>
-      <p>Your roles: {roles}</p>
+      <p>Your roles: {roles.join(', ') || "No specific roles"}</p>
     </div>
   );
 }
