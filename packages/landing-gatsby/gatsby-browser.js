@@ -2,9 +2,18 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { navigate } from 'gatsby';
-import { store } from './src/ALM/store/store';  // Ensure this is correctly imported
+import { configureStore } from '@reduxjs/toolkit';
+import { api } from './src/ALM/store/api'
 
 const onRedirectCallback = (appState) => navigate(appState?.returnTo || '/');
+
+export const store = configureStore({
+  reducer: {
+    [api.reducerPath]: api.reducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(api.middleware),
+});
 
 export const wrapRootElement = ({ element }) => {
   return (
