@@ -29,7 +29,7 @@ const AccountComponent = () => {
   const { data: roles, error, isLoading } = useGetRolesQuery(undefined, {
     skip: !isBrowser
   });
-  
+
   useEffect(() => {
     if (!isAuthenticated) {
       loginWithRedirect();
@@ -39,6 +39,10 @@ const AccountComponent = () => {
   if (!isAuthenticated) {
     return <div>Loading your profile...</div>;
   }
+
+  if (!isBrowser){
+    return <div>No browser detected isBrowser - {isBrowser} -</div>;
+  }  
 
   const handleLogout = () => {
     logout({ returnTo: window.location.origin });
