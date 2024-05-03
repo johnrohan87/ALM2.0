@@ -2,14 +2,14 @@ import React, { useEffect } from "react";
 import { Router } from "@reach/router";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "gatsby";
-import { useGetRolesQuery } from '../store/api';
-import { isBrowser } from "../utils/auth";
+import { useSafeGetRolesQuery } from '../hooks/useSafeGetRolesQuery';
 
-const Home = ({user, isAuthenticated}) => {
-
+const Home = ({ user, isAuthenticated }) => {
   if (!isAuthenticated) {
     return <div>Please log in</div>;
   }
+
+  const roles = user?.['https://voluble-boba-2e3a2e.netlify.app/roles'].join(', ') || "No specific roles";
 
   return (
     <div>
@@ -18,32 +18,26 @@ const Home = ({user, isAuthenticated}) => {
       <p>Domain: {process.env.GATSBY_AUTH0_DOMAIN}</p>
       <p>Client ID: {process.env.GATSBY_AUTH0_CLIENT_ID}</p>
       <p>Redirect URI: {process.env.GATSBY_AUTH0_CALLBACK}</p>
-      <p>Your roles: {user?.['https://voluble-boba-2e3a2e.netlify.app/roles'].join(', ') || "No specific roles"}</p>
+      <p>Your roles: {roles}</p>
     </div>
   );
 }
 
 const AccountComponent = () => {
-  
   const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
-  const { data: roles, error, isLoading } = useGetRolesQuery(undefined, {
-    skip: !isBrowser
-  });
-
+  
   useEffect(() => {
     if (!isAuthenticated) {
       loginWithRedirect();
     }
   }, [isAuthenticated, loginWithRedirect]);
-  
+
   if (!isAuthenticated) {
     return <div>Loading your profile...</div>;
   }
 
-  if (!isBrowser){
-    return <div>No browser detected isBrowser - {isBrowser} -</div>;
-  }  
-
+  const { data: roles, error, isLoading } = useSafeGetRolesQuery();
+  
   const handleLogout = () => {
     logout({ returnTo: window.location.origin });
   };
