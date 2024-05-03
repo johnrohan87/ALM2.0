@@ -4,10 +4,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "gatsby";
 import { useSafeGetRolesQuery } from '../hooks/useSafeGetRolesQuery';
 
-const Home = ({ user, isAuthenticated }) => {
-  if (!isAuthenticated) {
-    return <div>Please log in</div>;
-  }
+const Home = ({ user }) => {
 
   const roles = user?.['https://voluble-boba-2e3a2e.netlify.app/roles'].join(', ') || "No specific roles";
 
@@ -25,6 +22,7 @@ const Home = ({ user, isAuthenticated }) => {
 
 const AccountComponent = () => {
   const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
+  const { data: roles, error, isLoading } = useSafeGetRolesQuery();
   
   useEffect(() => {
     if (!isAuthenticated) {
@@ -36,7 +34,6 @@ const AccountComponent = () => {
     return <div>Loading your profile...</div>;
   }
 
-  const { data: roles, error, isLoading } = useSafeGetRolesQuery();
   
   const handleLogout = () => {
     logout({ returnTo: window.location.origin });
@@ -49,7 +46,7 @@ const AccountComponent = () => {
         <button onClick={handleLogout}>Log Out</button>
       </nav>
       <Router>
-        <Home path="/account" user={user} isAuthenticated={isAuthenticated} />
+        <Home path="/account" user={user} />
       </Router>
     </>
   );

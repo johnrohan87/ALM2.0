@@ -1,11 +1,14 @@
 import { useGetRolesQuery } from '../store/api';
-import { isBrowser } from '../utils/auth';
 
 export const useSafeGetRolesQuery = () => {
-  if (!isBrowser) {
-
+  const shouldSkip = typeof window === 'undefined';
+  const result = useGetRolesQuery(undefined, {
+    skip: shouldSkip,
+  });
+  
+  if (shouldSkip) {
     return { data: null, error: null, isLoading: false };
   }
 
-  return useGetRolesQuery();
+  return result;
 };
