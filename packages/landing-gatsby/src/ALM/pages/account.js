@@ -4,7 +4,10 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "gatsby";
 import { useSafeGetRolesQuery } from '../hooks/useSafeGetRolesQuery';
 
-const Home = ({ user }) => {
+const Home = ({ user, isAuthenticated }) => {
+  if (!isAuthenticated) {
+    return <div>Please log in</div>;
+  }
 
   const roles = user?.['https://voluble-boba-2e3a2e.netlify.app/roles'].join(', ') || "No specific roles";
 
@@ -46,7 +49,7 @@ const AccountComponent = () => {
         <button onClick={handleLogout}>Log Out</button>
       </nav>
       <Router>
-        <Home path="/account" user={user} />
+        <Home path="/account" user={user} isAuthenticated={isAuthenticated} />
       </Router>
     </>
   );
