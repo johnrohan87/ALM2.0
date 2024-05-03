@@ -23,7 +23,7 @@ const Home = ({ user }) => {
 const AccountComponent = () => {
   const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
   const { data: roles, error, isLoading } = useSafeGetRolesQuery();
-  console.log("roles -", roles, "data -", data)
+  console.log("roles -", roles)
   
   useEffect(() => {
     if (!isAuthenticated) {
