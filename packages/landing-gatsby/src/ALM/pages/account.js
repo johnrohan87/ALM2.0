@@ -2,10 +2,9 @@ import React, { useEffect } from "react";
 import { Router } from "@reach/router";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "gatsby";
+import { useGetRolesQuery } from '../store/api';
 
-
-const Home = () => {
-  const { user, isAuthenticated } = useAuth0(); // Using Auth0 React SDK hooks
+const Home = ({user, isAuthenticated}) => {
 
   if (!isAuthenticated) {
     return <div>Please log in</div>;
@@ -24,7 +23,8 @@ const Home = () => {
 }
 
 const AccountComponent = () => {
-  const { isAuthenticated, loginWithRedirect, logout } = useAuth0();
+  const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
+  const { data: roles, error, isLoading } = useGetRolesQuery();
 
     useEffect(() => {
       if (!isAuthenticated) {
@@ -47,7 +47,7 @@ const AccountComponent = () => {
         <button onClick={handleLogout}>Log Out</button>
       </nav>
       <Router>
-        <Home path="/account" />
+        <Home path="/account" user={user} isAuthenticated={isAuthenticated} />
       </Router>
     </>
   );

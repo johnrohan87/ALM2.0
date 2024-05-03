@@ -10,9 +10,9 @@ const onRedirectCallback = (appState) => navigate(appState?.returnTo || '/');
 export const wrapRootElement = ({ element }) => {
   console.assert(store != null, "Redux store is not initialized");
   if (typeof window === 'undefined') {
-    return <></>; // Return empty for SSR
+    return <></>;
   }
-  
+
   return (
     <Auth0Provider
       domain={process.env.GATSBY_AUTH0_DOMAIN}
