@@ -17,7 +17,7 @@ export const wrapRootElement = ({ element }) => {
     <Auth0Provider
       domain={process.env.GATSBY_AUTH0_DOMAIN}
       clientId={process.env.GATSBY_AUTH0_CLIENT_ID}
-      redirectUri={typeof window !== 'undefined' ? window.location.origin : ''}
+      redirectUri={typeof window !== 'undefined' ? window.location.origin + "/callback" : ''}
       onRedirectCallback={process.env.GATSBY_AUTH0_CALLBACK}
       audience={process.env.GATSBY_AUTH0_AUDIENCE}
       scope="openid profile email"
