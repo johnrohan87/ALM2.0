@@ -1,10 +1,17 @@
-import React from "react"
-import { handleAuthentication } from "../utils/auth"
+import React, { useEffect } from "react";
+import { navigate } from "gatsby";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const Callback = () => {
-  handleAuthentication()
+  const { isAuthenticated, isLoading } = useAuth0();
 
-  return <p>Loading...</p>
-}
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate("/account");
+    }
+  }, [isLoading, isAuthenticated]);
 
-export default Callback
+  return <p>Loading...</p>;
+};
+
+export default Callback;
