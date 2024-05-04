@@ -1,3 +1,5 @@
+import React from "react";
+import { Redirect } from "@reach/router";
 
 const PrivateRoute = ({ component: Component, user, allowedRoles, ...rest }) => {
     const roles = user?.['https://voluble-boba-2e3a2e.netlify.app/roles'] || [];

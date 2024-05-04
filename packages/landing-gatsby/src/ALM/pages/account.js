@@ -16,7 +16,7 @@ const Home = ({ user }) => {
       <p>Client ID: {process.env.GATSBY_AUTH0_CLIENT_ID}</p>
       <p>Redirect URI: {process.env.GATSBY_AUTH0_CALLBACK}</p>
       <p>Your roles: {roles?.length > 0 ? roles?.join(', ') : "No specific roles"}</p>
-      <p>Your user info: <ul>{user ? JSON.stringify(user) : "No user info"}</ul></p>
+      <div><p>Your user info: </p><ul>{user ? JSON.stringify(user) : "No user info"}</ul></div>
     </div>
   );
 }
