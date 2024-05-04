@@ -18,7 +18,7 @@ const getTokenRoles = (token) => {
 const Home = ({ user }) => {
 
   const roles = user?.['https://voluble-boba-2e3a2e.netlify.app/roles'] || [];
-  console.log(user)
+  //console.log(user)
 
   return (
     <div>
@@ -28,7 +28,7 @@ const Home = ({ user }) => {
       <p>Client ID: {process.env.GATSBY_AUTH0_CLIENT_ID}</p>
       <p>Redirect URI: {process.env.GATSBY_AUTH0_CALLBACK}</p>
       <p>Your roles: {roles?.length > 0 ? roles?.join(', ') : "No specific roles"}</p>
-      <p>getTokenRoles: {getTokenRoles ? getTokenRoles : ""}</p>
+      <p>Your user info: {user?.length > 0 ? user?.join(', ') : "No user info"}</p>
     </div>
   );
 }
