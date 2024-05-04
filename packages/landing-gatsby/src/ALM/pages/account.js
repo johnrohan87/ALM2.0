@@ -28,15 +28,15 @@ const Home = ({ user }) => {
       <p>Client ID: {process.env.GATSBY_AUTH0_CLIENT_ID}</p>
       <p>Redirect URI: {process.env.GATSBY_AUTH0_CALLBACK}</p>
       <p>Your roles: {roles?.length > 0 ? roles?.join(', ') : "No specific roles"}</p>
-      <p>Your user info: {user?.length > 0 ? user?.join(', ') : "No user info"}</p>
+      <p>Your user info: {user ? user?.join(', ') : "No user info"}</p>
+      <p>Your user info: {user ? user : "No user info"}</p>
     </div>
   );
 }
 
 const AccountComponent = () => {
   const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
-  const { data: roles, error, isLoading } = useSafeGetRolesQuery();
-  console.log("roles -", roles)
+  //const { data: roles, error, isLoading } = useSafeGetRolesQuery();
   
   useEffect(() => {
     if (!isAuthenticated) {
