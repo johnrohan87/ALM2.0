@@ -18,6 +18,7 @@ const getTokenRoles = (token) => {
 const Home = ({ user }) => {
 
   const roles = user?.['https://voluble-boba-2e3a2e.netlify.app/roles'] || [];
+  console.log(user)
 
   return (
     <div>
@@ -49,7 +50,7 @@ const AccountComponent = () => {
 
   
   const handleLogout = () => {
-    logout({ returnTo: window.location.origin });
+    logout({ returnTo: process.env.GATSBY_AUTH0_DOMAIN });
   };
 
   return (
