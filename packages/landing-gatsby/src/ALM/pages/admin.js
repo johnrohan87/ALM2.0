@@ -1,8 +1,7 @@
 import React, {useEffect} from 'react';
 import { login, isAuthenticated } from "../utils/auth";
-import AdminPanel from '../components/AdminPanel';
 
-const Admin = () => {
+const Admin = ({user}) => {
   const isBrowser = typeof window !== "undefined";
 
   useEffect(() => {
@@ -20,8 +19,8 @@ const Admin = () => {
 
   return (
     <div>
-      <h1>Admin Dashboard</h1>
-      <AdminPanel />
+      <h1>Admin Panel</h1>
+      <p>Welcome, {user?.name}! You have administrative access.</p>
     </div>
   );
 };

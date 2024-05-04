@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import { Router } from "@reach/router";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "gatsby";
+import PrivateRoute from "../components/PrivateRoute";
+import Admin from "./admin";
 
 const Home = ({ user }) => {
   const roles = user?.['https://voluble-boba-2e3a2e.netlify.app/roles'] || [];
@@ -41,10 +43,12 @@ const AccountComponent = () => {
     <>
       <nav>
         <Link to="/account">Home</Link>
+        {user?.['https://voluble-boba-2e3a2e.netlify.app/roles'] ? <Link to="/admin">Admin</Link> : ""} 
         <button onClick={handleLogout}>Log Out</button>
       </nav>
       <Router>
         <Home path="/account" user={user} />
+        {user?.['https://voluble-boba-2e3a2e.netlify.app/roles'] ? <PrivateRoute path="/admin" component={AdminPanel} user={user} allowedRoles={['admin']} /> : "" }
       </Router>
     </>
   );
