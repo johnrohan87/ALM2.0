@@ -48,7 +48,7 @@ const AccountComponent = () => {
       </nav>
       <Router>
         <Home path="/account" user={user} />
-        {user?.['https://voluble-boba-2e3a2e.netlify.app/roles'] ? <PrivateRoute path="/admin" component={AdminPanel} user={user} allowedRoles={['admin']} /> : "" }
+        {user?.['https://voluble-boba-2e3a2e.netlify.app/roles'] ? <PrivateRoute path="/admin" component={Admin} user={user} allowedRoles={['admin']} /> : "" }
       </Router>
     </>
   );

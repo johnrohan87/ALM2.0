@@ -1,6 +1,6 @@
 import auth0 from 'auth0-js';
 import { navigate } from 'gatsby';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 export const isBrowser = typeof window !== 'undefined';
 
