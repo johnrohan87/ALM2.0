@@ -28,9 +28,7 @@ const Home = ({ user }) => {
       <p>Client ID: {process.env.GATSBY_AUTH0_CLIENT_ID}</p>
       <p>Redirect URI: {process.env.GATSBY_AUTH0_CALLBACK}</p>
       <p>Your roles: {roles?.length > 0 ? roles?.join(', ') : "No specific roles"}</p>
-      <p>Your user info: <ul>{user ? user.map((item)=>{
-        return (<li key={item.toString()}>{item}</li>)
-      }) : "No user info"}</ul></p>
+      <p>Your user info: <ul>{user ? JSON.parse(user) : "No user info"}</ul></p>
     </div>
   );
 }
