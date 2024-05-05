@@ -27,7 +27,7 @@ export const login = () => {
 const setSession = (cb = () => {}) => (err, authResult) => {
   if (err) {
     console.error('Authentication Error:', err);
-    navigate(`${process.env.GATSBY_AUTH0_LOGOUT_URL}`);
+    navigate('/');
     cb();
     return;
   }

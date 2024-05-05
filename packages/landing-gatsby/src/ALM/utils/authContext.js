@@ -25,17 +25,16 @@ export const AuthProvider = ({ children }) => {
   }, [user, isAuthenticated]);
 
   const handleLogout = (returnTo = '/') => {
-    const isProduction = process.env.NODE_ENV === 'production';
-    const logoutURL = isProduction ? 'https://voluble-boba-2e3a2e.netlify.app' : 'http://localhost:8000';
-    
-    console.log('Logging out, redirecting to:', logoutURL + returnTo);
-    
-    logout({
-      returnTo: logoutURL + returnTo
-    });
+    const logoutURL = process.env.GATSBY_AUTH0_LOGOUT_URL || 'http://localhost:8000';
+    const fullLogoutUrl = new URL(returnTo, logoutURL).href;
   
+    console.log('Logging out, redirecting to:', fullLogoutUrl);
+    logout({
+        returnTo: fullLogoutUrl
+    });
     navigate(returnTo);
   };
+  
 
   return (
     <AuthContext.Provider value={{
