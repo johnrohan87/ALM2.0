@@ -26,16 +26,24 @@ export const AuthProvider = ({ children }) => {
 
   const handleLogout = (returnTo = '/') => {
     const logoutURL = process.env.GATSBY_AUTH0_LOGOUT_URL;
-    const fullLogoutUrl = new URL(returnTo, logoutURL).href;
-  
-    console.log('Logging out, redirecting to:', fullLogoutUrl);
-    logout({
-        returnTo: fullLogoutUrl
-    });
-    console.log('authContext returnTo', returnTo)
-    //navigate(returnTo);
-    navigate(returnTo);
-  };
+
+    try {
+        if (!returnTo.startsWith('/')) {
+            returnTo = '/' + returnTo;
+        }
+        
+        const fullLogoutUrl = new URL(returnTo, logoutURL).href;
+        console.log('Logging out, redirecting to:', fullLogoutUrl);
+        logout({
+            returnTo: fullLogoutUrl
+        });
+        console.log('authContext returnTo', returnTo);
+        navigate(returnTo);
+    } catch (error) {
+        console.error('Error constructing logout URL:', error);
+        navigate('/');
+    }
+};
   
 
   return (
