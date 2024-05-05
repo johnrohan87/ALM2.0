@@ -17,6 +17,8 @@ export const wrapRootElement = ({ element }) => {
   });
   
   const onRedirectCallback = (appState) => {
+    console.log("appState:", appState);
+    console.log("Return to:", appState?.returnTo);
     navigate(appState?.returnTo || "/account");
   };
 

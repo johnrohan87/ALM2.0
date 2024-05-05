@@ -43,7 +43,7 @@ const AccountComponent = () => {
   }
 
   const handleLogout = () => {
-    logout();
+    logout('/');
   };
 
   return (
