@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
     logout({
         returnTo: fullLogoutUrl
     });
-    //navigate(returnTo);
+    navigate(returnTo);
   };
   
 
