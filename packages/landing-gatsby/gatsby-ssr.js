@@ -17,9 +17,12 @@ export const wrapRootElement = ({ element }) => {
   });
   
   const onRedirectCallback = (appState) => {
-    console.log("appState:", appState);
-    console.log("Return to:", appState?.returnTo);
-    navigate(appState?.returnTo || "/account");
+    if (appState && appState.returnTo) {
+      navigate(appState.returnTo);
+  } else {
+      console.error("appState or returnTo is undefined");
+      navigate("/account");
+  }
   };
 
   return (
