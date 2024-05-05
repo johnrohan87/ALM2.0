@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
         });
         console.log('authContext returnTo', returnTo);
         if (!isLoading) {
-          console.log('isLoading',isLoading)
+          console.log('isLoading',isLoading, 'user', user, 'isAuthenticated', isAuthenticated)
           navigate(returnTo);
         }
     } catch (error) {
