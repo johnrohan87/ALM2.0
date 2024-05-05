@@ -1,17 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Router } from "@reach/router";
-import { Link } from "gatsby";
+import { Link, navigate } from "gatsby";
 import Admin from "./admin";
 import { AuthProvider, useAuth } from "../utils/authContext";
 
 const Home = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isAuthenticated } = useAuth();
   const roles = user?.['https://voluble-boba-2e3a2e.netlify.app/roles'] || [];
 
   if (isLoading) {
     return <div>Loading your profile...</div>;
   }
-  
+  if (!isAuthenticated) {
+    return <div>Loading your profile...</div>;
+  }
+
   return (
     <div>
       <img src={user?.picture || ""} alt={user?.name || "friend"} />
@@ -26,14 +29,20 @@ const Home = () => {
 };
 
 const AccountComponent = () => {
-  const { user, isAdmin, logout, isLoading } = useAuth();
+  const { user, isAuthenticated, loginWithRedirect, isAdmin, logout, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isAuthenticated && !isLoading) {
+      loginWithRedirect();
+    }
+  }, [isAuthenticated, isLoading, loginWithRedirect]);
 
   if (isLoading) {
     return <div>Loading your profile...</div>;
   }
 
   const handleLogout = () => {
-    logout({ returnTo: window.location.origin });
+    logout('/');
   };
 
   return (
