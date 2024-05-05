@@ -29,10 +29,12 @@ export const wrapRootElement = ({ element }) => {
     <Auth0Provider
       domain={process.env.GATSBY_AUTH0_DOMAIN}
       clientId={process.env.GATSBY_AUTH0_CLIENT_ID}
-      redirectUri={typeof window !== 'undefined' ? process.env.GATSBY_AUTH0_CALLBACK : ''}
+      authorizationParams={{
+        redirect_uri: typeof window !== 'undefined' ? process.env.GATSBY_AUTH0_CALLBACK : '',
+        audience: process.env.GATSBY_AUTH0_AUDIENCE,
+        scope: "openid profile email"
+      }}
       onRedirectCallback={onRedirectCallback}
-      audience={process.env.GATSBY_AUTH0_AUDIENCE}
-      scope="openid profile email"
     >
       <AuthProvider>
       <Provider store={store}>
