@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     });
     console.log('authContext returnTo', returnTo)
     //navigate(returnTo);
-    navigate('/');
+    navigate(returnTo);
   };
   
 
