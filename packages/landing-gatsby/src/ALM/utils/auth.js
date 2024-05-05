@@ -37,6 +37,7 @@ const setSession = (cb = () => {}) => (err, authResult) => {
   if (authResult && authResult.accessToken && authResult.idToken) {
     let expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
     const decodedIdToken = jwtDecode(authResult.idToken);
+    console.log('decoding token')
     user = {
       ...decodedIdToken,
       roles: decodedIdToken['https://voluble-boba-2e3a2e.netlify.app/roles'] || [],
@@ -73,4 +74,9 @@ export const handleAuthentication = () => {
     return;
   }
   auth.parseHash(setSession());
+};
+
+export const isAdmin = (user) => {
+  const roles = user?.['https://voluble-boba-2e3a2e.netlify.app/roles'] || [];
+  return roles.includes('Admin');
 };
