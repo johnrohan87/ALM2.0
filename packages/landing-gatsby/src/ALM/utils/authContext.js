@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }) => {
     logout({
         returnTo: fullLogoutUrl
     });
+    console.log('authContext returnTo', returnTo)
     navigate(returnTo);
   };
   
