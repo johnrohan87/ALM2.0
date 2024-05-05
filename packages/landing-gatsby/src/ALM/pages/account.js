@@ -34,7 +34,7 @@ const AccountComponent = () => {
 
   useEffect(() => {
     if (!isAuthenticated && !isLoading) {
-      loginWithRedirect({appState: { returnTo: '/' }});
+      loginWithRedirect({appState: { returnTo: '/account' }});
     }
   }, [isAuthenticated, isLoading, loginWithRedirect]);
 
