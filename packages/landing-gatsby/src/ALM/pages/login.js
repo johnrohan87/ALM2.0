@@ -9,7 +9,7 @@ const LoginPage = () => {
         if (isAuthenticated) {
             navigate('/account');
         } else {
-            loginWithRedirect({appState: { returnTo: '/somePath' }});
+            loginWithRedirect({appState: { returnTo: '/' }});
         }
     }, [isAuthenticated, loginWithRedirect]);
 
