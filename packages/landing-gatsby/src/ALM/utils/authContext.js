@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
 
   const handleLogout = (returnTo = '/') => {
     const logoutURL = process.env.GATSBY_AUTH0_LOGOUT_URL || 'http://localhost:8000';
+    console.log('Logging out, redirecting to:', logoutURL + returnTo);
     logout({
         returnTo: logoutURL + returnTo
     });
