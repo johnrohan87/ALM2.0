@@ -43,7 +43,7 @@ const AccountComponent = () => {
   }
 
   const handleLogout = () => {
-    logout('/');
+    logout(`${process.env.GATSBY_AUTH0_LOGOUT_URL}`);
   };
 
   return (
