@@ -4,8 +4,14 @@ import { Link } from "gatsby";
 import Admin from "./admin";
 import { AuthProvider, useAuth } from "../utils/authContext";
 
-const Home = ({ user }) => {
+const Home = () => {
+  const { user, isLoading } = useAuth();
   const roles = user?.['https://voluble-boba-2e3a2e.netlify.app/roles'] || [];
+
+  if (isLoading) {
+    return <div>Loading your profile...</div>;
+  }
+  
   return (
     <div>
       <img src={user?.picture || ""} alt={user?.name || "friend"} />
@@ -38,8 +44,8 @@ const AccountComponent = () => {
         <button onClick={handleLogout}>Log Out</button>
       </nav>
       <Router>
-        <Home path="/account" user={user} />
-        {isAdmin && <Admin path="/admin" user={user} />}
+        <Home path="/account" />
+        {isAdmin && <Admin path="/admin" />}
       </Router>
     </AuthProvider>
   );
