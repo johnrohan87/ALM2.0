@@ -18,6 +18,7 @@ export const wrapRootElement = ({ element }) => {
   
   const onRedirectCallback = (appState) => {
     if (appState && appState.returnTo) {
+      console.log('appState && appState.returnTo', appState, appState.returnTo)
       navigate(appState.returnTo);
   } else {
       console.error("appState or returnTo is undefined");
