@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user, isAuthenticated]);
 
-  const handleLogout = (returnTo = '/') => {
+  const handleLogout = () => {
     const returnTo = process.env.GATSBY_AUTH0_LOGOUT_URL || 'https://voluble-boba-2e3a2e.netlify.app';
     console.log('Logging out, redirecting to:', returnTo);
     console.log('Environment variable:', process.env.GATSBY_AUTH0_LOGOUT_URL);
