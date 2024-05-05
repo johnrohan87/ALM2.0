@@ -31,7 +31,6 @@ export const AuthProvider = ({ children }) => {
         if (!returnTo.startsWith('/')) {
             returnTo = '/' + returnTo;
         }
-        
         const fullLogoutUrl = new URL(returnTo, logoutURL).href;
         console.log('Logging out, redirecting to:', fullLogoutUrl);
         logout({
@@ -43,8 +42,7 @@ export const AuthProvider = ({ children }) => {
         console.error('Error constructing logout URL:', error);
         navigate('/');
     }
-};
-  
+  };
 
   return (
     <AuthContext.Provider value={{
