@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
 
   const handleLogout = (returnTo = '/') => {
     const logoutURL = process.env.GATSBY_AUTH0_LOGOUT_URL;
-
+    console.log('logoutURL - ',logoutURL)
     try {
         if (!returnTo.startsWith('/')) {
             returnTo = '/' + returnTo;
