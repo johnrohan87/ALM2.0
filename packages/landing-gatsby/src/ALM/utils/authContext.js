@@ -16,8 +16,11 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    console.log("User roles:", user?.['https://voluble-boba-2e3a2e.netlify.app/roles']); 
     if (isAuthenticated && user) {
-      setIsAdmin(user[`${process.env.GATSBY_AUTH0_AUDIENCE}`]?.includes('Admin'));
+        const adminRolePresent = user['https://voluble-boba-2e3a2e.netlify.app/roles']?.includes('Admin');
+        setIsAdmin(adminRolePresent);
+        console.log("Is Admin:", adminRolePresent);
     }
   }, [user, isAuthenticated]);
 
