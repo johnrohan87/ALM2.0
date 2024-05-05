@@ -1,36 +1,24 @@
-// Login.js
-import React, { useState } from 'react';
-import { useLoginMutation } from '../store/apiService';
+import React, { useEffect } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
+import { navigate } from 'gatsby';
 
-const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [login, { isLoading, isError }] = useLoginMutation();
+const LoginPage = () => {
+    const { loginWithRedirect, isAuthenticated } = useAuth0();
 
-  const handleLogin = () => {
-    login({ email, password });
-  };
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/account');
+        } else {
+            loginWithRedirect();
+        }
+    }, [isAuthenticated, loginWithRedirect]);
 
-  return (
-    <div>
-      <input
-        type="text"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleLogin} disabled={isLoading}>
-        Login
-      </button>
-      {isError && <div>Failed to login. Please check your credentials.</div>}
-    </div>
-  );
+    return (
+        <div>
+            <h1>Logging in...</h1>
+            <p>Please wait while we redirect you to the login page.</p>
+        </div>
+    );
 };
 
-export default Login;
+export default LoginPage;

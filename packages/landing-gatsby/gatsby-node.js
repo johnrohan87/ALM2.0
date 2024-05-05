@@ -10,14 +10,10 @@ const path = require('path');
 exports.createPages = async ({ actions }) => {
   const { createPage } = actions;
 
-  /*createPage({
+  createPage({
     path: '/login',
     component: path.resolve('./src/ALM/pages/login.js'),
   });
-  createPage({
-    path: '/portfolio',
-    component: path.resolve('./src/ALM/pages/portfolio.js'),
-  });*/
   createPage({
     path: '/admin',
     component: path.resolve('./src/ALM/pages/admin.js'),
