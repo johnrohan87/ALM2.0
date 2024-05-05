@@ -37,7 +37,10 @@ export const AuthProvider = ({ children }) => {
             returnTo: fullLogoutUrl
         });
         console.log('authContext returnTo', returnTo);
-        navigate(returnTo);
+        if (!isLoading) {
+          console.log('isLoading',isLoading)
+          navigate(returnTo);
+        }
     } catch (error) {
         console.error('Error constructing logout URL:', error);
         navigate('/');
