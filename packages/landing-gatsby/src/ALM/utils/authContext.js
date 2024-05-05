@@ -25,9 +25,9 @@ export const AuthProvider = ({ children }) => {
   }, [user, isAuthenticated]);
 
   const handleLogout = (returnTo = '/') => {
-    setIsAdmin(false);
+    const logoutURL = process.env.GATSBY_AUTH0_LOGOUT_URL || 'http://localhost:8000';
     logout({
-      returnTo: `${window.location.origin}${returnTo}`
+        returnTo: logoutURL + returnTo
     });
     navigate(returnTo);
   };
