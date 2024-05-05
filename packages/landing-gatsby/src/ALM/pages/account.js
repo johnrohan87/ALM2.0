@@ -2,8 +2,7 @@ import React from "react";
 import { Router } from "@reach/router";
 import { Link } from "gatsby";
 import Admin from "./admin";
-import { AuthProvider } from "../utils/authContext";
-import { useAuth } from "../utils/authContext";
+import { AuthProvider, useAuth } from "../utils/authContext";
 
 const Home = ({ user }) => {
   const roles = user?.['https://voluble-boba-2e3a2e.netlify.app/roles'] || [];

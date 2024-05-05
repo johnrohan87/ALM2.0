@@ -2,11 +2,15 @@ import React from 'react';
 import { useAuth } from '../utils/authContext';
 
 const Admin = () => {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isLoading } = useAuth();
   if (!isAdmin){
     return <div><p> Admin Not Found </p></div>
   }
-  console.log(user)
+
+  if (isLoading) {
+    return <div>Loading your profile...</div>;
+  }
+  
   return (
     <div>
       <h1>Admin Panel</h1>
