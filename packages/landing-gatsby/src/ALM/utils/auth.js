@@ -27,7 +27,7 @@ export const login = () => {
 const setSession = (cb = () => {}) => (err, authResult) => {
   if (err) {
     console.error('Authentication Error:', err);
-    navigate('/');
+    navigate(`${process.env.GATSBY_AUTH0_LOGOUT_URL}`);
     cb();
     return;
   }
@@ -59,6 +59,7 @@ export const getProfile = () => {
 
 export const logout = () => {
   localStorage.removeItem('isLoggedIn');
+  console.log('using auth.js logout function', process.env.GATSBY_AUTH0_LOGOUT_URL)
   auth.logout({
     returnTo: process.env.GATSBY_AUTH0_LOGOUT_URL,
   });
