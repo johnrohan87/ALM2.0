@@ -24,13 +24,17 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user, isAuthenticated]);
 
-  const handleLogout = () => {
-    const returnTo = process.env.GATSBY_AUTH0_LOGOUT_URL || 'https://voluble-boba-2e3a2e.netlify.app';
-    console.log('Logging out, redirecting to:', returnTo);
-    console.log('Environment variable:', process.env.GATSBY_AUTH0_LOGOUT_URL);
+  const handleLogout = (returnTo = '/') => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const logoutURL = isProduction ? 'https://voluble-boba-2e3a2e.netlify.app' : 'http://localhost:8000';
+    
+    console.log('Logging out, redirecting to:', logoutURL + returnTo);
+    
     logout({
-      returnTo: returnTo
+      returnTo: logoutURL + returnTo
     });
+  
+    navigate(returnTo);
   };
 
   return (
