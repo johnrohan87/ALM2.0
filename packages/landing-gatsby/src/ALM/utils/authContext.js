@@ -47,6 +47,7 @@ export const AuthProvider = ({ children }) => {
     }
   };*/
   const handleLogout = () =>{
+    console.log('authContext window.location.origin = ', window.location.origin)
     logout({ returnTo: window.location.origin });
   }
 
