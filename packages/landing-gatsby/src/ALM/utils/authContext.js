@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
         navigate('/');
     }
   };*/
-  const handleLogout = (returnTo = '/') =>{
+  const handleLogout = () =>{
     logout({ returnTo: window.location.origin });
   }
 
