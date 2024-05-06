@@ -24,32 +24,19 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user, isAuthenticated]);
 
-  /*const handleLogout = (returnTo = '/') => {
-    const logoutURL = process.env.GATSBY_AUTH0_LOGOUT_URL;
-    console.log('Logging out, redirecting to:', logoutURL);
+  const handleLogout = (returnTo = '/') => {
+    console.log('Current window origin:', window.location.origin);
+    const logoutURL = process.env.GATSBY_AUTH0_LOGOUT_URL || window.location.origin;
+    console.log('Using logout URL:', logoutURL);
 
-    try {
-        if (!returnTo.startsWith('/')) {
-            returnTo = '/' + returnTo;
-        }
-        const fullLogoutUrl = new URL(returnTo, logoutURL).href;
-
-        logout({
-            returnTo: fullLogoutUrl,
-            onRedirectCallback: () => {
-                console.log('Logout completed, navigating to:', returnTo);
-                navigate(returnTo);
-            }
-        });
-    } catch (error) {
-        console.error('Error constructing logout URL:', error);
-        navigate('/');
-    }
-  };*/
-  const handleLogout = () =>{
-    console.log('authContext window.location.origin = ', window.location.origin)
-    logout({ returnTo: window.location.origin });
-  }
+    const fullLogoutUrl = new URL(returnTo, logoutURL).href;
+    console.log('Logging out, redirecting to:', fullLogoutUrl);
+    
+      logout({
+          returnTo: fullLogoutUrl,
+          onRedirectCallback: () => navigate(returnTo)
+      });
+  };
 
   return (
     <AuthContext.Provider value={{
