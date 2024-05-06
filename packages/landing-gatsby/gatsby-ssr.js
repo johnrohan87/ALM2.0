@@ -33,10 +33,12 @@ export const wrapRootElement = ({ element }) => {
       authorizationParams={{
         redirect_uri: typeof window !== 'undefined' ? process.env.GATSBY_AUTH0_CALLBACK : '',
         audience: process.env.GATSBY_AUTH0_AUDIENCE,
-        scope: "openid profile email"
+        scope: 'openid profile email',
+        response_type: 'code',
       }}
       onRedirectCallback={onRedirectCallback}
     >
+
       <AuthProvider>
       <Provider store={store}>
         {element}

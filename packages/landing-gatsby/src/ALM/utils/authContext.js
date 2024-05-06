@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user, isAuthenticated]);
 
-  const handleLogout = (returnTo = '/') => {
+  /*const handleLogout = (returnTo = '/') => {
     const logoutURL = process.env.GATSBY_AUTH0_LOGOUT_URL;
     console.log('Logging out, redirecting to:', logoutURL);
 
@@ -45,7 +45,10 @@ export const AuthProvider = ({ children }) => {
         console.error('Error constructing logout URL:', error);
         navigate('/');
     }
-  };
+  };*/
+  const handleLogout = (returnTo = '/') =>{
+    logout({ returnTo: window.location.origin });
+  }
 
   return (
     <AuthContext.Provider value={{
