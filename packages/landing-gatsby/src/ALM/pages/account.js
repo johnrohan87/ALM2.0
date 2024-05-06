@@ -30,7 +30,7 @@ const Home = () => {
 
 const AccountComponent = () => {
   const { user, isAuthenticated, loginWithRedirect, isAdmin, logout, isLoading } = useAuth();
-  console.log("Rendering Admin Panel for user:", user);
+  //console.log("Rendering Admin Panel for user:", user);
 
   useEffect(() => {
     if (!isAuthenticated && !isLoading) {

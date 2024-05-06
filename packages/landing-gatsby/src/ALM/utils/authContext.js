@@ -16,21 +16,21 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    console.log("User roles:", user?.['https://voluble-boba-2e3a2e.netlify.app/roles']); 
+    //console.log("User roles:", user?.['https://voluble-boba-2e3a2e.netlify.app/roles']); 
     if (isAuthenticated && user) {
         const adminRolePresent = user['https://voluble-boba-2e3a2e.netlify.app/roles']?.includes('Admin');
         setIsAdmin(adminRolePresent);
-        console.log("Is Admin:", adminRolePresent);
+        //console.log("Is Admin:", adminRolePresent);
     }
   }, [user, isAuthenticated]);
 
   const handleLogout = (returnTo = '/') => {
-    console.log('Current window origin:', window.location.origin);
+    //console.log('Current window origin:', window.location.origin);
     const logoutURL = process.env.GATSBY_AUTH0_LOGOUT_URL || window.location.origin;
-    console.log('Using logout URL:', logoutURL);
+    //console.log('Using logout URL:', logoutURL);
 
     const fullLogoutUrl = new URL(returnTo, logoutURL).href;
-    console.log('Logging out, redirecting to:', fullLogoutUrl);
+    //console.log('Logging out, redirecting to:', fullLogoutUrl);
     
       logout({
           returnTo: fullLogoutUrl,
