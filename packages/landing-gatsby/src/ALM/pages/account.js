@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Router } from "@reach/router";
-import { Link, navigate } from "gatsby";
+import { Link } from "gatsby";
 import Admin from "./admin";
 import Rss from "./rss";
 import { AuthProvider, useAuth } from "../utils/authContext";
@@ -31,7 +31,6 @@ const Home = () => {
 
 const AccountComponent = () => {
   const { user, isAuthenticated, loginWithRedirect, isAdmin, logout, isLoading } = useAuth();
-  //console.log("Rendering Admin Panel for user:", user);
 
   useEffect(() => {
     if (!isAuthenticated && !isLoading) {

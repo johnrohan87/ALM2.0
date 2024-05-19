@@ -36,32 +36,23 @@ const RSSReader = () => {
                 {data.items.map((item, index) => (
                   <li key={index}>
                     {Object.entries(item).map(([key, value]) => (
-                      <p key={key}><strong>{key}: </strong>{value}</p>
+                      key === 'link' ? (
+                        <p key={key}><strong>{key}: </strong><a href={value} target="_blank" rel="noopener noreferrer">{value}</a></p>
+                      ) : (
+                        <p key={key}><strong>{key}: </strong>{value}</p>
+                      )
                     ))}
                   </li>
                 ))}
               </ul>
             </>
           ) : (
-            <pre style={styles.xmlContent}>{data.rawXML}</pre>
+            <pre style={{ whiteSpace: 'pre-wrap' }}>{data.rawXML}</pre>
           )}
         </div>
       )}
     </div>
   );
 };
-
-const styles = {
-  xmlContent: {
-    whiteSpace: 'pre-wrap',
-    backgroundColor: '#f5f5f5',
-    border: '1px solid #ccc',
-    padding: '10px',
-    margin: '10px 0',
-    overflow: 'auto',
-    fontFamily: 'Consolas, "Liberation Mono", Menlo, Courier, monospace'
-  }
-};
-
 
 export default RSSReader;
