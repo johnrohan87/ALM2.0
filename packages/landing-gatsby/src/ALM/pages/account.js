@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Router } from "@reach/router";
 import { Link, navigate } from "gatsby";
 import Admin from "./admin";
+import Rss from "./rss";
 import { AuthProvider, useAuth } from "../utils/authContext";
 
 const Home = () => {
@@ -51,11 +52,13 @@ const AccountComponent = () => {
       <nav>
         <Link to="/account">Home</Link>
         {isAdmin && <Link to="/admin">Admin</Link>}
+        <Link to="/rss">RSS</Link>
         <button onClick={handleLogout}>Log Out</button>
       </nav>
       <Router>
         <Home path="/account" />
         {isAdmin && <Admin path="/admin" />}
+        <Rss path="/rss" />
       </Router>
     </AuthProvider>
   );

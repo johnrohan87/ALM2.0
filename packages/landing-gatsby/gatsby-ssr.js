@@ -4,16 +4,16 @@ import { Provider } from 'react-redux';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { AuthProvider } from './src/ALM/utils/authContext';
 import { configureStore } from '@reduxjs/toolkit';
-import { api } from './src/ALM/store/api'
+import { apiSlice } from './src/ALM/store/apiSlice'
 
 export const wrapRootElement = ({ element }) => {
 
   const store = configureStore({
     reducer: {
-      [api.reducerPath]: api.reducer,
+      [apiSlice.reducerPath]: apiSlice.reducer,
     },
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(api.middleware),
+      getDefaultMiddleware().concat(apiSlice.middleware),
   });
   
   const onRedirectCallback = (appState) => {
