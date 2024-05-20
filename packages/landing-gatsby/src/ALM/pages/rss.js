@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useFetchRSSQuery } from '../store/apiSlice';
+import NavigationBar from '../components/NavigationBar';
 
 const RSSReader = () => {
   const [url, setUrl] = useState('');
@@ -17,6 +18,7 @@ const RSSReader = () => {
 
   return (
     <div>
+      <NavigationBar />
       <button onClick={toggleDisplayMode}>
         Switch to {displayMode === 'HTML' ? 'XML' : 'HTML'}
       </button>
