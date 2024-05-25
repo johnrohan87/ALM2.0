@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const apiSlice = createApi({
   reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: `${process.env.GATSBY_HEROKU_BASEURL}` }),
   endpoints: (builder) => ({
     fetchRSS: builder.query({
       query: (url) => ({
@@ -30,7 +30,24 @@ export const apiSlice = createApi({
         };
       },
     }),
+    importFeed: builder.mutation({
+      query: (feedData) => ({
+        url: 'import_feed',
+        method: 'POST',
+        body: feedData,
+      }),
+    }),
+    editStory: builder.mutation({
+      query: ({ storyId, storyData }) => ({
+        url: `edit_story/${storyId}`,
+        method: 'PUT',
+        body: storyData,
+      }),
+    }),
+    fetchUserFeed: builder.query({
+      query: () => 'user_feed',
+    }),
   }),
 });
 
-export const { useFetchRSSQuery } = apiSlice;
+export const { useFetchRSSQuery, useImportFeedMutation, useEditStoryMutation, useFetchUserFeedQuery } = apiSlice;

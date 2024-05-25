@@ -1,60 +1,59 @@
 import React, { useState } from 'react';
-import { useFetchRSSQuery } from '../store/apiSlice';
-import NavigationBar from '../components/NavigationBar';
+import { useFetchUserFeedQuery, useImportFeedMutation, useEditStoryMutation } from '../store/apiSlice';
 
-const RSSReader = () => {
-  const [url, setUrl] = useState('');
-  const [displayMode, setDisplayMode] = useState('HTML');
-  const { data, error, isLoading } = useFetchRSSQuery(url, {
-    skip: !url || !url.startsWith('http'),
-  });
+const RSSPage = () => {
+  const { data: userFeed, isLoading: isFetching, isError } = useFetchUserFeedQuery();
+  const [importFeed, { isLoading: isImporting }] = useImportFeedMutation();
+  const [editStory] = useEditStoryMutation();
 
-  const toggleDisplayMode = () => {
-    setDisplayMode(prevMode => prevMode === 'HTML' ? 'XML' : 'HTML');
+  const [newFeedUrl, setNewFeedUrl] = useState('');
+
+  const handleImportFeed = async () => {
+    if (newFeedUrl) {
+      await importFeed({ url: newFeedUrl });
+      setNewFeedUrl('');
+    }
   };
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error loading the feed!</p>;
+  const handleEditStory = async (storyId, customTitle, customContent) => {
+    await editStory({ storyId, storyData: { custom_title: customTitle, custom_content: customContent } });
+  };
+
+  if (isFetching) return <div>Loading feeds...</div>;
+  if (isError) return <div>Error loading feeds.</div>;
 
   return (
     <div>
-      <NavigationBar />
-      <button onClick={toggleDisplayMode}>
-        Switch to {displayMode === 'HTML' ? 'XML' : 'HTML'}
-      </button>
+      <h2>RSS Feeds</h2>
       <input
         type="text"
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        placeholder="Enter RSS feed URL"
+        value={newFeedUrl}
+        onChange={(e) => setNewFeedUrl(e.target.value)}
+        placeholder="Enter feed URL"
       />
-      {data && (
-        <div>
-          {displayMode === 'HTML' ? (
-            <>
-              <h1>{data.feedTitle}</h1>
-              <h2>{data.feedLink}</h2>
-              <ul>
-                {data.items.map((item, index) => (
-                  <li key={index}>
-                    {Object.entries(item).map(([key, value]) => (
-                      key === 'link' ? (
-                        <p key={key}><strong>{key}: </strong><a href={value} target="_blank" rel="noopener noreferrer">{value}</a></p>
-                      ) : (
-                        <p key={key}><strong>{key}: </strong>{value}</p>
-                      )
-                    ))}
-                  </li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            <pre style={{ whiteSpace: 'pre-wrap' }}>{data.rawXML}</pre>
-          )}
+      <button onClick={handleImportFeed} disabled={isImporting}>
+        Import New Feed
+      </button>
+
+      {userFeed?.feed.map(feed => (
+        <div key={feed.url}>
+          <h3>{feed.feedTitle}</h3>
+          <ul>
+            {feed.items.map(story => (
+              <li key={story.title}>
+                <h4>{story.title}</h4>
+                <p>{story.content}</p>
+                {/* Example edit functionality, expand upon this based on actual data structure and requirements */}
+                <button onClick={() => handleEditStory(story.id, "New Title", "New Content")}>
+                  Edit Story
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
-      )}
+      ))}
     </div>
   );
 };
 
-export default RSSReader;
+export default RSSPage;
