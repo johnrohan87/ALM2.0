@@ -35,7 +35,7 @@ export const wrapRootElement = ({ element }) => {
         scope: 'openid profile email',
         response_type: 'code',
       }}
-      onRedirectCallback={onRedirectCallback}
+      //onRedirectCallback={onRedirectCallback}
     >
       <Provider store={store}>
       <AuthProvider>
