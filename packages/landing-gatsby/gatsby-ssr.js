@@ -24,7 +24,7 @@ try {
 }
 
 export const wrapRootElement = ({ element }) => {
-  console.log('gatsby-browser window.location.origin = ', window.location.origin)
+  //console.log('gatsby-browser window.location.origin = ', window.location.origin)
   return (
     <Auth0Provider
       domain={process.env.GATSBY_AUTH0_DOMAIN}
