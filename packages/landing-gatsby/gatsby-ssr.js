@@ -1,31 +1,30 @@
 import React from 'react';
-import { navigate } from "gatsby";
 import { Provider } from 'react-redux';
 import { Auth0Provider } from '@auth0/auth0-react';
-import { AuthProvider } from './src/ALM/utils/authContext';
+import { AuthProvider } from './src/ALM/utils/authProvider';
 import { configureStore } from '@reduxjs/toolkit';
-import { apiSlice } from './src/ALM/store/apiSlice'
+import authReducer from './src/ALM/store/authSlice';
+import { api } from './src/ALM/store/api';
+
+let store
+try {
+  store = configureStore({
+      reducer: {
+          auth: authReducer,
+          [api.reducerPath]: api.reducer,
+      },
+      middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
+      devTools: process.env.NODE_ENV !== 'production',
+  });
+
+  
+  console.log("Redux Store initialized in ssr", store.getState());
+} catch (error) {
+  console.error("Error initializing Redux store:", error);
+}
 
 export const wrapRootElement = ({ element }) => {
-
-  const store = configureStore({
-    reducer: {
-      [apiSlice.reducerPath]: apiSlice.reducer,
-    },
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(apiSlice.middleware),
-  });
-  
-  const onRedirectCallback = (appState) => {
-    if (appState && appState.returnTo) {
-      console.log('appState && appState.returnTo', appState, appState.returnTo)
-      navigate(appState.returnTo);
-  } else {
-      console.error("appState or returnTo is undefined");
-      navigate("/account");
-  }
-  };
-
+  console.log('gatsby-browser window.location.origin = ', window.location.origin)
   return (
     <Auth0Provider
       domain={process.env.GATSBY_AUTH0_DOMAIN}
@@ -38,12 +37,17 @@ export const wrapRootElement = ({ element }) => {
       }}
       onRedirectCallback={onRedirectCallback}
     >
-
-      <AuthProvider>
       <Provider store={store}>
+      <AuthProvider>
         {element}
-      </Provider>
       </AuthProvider>
+      </Provider>
     </Auth0Provider>
   );
 };
+
+export const {
+  useFetchUserFeedQuery,
+  useImportFeedMutation,
+  useEditStoryMutation,
+} = api;

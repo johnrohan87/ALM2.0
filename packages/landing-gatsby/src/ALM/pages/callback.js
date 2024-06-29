@@ -7,6 +7,7 @@ const Callback = () => {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
+      console.log('callback - !isLoading && isAuthenticated')
       navigate("/account");
     }
   }, [isLoading, isAuthenticated]);

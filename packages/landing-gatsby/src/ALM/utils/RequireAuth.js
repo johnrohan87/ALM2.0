@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { navigate } from 'gatsby';
-import { useAuth } from './authContext';
+import { useAuth } from './authProvider';
 import NavigationBar from '../components/NavigationBar';
 
 const RequireAuth = ({ component: Component, ...rest }) => {
@@ -9,6 +9,7 @@ const RequireAuth = ({ component: Component, ...rest }) => {
     useEffect(() => {
         console.log("Checking auth status:", { isAuthenticated, isLoading });
         if (!isLoading && !isAuthenticated) {
+            console.log('RequireAuth - !isLoading && !isAuthenticated')
             navigate('/login', { replace: true });
         }
     }, [isAuthenticated, isLoading]);
@@ -21,6 +22,7 @@ const RequireAuth = ({ component: Component, ...rest }) => {
     }
 
     if (!isAuthenticated) {
+        console.log('RequireAuth - !isAuthenticated')
         return null;
     }
     

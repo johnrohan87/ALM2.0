@@ -1,8 +1,22 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { getCurrentState } from './store';
 
 export const apiSlice = createApi({
   reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ baseUrl: `${process.env.GATSBY_HEROKU_BASEURL}` }),
+  baseQuery: fetchBaseQuery({ baseUrl: `${process.env.GATSBY_HEROKU_BASEURL}`,
+  prepareHeaders: (headers) => {
+    if (typeof window !== 'undefined') {
+      const state = getCurrentState();
+      console.log('state',state)
+      const token = state?.auth?.token;
+      console.log('token',token)
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
+    }
+    return headers;
+    },
+  }),
   endpoints: (builder) => ({
     fetchRSS: builder.query({
       query: (url) => ({
@@ -10,18 +24,22 @@ export const apiSlice = createApi({
         method: 'GET',
       }),
       transformResponse: (response) => {
-        const rawXML = response.contents;
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(rawXML, "application/xml");
-        const items = Array.from(xml.querySelectorAll("item")).map(item => {
-          const elements = {};
-          Array.from(item.childNodes).forEach(child => {
-            if (child.nodeType === 1) {
-              elements[child.tagName.toLowerCase()] = child.textContent.trim();
-            }
+        if (typeof window !== 'undefined') {
+          const rawXML = response.contents;
+          const parser = new DOMParser();
+          const xml = parser.parseFromString(rawXML, "application/xml");
+          const items = Array.from(xml.querySelectorAll("item")).map(item => {
+            const elements = {};
+            Array.from(item.childNodes).forEach(child => {
+              if (child.nodeType === 1) {
+                elements[child.tagName.toLowerCase()] = child.textContent.trim();
+              }
+            });
+            return elements;
           });
-          return elements;
-        });
+        } else {
+          return null;
+        }
         return {
           rawXML,
           feedTitle: xml.querySelector("channel > title")?.textContent,

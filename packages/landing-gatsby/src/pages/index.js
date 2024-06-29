@@ -5,7 +5,7 @@ import Login from '../ALM/pages/login';
 import Account from '../ALM/pages/account';
 import Admin from '../ALM/pages/admin';
 import Rss from '../ALM/pages/rss';
-import RequireAuth from '../ALM/utils/requireAuth';
+import RequireAuth from '../ALM/utils/RequireAuth';
 
 const IndexRoutes = () => {
     return (

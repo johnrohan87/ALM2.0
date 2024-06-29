@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "gatsby";
-import { useAuth } from "../utils/authContext";  
+import { useAuth } from "../utils/authProvider";  
 
 const NavigationBar = () => {
     const { logout, isAdmin } = useAuth();

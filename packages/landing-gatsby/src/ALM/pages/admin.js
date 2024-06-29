@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '../utils/authContext';
+import { useAuth } from '../utils/authProvider';
 import NavigationBar from "../components/NavigationBar";
 
 const Admin = () => {
