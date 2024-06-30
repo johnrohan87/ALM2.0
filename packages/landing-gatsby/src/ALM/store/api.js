@@ -5,16 +5,22 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${process.env.GATSBY_HEROKU_BASEURL}`,
     prepareHeaders: (headers, { getState }) => {
-      if (typeof window !== 'undefined') {
-        const token = getState().auth.token;
-        console.log("Authorization Token:", token, 'state', getState());
-        if (token) {
-          headers.set('Authorization', `Bearer ${token}`);
-        }
-        headers.set('Content-Type', 'application/json');
-        console.log("Headers being sent:", headers);
+      const token = getState().auth.token;
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
       }
+      headers.set('Content-Type', 'application/json');
       return headers;
+    },
+    responseHandler: async (response) => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        const error = await response.json();
+        return {
+          error: { status: response.status, data: error }
+        };
+      }
     },
   }),
   endpoints: (builder) => ({
@@ -63,7 +69,11 @@ export const api = createApi({
         }),
     }),
     fetchUserFeed: builder.query({
-        query: () => 'user_feed',
+      query: () => {
+        const url = `user_feed`;
+        console.log("Requesting URL:", `${process.env.GATSBY_HEROKU_BASEURL}/${url}`);
+        return url;
+      },
     }),
   }),
 });
