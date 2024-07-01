@@ -13,9 +13,12 @@ const RSSPage = () => {
 
   useEffect(() => {
     if (!authLoading && !token) {
-      console.log('rss - !authLoading && !token')
+      console.log('rss - !authLoading && !token');
     }
-  }, [authLoading, token]);
+    if (userFeed) {
+      console.log('User Feed:', userFeed);
+    }
+  }, [authLoading, token, userFeed]);
 
   const handleImportFeed = async () => {
     if (newFeedUrl.trim()) {
@@ -60,20 +63,13 @@ const RSSPage = () => {
         Import New Feed
       </button>
 
-      {userFeed?.feed?.map((feed, idx) => (
+      {userFeed?.feed?.map((story, idx) => (
         <div key={idx}>
-          <h3>{feed.feedTitle}</h3>
-          <ul>
-            {feed.items.map((story, index) => (
-              <li key={index}>
-                <h4>{story.title}</h4>
-                <p>{story.content}</p>
-                <button onClick={() => handleEditStory(story.id, "New Title", "New Content")}>
-                  Edit Story
-                </button>
-              </li>
-            ))}
-          </ul>
+          <h3>{story.title || 'No Title Available'}</h3>
+          <p>{story.content || 'No Content Available'}</p>
+          <button onClick={() => handleEditStory(idx, "New Title", "New Content")}>
+            Edit Story
+          </button>
         </div>
       ))}
     </div>
