@@ -15,6 +15,10 @@ exports.createPages = async ({ actions }) => {
     component: path.resolve('./src/ALM/pages/login.js'),
   });
   createPage({
+    path: '/logged-out',
+    component: path.resolve('./src/ALM/pages/loggedout.js'),
+  });
+  createPage({
     path: '/admin',
     component: path.resolve('./src/ALM/pages/admin.js'),
   });

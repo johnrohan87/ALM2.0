@@ -1,18 +1,19 @@
 import React, { useEffect } from "react";
-import { navigate } from "gatsby";
-import { useSelector } from 'react-redux';
+//import { navigate } from "gatsby";
+//import { useSelector } from 'react-redux';
 import { useAuth } from "../utils/authProvider";
-import NavigationBar from "../components/NavigationBar";
+//import NavigationBar from "../components/NavigationBar";
+import withAuth from "../utils/withAuth";
 
 const AccountComponent = () => {
   const { user, token, isLoading, isAuthenticated, logout } = useAuth();
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       console.log("!isLoading && !isAuthenticated")
       navigate('/login');
     }
-  }, [isLoading, isAuthenticated]);
+  }, [isLoading, isAuthenticated]);*/
 
   if (isLoading) {
     return <div>Loading your profile...</div>;
@@ -23,7 +24,7 @@ const AccountComponent = () => {
 
   return (
     <div>
-      <NavigationBar />
+      {/*<NavigationBar />*/}
       <img src={user?.picture || ""} alt={user?.name || "friend"} />
       <p>Hi, {user?.name || "friend"}!</p>
       <p>Your roles: {user?.['https://voluble-boba-2e3a2e.netlify.app/roles']?.join(', ') || "No specific roles"}</p>
@@ -34,4 +35,4 @@ const AccountComponent = () => {
   );
 };
 
-export default AccountComponent;
+export default withAuth(AccountComponent);

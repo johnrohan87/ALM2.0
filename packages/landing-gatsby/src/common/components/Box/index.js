@@ -25,7 +25,7 @@ const BoxWrapper = styled('div')(
 );
 
 const Box = ({ children, ...props }) => (
-  <BoxWrapper {...props}>{children}</BoxWrapper>
+  <BoxWrapper {...props}>{children || null}</BoxWrapper>
 );
 
 export default Box;

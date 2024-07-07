@@ -13,7 +13,7 @@ const Navbar = ({ className, children, navbarStyle, ...props }) => {
 
   return (
     <NavbarStyle className={addAllClasses.join(' ')} {...props}>
-      {children}
+      {children || null}
     </NavbarStyle>
   );
 };

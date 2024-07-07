@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useAuth } from '../utils/authProvider';
 import { navigate } from 'gatsby';
 
 const LoginPage = () => {
-    const { loginWithRedirect, isAuthenticated } = useAuth0();
+    const { loginWithRedirect, isAuthenticated } = useAuth();
 
     useEffect(() => {
         if (isAuthenticated) {
             navigate('/account');
         } else {
-            loginWithRedirect({appState: { returnTo: '/' }});
+            loginWithRedirect({ appState: { returnTo: '/account' } });
         }
     }, [isAuthenticated, loginWithRedirect]);
 
