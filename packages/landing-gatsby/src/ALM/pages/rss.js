@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useFetchUserFeedQuery, useImportFeedMutation, useEditStoryMutation } from '../store/api';
 import { useAuth } from '../utils/authProvider';
+import withAuth from "../utils/withAuth";
 
 const RSSPage = () => {
   const { token, isLoading: authLoading } = useAuth();
@@ -76,4 +77,4 @@ const RSSPage = () => {
   );
 };
 
-export default RSSPage;
+export default withAuth(RSSPage);

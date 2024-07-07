@@ -8,13 +8,6 @@ import withAuth from "../utils/withAuth";
 const AccountComponent = () => {
   const { user, token, isLoading, isAuthenticated, logout } = useAuth();
 
-  /*useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      console.log("!isLoading && !isAuthenticated")
-      navigate('/login');
-    }
-  }, [isLoading, isAuthenticated]);*/
-
   if (isLoading) {
     return <div>Loading your profile...</div>;
   }

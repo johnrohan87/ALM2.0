@@ -1,25 +1,32 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { navigate } from 'gatsby';
 import { useAuth } from './authProvider';
 
-const withAuth = (Component) => (props) => {
-  const { isAuthenticated, isLoading, isLoggingOut } = useAuth();
+const withAuth = (Component, requireAdmin = false) => (props) => {
+  const { isAuthenticated, isLoading, isLoggingOut, isAdmin } = useAuth();
+  const [initialCheckCompleted, setInitialCheckCompleted] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated && !isLoggingOut) {
-      navigate('/login');
-    }
-  }, [isAuthenticated, isLoading, isLoggingOut]);
+    console.log('withAuth - Checking auth status:', { isAuthenticated, isLoading, isLoggingOut, isAdmin });
 
-  if (isLoading || isLoggingOut) {
+    if (!isLoading && !isLoggingOut) {
+      setInitialCheckCompleted(true);
+
+      if (!isAuthenticated) {
+        console.log('withAuth - Redirecting to login...');
+        navigate('/login');
+      } else if (isAuthenticated && !isAdmin && requireAdmin) {
+        console.log('withAuth - Redirecting to account...');
+        navigate('/account');
+      }
+    }
+  }, [isAuthenticated, isLoading, isLoggingOut, isAdmin, requireAdmin]);
+
+  if (isLoading || !initialCheckCompleted) {
     return <p>Loading...</p>;
   }
 
-  if (!isAuthenticated && !isLoggingOut) {
-    return null;
-  }
-
-  return <Component {...props} />;
+  return (isAuthenticated && (!requireAdmin || isAdmin)) ? <Component {...props} /> : null;
 };
 
 export default withAuth;
