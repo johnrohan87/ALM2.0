@@ -14443,6 +14443,13 @@ react-transition-group@^4.3.0:
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
 
+react-treeview@^0.4.7:
+  version "0.4.7"
+  resolved "https://registry.yarnpkg.com/react-treeview/-/react-treeview-0.4.7.tgz#f647e04f70496eb11fb0912c35187e80eb60d458"
+  integrity sha512-k1Q954z/Ts3O9QW4SI1dGZVOwGbGJwjMGQvN/JhAknF1vifRp6bCLJiPaQ3br5af7Mdk7HSAb3JiyQIQJnnaPQ==
+  dependencies:
+    prop-types "^15.5.8"
+
 react-tsparticles@^1.42.1:
   version "1.42.4"
   resolved "https://registry.yarnpkg.com/react-tsparticles/-/react-tsparticles-1.42.4.tgz#da35107241aaa7ed1936563bdeacafd63bb42539"

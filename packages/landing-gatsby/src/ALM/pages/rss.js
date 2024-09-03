@@ -1,31 +1,129 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useFetchUserFeedsQuery, useFetchUserStoriesQuery, useImportFeedMutation, useDeleteStoriesMutation } from '../store/api';
-import { Accordion, AccordionItem, AccordionHeader, AccordionPanel } from '@reach/accordion';
-import '@reach/accordion/styles.css'; // If you need some default styles
+import {
+  useFetchUserFeedsQuery,
+  useLazyFetchUserStoriesQuery,
+  useImportFeedMutation,
+  useDeleteFeedMutation,
+  useDeleteStoriesMutation,
+} from '../store/api';
+import { styles } from './styles/rss.styles';
 
 const RSSFeed = () => {
   const token = useSelector((state) => state.auth.token);
-  const { data: feeds, isLoading: isLoadingFeeds, refetch: refetchFeeds } = useFetchUserFeedsQuery(null, {
-    skip: !token, // Skip the query if token is not available
+  const { data: feedsData, isLoading: isLoadingFeeds, refetch: refetchFeeds } = useFetchUserFeedsQuery(null, {
+    skip: !token,
   });
-  const [selectedFeedId, setSelectedFeedId] = useState(null);
-  const { data: stories, isLoading: isLoadingStories, refetch: refetchStories } = useFetchUserStoriesQuery(
-    { feedId: selectedFeedId },
-    {
-      skip: !token || !selectedFeedId, // Skip if token or selectedFeedId is not available
-    }
-  );
+
+  const feeds = feedsData?.feeds || [];
+  const [expandedFeeds, setExpandedFeeds] = useState({});
+  const [expandedStories, setExpandedStories] = useState({});
+  const [selectedFeeds, setSelectedFeeds] = useState([]); // Track selected feeds
+  const [selectedStories, setSelectedStories] = useState([]);
+  const [fetchedStories, setFetchedStories] = useState({});
+
+  // Use lazy query for fetching stories
+  const [triggerFetchStories, { isFetching }] = useLazyFetchUserStoriesQuery();
   const [importFeed] = useImportFeedMutation();
+  const [deleteFeed] = useDeleteFeedMutation();
   const [deleteStories] = useDeleteStoriesMutation();
 
   const [newFeedUrl, setNewFeedUrl] = useState('');
-  const [selectedStories, setSelectedStories] = useState([]);
+
+  useEffect(() => {
+    selectedFeeds.forEach(async (feedId) => {
+      if (!fetchedStories[feedId]) {
+        const result = await triggerFetchStories({ feedId }).unwrap();
+        setFetchedStories((prev) => ({ ...prev, [feedId]: result.stories }));
+        setSelectedStories((prevSelected) => [
+          ...prevSelected,
+          ...result.stories.map((story) => story.id),
+        ]);
+      }
+    });
+  }, [selectedFeeds]);
+
+  const toggleFeedExpansion = (feedId) => {
+    setExpandedFeeds((prev) => ({ ...prev, [feedId]: !prev[feedId] }));
+
+    if (!expandedFeeds[feedId] && !fetchedStories[feedId]) {
+      triggerFetchStories({ feedId }).unwrap().then((result) => {
+        setFetchedStories((prev) => ({ ...prev, [feedId]: result.stories }));
+      });
+    }
+  };
+
+  const toggleStoryExpansion = (storyId) => {
+    setExpandedStories((prev) => ({ ...prev, [storyId]: !prev[storyId] }));
+  };
+
+  const handleStorySelect = (storyId, feedId) => {
+    const newSelectedStories = selectedStories.includes(storyId)
+      ? selectedStories.filter((id) => id !== storyId)
+      : [...selectedStories, storyId];
+
+    setSelectedStories(newSelectedStories);
+
+    // Deselect the feed if any child story is deselected
+    const feedStories = fetchedStories[feedId]?.map((story) => story.id) || [];
+    const areAllSelected = feedStories.every((id) => newSelectedStories.includes(id));
+
+    if (!areAllSelected && selectedFeeds.includes(feedId)) {
+      setSelectedFeeds((prevSelected) => prevSelected.filter((id) => id !== feedId));
+    } else if (areAllSelected && !selectedFeeds.includes(feedId)) {
+      setSelectedFeeds((prevSelected) => [...prevSelected, feedId]);
+    }
+  };
 
   const handleFeedSelect = (feedId) => {
-    console.log("Selected Feed ID:", feedId);
-    setSelectedFeedId(feedId);
+    if (selectedFeeds.includes(feedId)) {
+      setSelectedFeeds((prevSelected) => prevSelected.filter((id) => id !== feedId));
+      setSelectedStories((prevSelected) =>
+        prevSelected.filter((storyId) => !fetchedStories[feedId]?.map((s) => s.id).includes(storyId))
+      );
+    } else {
+      setSelectedFeeds((prevSelected) => [...prevSelected, feedId]);
+      if (fetchedStories[feedId]) {
+        setSelectedStories((prevSelected) => [
+          ...prevSelected,
+          ...fetchedStories[feedId].map((story) => story.id),
+        ]);
+      }
+    }
   };
+
+  const handleDeleteFeedAndStories = async (feedId) => {
+    try {
+      if (selectedFeeds.includes(feedId)) {
+        // If the feed itself is selected, delete the feed
+        await deleteFeed(feedId).unwrap();
+        setSelectedFeeds((prev) => prev.filter((id) => id !== feedId));
+        setExpandedFeeds((prev) => ({ ...prev, [feedId]: false }));
+        refetchFeeds();  // Refetch feeds to update the list
+      } else if (selectedStories.length > 0) {
+        // If only stories are selected, delete the selected stories
+        const storiesToDelete = fetchedStories[feedId].filter((story) =>
+          selectedStories.includes(story.id)
+        ).map((story) => story.id);
+  
+        if (storiesToDelete.length > 0) {
+          await deleteStories(storiesToDelete).unwrap();
+          setSelectedStories((prev) => prev.filter((id) => !storiesToDelete.includes(id)));
+  
+          // After deletion, refetch the stories for the feed
+          const updatedStories = await triggerFetchStories({ feedId }).unwrap();
+  
+          // Update the fetchedStories state to trigger a re-render
+          setFetchedStories((prev) => ({
+            ...prev,
+            [feedId]: updatedStories.stories,
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Failed to delete feed or stories:', error);
+    }
+  };      
 
   const handleImportFeed = async () => {
     if (newFeedUrl.trim()) {
@@ -39,28 +137,7 @@ const RSSFeed = () => {
     }
   };
 
-  const handleDeleteStories = async () => {
-    if (selectedStories.length > 0) {
-      try {
-        await deleteStories(selectedStories).unwrap();
-        setSelectedStories([]);
-        refetchStories();
-      } catch (error) {
-        console.error('Failed to delete stories:', error);
-      }
-    }
-  };
-
-  const handleStorySelect = (storyId) => {
-    setSelectedStories((prevSelected) =>
-      prevSelected.includes(storyId)
-        ? prevSelected.filter((id) => id !== storyId)
-        : [...prevSelected, storyId]
-    );
-  };
-
   if (isLoadingFeeds) return <div>Loading Feeds...</div>;
-  if (isLoadingStories) return <div>Loading Stories...</div>;
 
   return (
     <div style={styles.container}>
@@ -82,104 +159,79 @@ const RSSFeed = () => {
         </button>
       </div>
 
-      <Accordion>
-        {Array.isArray(feeds) && feeds.length > 0 ? (
-          feeds.map((feed) => (
-            <AccordionItem key={feed.id}>
-              <AccordionHeader onClick={() => handleFeedSelect(feed.id)}>
-                {feed.title}
-              </AccordionHeader>
-              <AccordionPanel>
-                {stories && stories.length > 0 ? (
-                  stories.map((story) => (
+      {feeds.length === 0 && !isLoadingFeeds && <div>No Feeds Found</div>}
+
+      <div>
+        {feeds.map((feed) => (
+          <div key={feed.id} style={styles.feedContainer}>
+            <div style={styles.feedHeader}>
+              <div style={styles.nodeLabel}>
+                <span style={styles.icon}>📁</span>
+                {`${feed.id ? "ID: " + feed.id : "No ID"} - ${feed.title || feed.url}`}
+              </div>
+              <div style={styles.feedActions}>
+                <button
+                  style={styles.toggleStoriesButton}
+                  onClick={() => toggleFeedExpansion(feed.id)}
+                >
+                  {expandedFeeds[feed.id] ? '^' : 'v'}
+                </button>
+                <input
+                  type="checkbox"
+                  checked={selectedFeeds.includes(feed.id)}
+                  onChange={() => handleFeedSelect(feed.id)}
+                  style={styles.checkbox}
+                />
+                <button
+                  style={styles.deleteFeedButton}
+                  onClick={() => handleDeleteFeedAndStories(feed.id)}
+                >
+                  🗑️
+                </button>
+              </div>
+            </div>
+
+            {expandedFeeds[feed.id] && (
+              <div style={styles.storiesContainer}>
+                {isFetching && !fetchedStories[feed.id] ? (
+                  <p>Loading stories...</p>
+                ) : fetchedStories[feed.id]?.length > 0 ? (
+                  fetchedStories[feed.id].map((story) => (
                     <div key={story.id} style={styles.storyContainer}>
-                      <h3 style={styles.storyTitle}>{story.custom_title || story.data.title}</h3>
-                      <p style={styles.storyContent}>{story.custom_content || story.data.summary}</p>
-                      <input
-                        type="checkbox"
-                        checked={selectedStories.includes(story.id)}
-                        onChange={() => handleStorySelect(story.id)}
-                      />
+                      <div style={styles.storyHeader}>
+                        <button
+                          style={styles.toggleStoryButton}
+                          onClick={() => toggleStoryExpansion(story.id)}
+                        >
+                          {expandedStories[story.id] ? '^' : 'v'}
+                        </button>
+                        <div style={styles.storyTitle}>
+                          {story.custom_title || story.data.title}
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={selectedStories.includes(story.id)}
+                          onChange={() => handleStorySelect(story.id, feed.id)}
+                          style={styles.checkbox}
+                        />
+                      </div>
+                      {expandedStories[story.id] && (
+                        <div style={styles.storyContent}>
+                          <p>{story.custom_content || story.data.summary}</p>
+                        </div>
+                      )}
                     </div>
                   ))
                 ) : (
                   <p>No stories found for this feed.</p>
                 )}
-              </AccordionPanel>
-            </AccordionItem>
-          ))
-        ) : (
-          <div>No Feeds Found</div>
-        )}
-      </Accordion>
-
-      <button
-        style={styles.deleteButton}
-        onClick={handleDeleteStories}
-        disabled={selectedStories.length === 0}
-      >
-        Delete Selected Stories
-      </button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    padding: '20px',
-    maxWidth: '800px',
-    margin: '0 auto',
-    fontFamily: 'Arial, sans-serif',
-  },
-  header: {
-    textAlign: 'center',
-    marginBottom: '20px',
-  },
-  inputContainer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '20px',
-  },
-  input: {
-    flex: '1',
-    padding: '10px',
-    marginRight: '10px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
-  },
-  button: {
-    padding: '10px 20px',
-    borderRadius: '4px',
-    border: 'none',
-    backgroundColor: '#007bff',
-    color: '#fff',
-    cursor: 'pointer',
-  },
-  deleteButton: {
-    padding: '10px 20px',
-    borderRadius: '4px',
-    border: 'none',
-    backgroundColor: 'red',
-    color: '#fff',
-    cursor: 'pointer',
-    marginTop: '20px',
-  },
-  storyContainer: {
-    padding: '15px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    marginBottom: '15px',
-    backgroundColor: '#f9f9f9',
-  },
-  storyTitle: {
-    marginBottom: '10px',
-    fontSize: '18px',
-    fontWeight: 'bold',
-  },
-  storyContent: {
-    marginBottom: '10px',
-    fontSize: '14px',
-  },
 };
 
 export default RSSFeed;
