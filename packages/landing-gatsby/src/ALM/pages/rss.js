@@ -1,76 +1,66 @@
 import React, { useState, useEffect } from 'react';
-import { useFetchUserFeedQuery, useImportFeedMutation, useEditStoryMutation } from '../store/api';
-import { useAuth } from '../utils/authProvider';
-import withAuth from "../utils/withAuth";
+import { useSelector } from 'react-redux';
+import { useFetchUserFeedsQuery, useFetchUserStoriesQuery, useImportFeedMutation, useDeleteStoriesMutation } from '../store/api';
+import { Accordion, AccordionItem, AccordionHeader, AccordionPanel } from '@reach/accordion';
+import '@reach/accordion/styles.css'; // If you need some default styles
 
-const RSSPage = () => {
-  const { token, isLoading: authLoading } = useAuth();
-  const { data: userFeed, isLoading: isFetching, isError, error } = useFetchUserFeedQuery(undefined, {
-    skip: !token
+const RSSFeed = () => {
+  const token = useSelector((state) => state.auth.token);
+  const { data: feeds, isLoading: isLoadingFeeds, refetch: refetchFeeds } = useFetchUserFeedsQuery(null, {
+    skip: !token, // Skip the query if token is not available
   });
-  const [importFeed, { isLoading: isImporting, isSuccess: isImportSuccess, isError: isImportError }] = useImportFeedMutation();
-  const [editStory, { isLoading: isEditing, isSuccess: isEditSuccess, isError: isEditError }] = useEditStoryMutation();
+  const [selectedFeedId, setSelectedFeedId] = useState(null);
+  const { data: stories, isLoading: isLoadingStories, refetch: refetchStories } = useFetchUserStoriesQuery(
+    { feedId: selectedFeedId },
+    {
+      skip: !token || !selectedFeedId, // Skip if token or selectedFeedId is not available
+    }
+  );
+  const [importFeed] = useImportFeedMutation();
+  const [deleteStories] = useDeleteStoriesMutation();
+
   const [newFeedUrl, setNewFeedUrl] = useState('');
   const [selectedStories, setSelectedStories] = useState([]);
 
-  useEffect(() => {
-    if (!authLoading && !token) {
-      console.log('rss - !authLoading && !token');
-    }
-    if (userFeed) {
-      console.log('User Feed:', userFeed);
-    }
-  }, [authLoading, token, userFeed]);
+  const handleFeedSelect = (feedId) => {
+    console.log("Selected Feed ID:", feedId);
+    setSelectedFeedId(feedId);
+  };
 
   const handleImportFeed = async () => {
     if (newFeedUrl.trim()) {
       try {
         await importFeed({ url: newFeedUrl }).unwrap();
         setNewFeedUrl('');
-        alert('Feed imported successfully!');
-      } catch (err) {
-        console.error('Failed to import feed:', err);
-        alert('Failed to import feed. Please check the console for more details.');
+        refetchFeeds();
+      } catch (error) {
+        console.error('Failed to import feed:', error);
       }
     }
   };
 
-  const handleEditStory = async (storyId, customTitle, customContent) => {
-    try {
-      await editStory({ storyId, storyData: { custom_title: customTitle, custom_content: customContent } }).unwrap();
-      alert('Story updated successfully!');
-    } catch (err) {
-      console.error('Failed to edit story:', err);
-      alert('Failed to edit story. Please check the console for more details.');
+  const handleDeleteStories = async () => {
+    if (selectedStories.length > 0) {
+      try {
+        await deleteStories(selectedStories).unwrap();
+        setSelectedStories([]);
+        refetchStories();
+      } catch (error) {
+        console.error('Failed to delete stories:', error);
+      }
     }
   };
 
-  const handleSelectStory = (story) => {
+  const handleStorySelect = (storyId) => {
     setSelectedStories((prevSelected) =>
-      prevSelected.includes(story)
-        ? prevSelected.filter((s) => s !== story)
-        : [...prevSelected, story]
+      prevSelected.includes(storyId)
+        ? prevSelected.filter((id) => id !== storyId)
+        : [...prevSelected, storyId]
     );
   };
 
-  const handleSelectAll = () => {
-    if (selectedStories.length === userFeed.feed.length) {
-      setSelectedStories([]);
-    } else {
-      setSelectedStories(userFeed.feed);
-    }
-  };
-
-  const handleShareSelected = () => {
-    alert(`Sharing ${selectedStories.length} stories: \n${selectedStories.map(story => story.title).join('\n')}`);
-  };
-
-  if (isFetching || isImporting || isEditing) return <div>Loading...</div>;
-  if (isError) return <div>Error loading feeds: {error.message}</div>;
-  if (isImportError || isEditError) {
-    const message = isImportError ? 'Error importing feed.' : 'Error editing story.';
-    return <div>{message}</div>;
-  }
+  if (isLoadingFeeds) return <div>Loading Feeds...</div>;
+  if (isLoadingStories) return <div>Loading Stories...</div>;
 
   return (
     <div style={styles.container}>
@@ -86,45 +76,50 @@ const RSSPage = () => {
         <button
           style={styles.button}
           onClick={handleImportFeed}
-          disabled={isImporting || !newFeedUrl.trim()}
+          disabled={isLoadingFeeds || !newFeedUrl.trim()}
         >
           Import New Feed
         </button>
       </div>
-      <div>
-        <label>
-          <input
-            type="checkbox"
-            checked={selectedStories.length === userFeed?.feed?.length}
-            onChange={handleSelectAll}
-          />
-          Select All
-        </label>
-      </div>
-      {userFeed?.feed?.map((story, idx) => (
-        <div key={idx} style={styles.storyContainer}>
-          <label>
-            <input
-              type="checkbox"
-              checked={selectedStories.includes(story)}
-              onChange={() => handleSelectStory(story)}
-            />
-            <h3 style={styles.storyTitle}>{story.title || 'No Title Available'}</h3>
-          </label>
-          <p style={styles.storyContent}>{story.content || 'No Content Available'}</p>
-          <button
-            style={styles.button}
-            onClick={() => handleEditStory(idx, "New Title", "New Content")}
-          >
-            Edit Story
-          </button>
-        </div>
-      ))}
-      {selectedStories.length > 0 && (
-        <button style={styles.button} onClick={handleShareSelected}>
-          Share Selected Stories
-        </button>
-      )}
+
+      <Accordion>
+        {Array.isArray(feeds) && feeds.length > 0 ? (
+          feeds.map((feed) => (
+            <AccordionItem key={feed.id}>
+              <AccordionHeader onClick={() => handleFeedSelect(feed.id)}>
+                {feed.title}
+              </AccordionHeader>
+              <AccordionPanel>
+                {stories && stories.length > 0 ? (
+                  stories.map((story) => (
+                    <div key={story.id} style={styles.storyContainer}>
+                      <h3 style={styles.storyTitle}>{story.custom_title || story.data.title}</h3>
+                      <p style={styles.storyContent}>{story.custom_content || story.data.summary}</p>
+                      <input
+                        type="checkbox"
+                        checked={selectedStories.includes(story.id)}
+                        onChange={() => handleStorySelect(story.id)}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <p>No stories found for this feed.</p>
+                )}
+              </AccordionPanel>
+            </AccordionItem>
+          ))
+        ) : (
+          <div>No Feeds Found</div>
+        )}
+      </Accordion>
+
+      <button
+        style={styles.deleteButton}
+        onClick={handleDeleteStories}
+        disabled={selectedStories.length === 0}
+      >
+        Delete Selected Stories
+      </button>
     </div>
   );
 };
@@ -160,6 +155,15 @@ const styles = {
     color: '#fff',
     cursor: 'pointer',
   },
+  deleteButton: {
+    padding: '10px 20px',
+    borderRadius: '4px',
+    border: 'none',
+    backgroundColor: 'red',
+    color: '#fff',
+    cursor: 'pointer',
+    marginTop: '20px',
+  },
   storyContainer: {
     padding: '15px',
     border: '1px solid #ddd',
@@ -178,4 +182,4 @@ const styles = {
   },
 };
 
-export default withAuth(RSSPage);
+export default RSSFeed;

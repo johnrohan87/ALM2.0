@@ -22,6 +22,9 @@ const withAuth = (Component, requireAdmin = false) => (props) => {
     }
   }, [isAuthenticated, isLoading, isLoggingOut, isAdmin, requireAdmin]);
 
+  console.log('withAuth - Checking auth status:', { isAuthenticated, isLoading, isLoggingOut, isAdmin });
+
+
   if (isLoading || !initialCheckCompleted) {
     return <p>Loading...</p>;
   }

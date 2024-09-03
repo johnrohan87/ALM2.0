@@ -22,7 +22,12 @@ const onRedirectCallback = (appState) => {
   navigate(returnTo);
 };
 
-export const wrapRootElement = ({ element }) => (
+export const wrapRootElement = ({ element }) => {
+  console.log('Auth0 Domain:', process.env.GATSBY_AUTH0_DOMAIN);
+  console.log('Auth0 Client ID:', process.env.GATSBY_AUTH0_CLIENT_ID);
+  console.log('Auth0 Audience:', process.env.GATSBY_AUTH0_AUDIENCE);
+
+  return (
   <Auth0Provider
     domain={process.env.GATSBY_AUTH0_DOMAIN}
     clientId={process.env.GATSBY_AUTH0_CLIENT_ID}
@@ -39,4 +44,4 @@ export const wrapRootElement = ({ element }) => (
       </AuthProvider>
     </Provider>
   </Auth0Provider>
-);
+)};
