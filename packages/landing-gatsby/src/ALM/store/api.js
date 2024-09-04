@@ -28,6 +28,12 @@ export const api = createApi({
         body: feedData,
       }),
     }),
+    fetchPreviewFeed: builder.query({
+      query: (url) => ({
+        url: `import_feed?url=${encodeURIComponent(url)}`,
+        method: 'GET',
+      }),
+    }),
     deleteStories: builder.mutation({
       query: (storyIds) => ({
         url: 'delete_stories',
@@ -55,6 +61,7 @@ export const {
   useFetchUserFeedsQuery,
   useLazyFetchUserStoriesQuery,
   useImportFeedMutation,
+  useLazyFetchPreviewFeedQuery,
   useDeleteStoriesMutation,
   useDeleteFeedMutation,
 } = api;

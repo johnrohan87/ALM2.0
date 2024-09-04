@@ -3,11 +3,31 @@ import { useSelector } from 'react-redux';
 import {
   useFetchUserFeedsQuery,
   useLazyFetchUserStoriesQuery,
+  useLazyFetchPreviewFeedQuery,
   useImportFeedMutation,
-  useDeleteFeedMutation,
   useDeleteStoriesMutation,
+  useDeleteFeedMutation,
 } from '../store/api';
 import { styles } from './styles/rss.styles';
+
+// Debounce function to delay execution of the callback
+function debounce(func, delay) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
+// Function to validate the URL format
+function isValidUrl(url) {
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
 
 const RSSFeed = () => {
   const token = useSelector((state) => state.auth.token);
@@ -18,12 +38,14 @@ const RSSFeed = () => {
   const feeds = feedsData?.feeds || [];
   const [expandedFeeds, setExpandedFeeds] = useState({});
   const [expandedStories, setExpandedStories] = useState({});
-  const [selectedFeeds, setSelectedFeeds] = useState([]); // Track selected feeds
+  const [selectedFeeds, setSelectedFeeds] = useState([]);
   const [selectedStories, setSelectedStories] = useState([]);
   const [fetchedStories, setFetchedStories] = useState({});
+  const [previewFeed, setPreviewFeed] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
 
-  // Use lazy query for fetching stories
   const [triggerFetchStories, { isFetching }] = useLazyFetchUserStoriesQuery();
+  const [triggerFetchPreviewFeed, { data: previewData, isFetching: isFetchingPreview }] = useLazyFetchPreviewFeedQuery();
   const [importFeed] = useImportFeedMutation();
   const [deleteFeed] = useDeleteFeedMutation();
   const [deleteStories] = useDeleteStoriesMutation();
@@ -31,20 +53,48 @@ const RSSFeed = () => {
   const [newFeedUrl, setNewFeedUrl] = useState('');
 
   useEffect(() => {
-    selectedFeeds.forEach(async (feedId) => {
-      if (!fetchedStories[feedId]) {
-        const result = await triggerFetchStories({ feedId }).unwrap();
-        setFetchedStories((prev) => ({ ...prev, [feedId]: result.stories }));
-        setSelectedStories((prevSelected) => [
-          ...prevSelected,
-          ...result.stories.map((story) => story.id),
-        ]);
-      }
-    });
-  }, [selectedFeeds]);
+    if (previewData) {
+      setPreviewFeed(previewData);
+    }
+  }, [previewData]);
 
+  // Debounced function to preview the feed
+  const handlePreviewFeed = debounce(async () => {
+    if (isValidUrl(newFeedUrl)) {
+      setShowPreview(true);
+      try {
+        await triggerFetchPreviewFeed(newFeedUrl);
+      } catch (error) {
+        console.error('Failed to fetch preview:', error);
+        setPreviewFeed(null);
+      }
+    } else {
+      console.error('Invalid URL');
+      setShowPreview(false);
+      setPreviewFeed(null);
+    }
+  }, 500);
+
+  const handleImportFeed = async () => {
+    if (isValidUrl(newFeedUrl)) {
+      try {
+        await importFeed({ url: newFeedUrl }).unwrap();
+        setNewFeedUrl('');
+        refetchFeeds();
+      } catch (error) {
+        console.error('Failed to import feed:', error);
+      }
+    } else {
+      console.error('Invalid URL');
+    }
+  };
+
+  // Function to toggle the expansion of feeds
   const toggleFeedExpansion = (feedId) => {
-    setExpandedFeeds((prev) => ({ ...prev, [feedId]: !prev[feedId] }));
+    setExpandedFeeds((prev) => ({
+      ...prev,
+      [feedId]: !prev[feedId],
+    }));
 
     if (!expandedFeeds[feedId] && !fetchedStories[feedId]) {
       triggerFetchStories({ feedId }).unwrap().then((result) => {
@@ -53,10 +103,61 @@ const RSSFeed = () => {
     }
   };
 
-  const toggleStoryExpansion = (storyId) => {
-    setExpandedStories((prev) => ({ ...prev, [storyId]: !prev[storyId] }));
+  // Function to handle feed selection
+  const handleFeedSelect = (feedId) => {
+    if (selectedFeeds.includes(feedId)) {
+      setSelectedFeeds((prev) => prev.filter((id) => id !== feedId));
+      setSelectedStories((prevSelected) =>
+        prevSelected.filter((storyId) => !fetchedStories[feedId]?.map((s) => s.id).includes(storyId))
+      );
+    } else {
+      setSelectedFeeds((prev) => [...prev, feedId]);
+      if (fetchedStories[feedId]) {
+        setSelectedStories((prevSelected) => [
+          ...prevSelected,
+          ...fetchedStories[feedId].map((story) => story.id),
+        ]);
+      }
+    }
   };
 
+  // Function to delete feed and its stories
+  const handleDeleteFeedAndStories = async (feedId) => {
+    try {
+      if (selectedFeeds.includes(feedId)) {
+        await deleteFeed(feedId).unwrap();
+        setSelectedFeeds((prev) => prev.filter((id) => id !== feedId));
+        setExpandedFeeds((prev) => ({ ...prev, [feedId]: false }));
+        refetchFeeds();
+      } else if (selectedStories.length > 0) {
+        const storiesToDelete = fetchedStories[feedId].filter((story) =>
+          selectedStories.includes(story.id)
+        ).map((story) => story.id);
+
+        if (storiesToDelete.length > 0) {
+          await deleteStories(storiesToDelete).unwrap();
+          setSelectedStories((prev) => prev.filter((id) => !storiesToDelete.includes(id)));
+          const updatedStories = await triggerFetchStories({ feedId }).unwrap();
+          setFetchedStories((prev) => ({
+            ...prev,
+            [feedId]: updatedStories.stories,
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Failed to delete feed or stories:', error);
+    }
+  };
+
+  // Function to toggle story expansion
+  const toggleStoryExpansion = (storyId) => {
+    setExpandedStories((prev) => ({
+      ...prev,
+      [storyId]: !prev[storyId],
+    }));
+  };
+
+  // Function to handle story selection
   const handleStorySelect = (storyId, feedId) => {
     const newSelectedStories = selectedStories.includes(storyId)
       ? selectedStories.filter((id) => id !== storyId)
@@ -75,68 +176,6 @@ const RSSFeed = () => {
     }
   };
 
-  const handleFeedSelect = (feedId) => {
-    if (selectedFeeds.includes(feedId)) {
-      setSelectedFeeds((prevSelected) => prevSelected.filter((id) => id !== feedId));
-      setSelectedStories((prevSelected) =>
-        prevSelected.filter((storyId) => !fetchedStories[feedId]?.map((s) => s.id).includes(storyId))
-      );
-    } else {
-      setSelectedFeeds((prevSelected) => [...prevSelected, feedId]);
-      if (fetchedStories[feedId]) {
-        setSelectedStories((prevSelected) => [
-          ...prevSelected,
-          ...fetchedStories[feedId].map((story) => story.id),
-        ]);
-      }
-    }
-  };
-
-  const handleDeleteFeedAndStories = async (feedId) => {
-    try {
-      if (selectedFeeds.includes(feedId)) {
-        // If the feed itself is selected, delete the feed
-        await deleteFeed(feedId).unwrap();
-        setSelectedFeeds((prev) => prev.filter((id) => id !== feedId));
-        setExpandedFeeds((prev) => ({ ...prev, [feedId]: false }));
-        refetchFeeds();  // Refetch feeds to update the list
-      } else if (selectedStories.length > 0) {
-        // If only stories are selected, delete the selected stories
-        const storiesToDelete = fetchedStories[feedId].filter((story) =>
-          selectedStories.includes(story.id)
-        ).map((story) => story.id);
-  
-        if (storiesToDelete.length > 0) {
-          await deleteStories(storiesToDelete).unwrap();
-          setSelectedStories((prev) => prev.filter((id) => !storiesToDelete.includes(id)));
-  
-          // After deletion, refetch the stories for the feed
-          const updatedStories = await triggerFetchStories({ feedId }).unwrap();
-  
-          // Update the fetchedStories state to trigger a re-render
-          setFetchedStories((prev) => ({
-            ...prev,
-            [feedId]: updatedStories.stories,
-          }));
-        }
-      }
-    } catch (error) {
-      console.error('Failed to delete feed or stories:', error);
-    }
-  };      
-
-  const handleImportFeed = async () => {
-    if (newFeedUrl.trim()) {
-      try {
-        await importFeed({ url: newFeedUrl }).unwrap();
-        setNewFeedUrl('');
-        refetchFeeds();
-      } catch (error) {
-        console.error('Failed to import feed:', error);
-      }
-    }
-  };
-
   if (isLoadingFeeds) return <div>Loading Feeds...</div>;
 
   return (
@@ -149,6 +188,7 @@ const RSSFeed = () => {
           value={newFeedUrl}
           onChange={(e) => setNewFeedUrl(e.target.value)}
           placeholder="Enter feed URL"
+          onBlur={handlePreviewFeed}  // Trigger preview when the user finishes typing
         />
         <button
           style={styles.button}
@@ -159,8 +199,32 @@ const RSSFeed = () => {
         </button>
       </div>
 
-      {feeds.length === 0 && !isLoadingFeeds && <div>No Feeds Found</div>}
+      {/* Preview Section */}
+      {showPreview && previewFeed && (
+        <div style={styles.previewContainer}>
+          <h3 style={styles.header}>Preview Feed</h3>
+          {isFetchingPreview ? (
+            <p>Loading preview...</p>
+          ) : previewFeed.stories?.length > 0 ? (
+            previewFeed.stories.map((story) => (
+              <div key={story.id} style={styles.storyContainer}>
+                <div style={styles.storyHeader}>
+                  <div style={styles.storyTitle}>
+                    {story.title || 'Untitled Story'}
+                  </div>
+                </div>
+                <div style={styles.storyContent}>
+                  <p>{story.description || 'No description available'}</p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p>No stories found for this feed.</p>
+          )}
+        </div>
+      )}
 
+      {/* User's Feeds */}
       <div>
         {feeds.map((feed) => (
           <div key={feed.id} style={styles.feedContainer}>
@@ -206,7 +270,7 @@ const RSSFeed = () => {
                           {expandedStories[story.id] ? '^' : 'v'}
                         </button>
                         <div style={styles.storyTitle}>
-                          {story.custom_title || story.data.title}
+                          {story.title}
                         </div>
                         <input
                           type="checkbox"
@@ -217,7 +281,7 @@ const RSSFeed = () => {
                       </div>
                       {expandedStories[story.id] && (
                         <div style={styles.storyContent}>
-                          <p>{story.custom_content || story.data.summary}</p>
+                          <p>{story.description}</p>
                         </div>
                       )}
                     </div>
