@@ -1,170 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Input, Button, Checkbox, message } from 'antd';
+import { Button, message, Spin } from 'antd';
 import { useSelector } from 'react-redux';
 import {
   useFetchUserFeedsQuery,
-  useLazyFetchUserStoriesQuery,
   useLazyFetchPreviewFeedQuery,
   useImportFeedMutation,
-  useDeleteStoriesMutation,
   useDeleteFeedMutation,
+  useDeleteStoriesMutation,
 } from '../store/api';
-import 'antd/dist/antd.css';
+import FeedTable from '../components/FeedTable';
+import PreviewFeed from '../components/PreviewFeed';
+import DialogBox from '../components/DialogBox';
 
-// Feed Table Component
-const FeedTable = ({ feeds, expandedFeeds, onExpand, selectedFeeds, onFeedSelect, handleDeleteFeed }) => {
-  const columns = [
-    {
-      title: 'Feed URL',
-      dataIndex: 'url',
-      key: 'url',
-    },
-    {
-      title: 'Actions',
-      dataIndex: 'actions',
-      key: 'actions',
-      render: (_, feed) => (
-        <>
-          <Checkbox
-            checked={selectedFeeds.includes(feed.id)}
-            onChange={() => onFeedSelect(feed.id)}
-          />
-          <Button danger onClick={() => handleDeleteFeed(feed.id)}>
-            Delete
-          </Button>
-        </>
-      ),
-    },
-  ];
-
-  return (
-    <Table
-      columns={columns}
-      dataSource={feeds}
-      rowKey="id"
-      expandable={{
-        expandedRowRender: (feed) => <StoryTable feedId={feed.id} expandedFeeds={expandedFeeds} />,
-        onExpand: (expanded, feed) => onExpand(feed.id, expanded),
-      }}
-    />
-  );
-};
-
-// Story Table Component
-const StoryTable = ({ feedId, expandedFeeds }) => {
-  const [triggerFetchStories, { isFetching, data: storiesData }] = useLazyFetchUserStoriesQuery();
-  const [expandedStories, setExpandedStories] = useState({});
-  const [selectedStories, setSelectedStories] = useState([]);
-
-  useEffect(() => {
-    if (expandedFeeds[feedId] && !storiesData) {
-      triggerFetchStories({ feedId });
-    }
-  }, [expandedFeeds, feedId, storiesData, triggerFetchStories]);
-
-  const columns = [
-    {
-      title: 'Story Title',
-      dataIndex: ['data', 'title'],
-      key: 'title',
-    },
-    {
-      title: 'Actions',
-      dataIndex: 'actions',
-      key: 'actions',
-      render: (_, story) => (
-        <Checkbox
-          checked={selectedStories.includes(story.id)}
-          onChange={() => handleStorySelect(story.id)}
-        />
-      ),
-    },
-  ];
-
-  const handleStorySelect = (storyId) => {
-    setSelectedStories((prevSelected) =>
-      prevSelected.includes(storyId)
-        ? prevSelected.filter((id) => id !== storyId)
-        : [...prevSelected, storyId]
-    );
-  };
-
-  if (isFetching) return <p>Loading stories...</p>;
-  if (!storiesData) return null;
-
-  return (
-    <Table
-      columns={columns}
-      dataSource={storiesData.stories}
-      rowKey="id"
-      pagination={false}
-    />
-  );
-};
-
-// Preview Feed Component
-const PreviewFeed = ({ url, onPreviewFeed, previewData, isFetchingPreview }) => {
-  const columns = [
-    {
-      title: 'Title',
-      dataIndex: 'title',
-      key: 'title',
-    },
-    {
-      title: 'Published',
-      dataIndex: 'published',
-      key: 'published',
-      render: (date) => new Date(date).toLocaleString(),
-    },
-    {
-      title: 'Link',
-      dataIndex: 'link',
-      key: 'link',
-      render: (link) => (
-        <a href={link} target="_blank" rel="noopener noreferrer">
-          Read more
-        </a>
-      ),
-    },
-  ];
-
-  return (
-    <>
-      <Input.Search
-        placeholder="Enter feed URL"
-        enterButton="Preview"
-        value={url}
-        onChange={onPreviewFeed}
-        onSearch={() => onPreviewFeed(url)}
-      />
-      {isFetchingPreview ? (
-        <p>Loading preview...</p>
-      ) : (
-        previewData?.stories && <Table columns={columns} dataSource={previewData.stories} rowKey="link" />
-      )}
-    </>
-  );
-};
-
-// Main Component
 const RSSFeed = () => {
   const token = useSelector((state) => state.auth.token);
-  const { data: feedsData, refetch: refetchFeeds } = useFetchUserFeedsQuery(null, { skip: !token });
+  const { data: feedsData, refetch: refetchFeeds, isLoading } = useFetchUserFeedsQuery(null, { skip: !token });
+
   const [triggerFetchPreviewFeed, { data: previewData, isFetching: isFetchingPreview }] = useLazyFetchPreviewFeedQuery();
   const [importFeed] = useImportFeedMutation();
   const [deleteFeed] = useDeleteFeedMutation();
+  const [deleteStories] = useDeleteStoriesMutation();
 
   const [newFeedUrl, setNewFeedUrl] = useState('');
   const [expandedFeeds, setExpandedFeeds] = useState({});
   const [selectedFeeds, setSelectedFeeds] = useState([]);
+  const [selectedStories, setSelectedStories] = useState({});
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState({ feedId: null, stories: [] });
 
-  const handlePreviewFeed = (url) => {
-    if (url) {
-      triggerFetchPreviewFeed(url);
-    }
-  };
+  useEffect(() => {
+    console.log('Feeds data:', feedsData);
+  }, [feedsData]);
 
   const handleImportFeed = async () => {
+    if (!newFeedUrl) {
+      message.warning('Please enter a valid feed URL');
+      return;
+    }
+
     try {
       await importFeed({ url: newFeedUrl }).unwrap();
       message.success('Feed imported successfully');
@@ -175,24 +48,49 @@ const RSSFeed = () => {
     }
   };
 
-  const handleDeleteFeed = async (feedId) => {
+  const showDeleteConfirmation = (feedId) => {
+    const selectedFeedStories = selectedStories[feedId] || [];
+    setDeleteTarget({ feedId, stories: selectedFeedStories });
+    setIsModalVisible(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    const { feedId, stories } = deleteTarget;
+
     try {
-      await deleteFeed(feedId).unwrap();
-      refetchFeeds();
-      message.success('Feed deleted');
+      if (stories.length > 0) {
+        await deleteStories(stories).unwrap();
+        setSelectedStories((prev) => ({ ...prev, [feedId]: [] }));
+        message.success('Stories deleted successfully');
+        refetchFeeds();
+      } else {
+        await deleteFeed(feedId).unwrap();
+        setSelectedFeeds((prev) => prev.filter((id) => id !== feedId));
+        refetchFeeds();
+        message.success('Feed deleted successfully');
+      }
+      setIsModalVisible(false);
     } catch (error) {
-      message.error('Failed to delete feed');
+      message.error('Failed to delete feed or stories');
     }
+  };
+
+  const handleFeedSelect = (selectedRowKeys) => {
+    setSelectedFeeds(selectedRowKeys);
+  };
+
+  const handleStorySelect = (storyId, feedId) => {
+    setSelectedStories((prevSelected) => {
+      const currentSelectedStories = prevSelected[feedId] || [];
+      const newSelectedStories = currentSelectedStories.includes(storyId)
+        ? currentSelectedStories.filter((id) => id !== storyId)
+        : [...currentSelectedStories, storyId];
+      return { ...prevSelected, [feedId]: newSelectedStories };
+    });
   };
 
   const toggleFeedExpansion = (feedId, expanded) => {
     setExpandedFeeds((prev) => ({ ...prev, [feedId]: expanded }));
-  };
-
-  const handleFeedSelect = (feedId) => {
-    setSelectedFeeds((prev) =>
-      prev.includes(feedId) ? prev.filter((id) => id !== feedId) : [...prev, feedId]
-    );
   };
 
   const feeds = feedsData?.feeds || [];
@@ -212,13 +110,17 @@ const RSSFeed = () => {
         Import Feed
       </Button>
 
-      <FeedTable
-        feeds={feeds}
-        expandedFeeds={expandedFeeds}
-        onExpand={toggleFeedExpansion}
-        selectedFeeds={selectedFeeds}
-        onFeedSelect={handleFeedSelect}
-        handleDeleteFeed={handleDeleteFeed}
+      {isLoading ? (
+        <Spin size="large" style={{ margin: '20px 0' }} />
+      ) : (
+        <FeedTable feeds={feeds} />
+      )}
+
+      <DialogBox
+        isVisible={isModalVisible}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setIsModalVisible(false)}
+        deleteTarget={deleteTarget}
       />
     </div>
   );
