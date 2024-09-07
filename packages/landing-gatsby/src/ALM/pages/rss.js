@@ -58,7 +58,6 @@ const RSSFeed = () => {
     }
   }, [previewData]);
 
-  // Debounced function to preview the feed
   const handlePreviewFeed = debounce(async () => {
     if (isValidUrl(newFeedUrl)) {
       setShowPreview(true);
@@ -188,7 +187,7 @@ const RSSFeed = () => {
           value={newFeedUrl}
           onChange={(e) => setNewFeedUrl(e.target.value)}
           placeholder="Enter feed URL"
-          onBlur={handlePreviewFeed}  // Trigger preview when the user finishes typing
+          onBlur={handlePreviewFeed} // Trigger preview when the user finishes typing
         />
         <button
           style={styles.button}
@@ -198,23 +197,24 @@ const RSSFeed = () => {
           Import New Feed
         </button>
       </div>
-
+  
       {/* Preview Section */}
-      {showPreview && previewFeed && (
+      {showPreview && (
         <div style={styles.previewContainer}>
           <h3 style={styles.header}>Preview Feed</h3>
           {isFetchingPreview ? (
             <p>Loading preview...</p>
-          ) : previewFeed.stories?.length > 0 ? (
-            previewFeed.stories.map((story) => (
-              <div key={story.id} style={styles.storyContainer}>
+          ) : previewData && previewData.stories?.length > 0 ? (
+            previewData.stories.map((story, index) => (
+              <div key={index} style={styles.storyContainer}>
                 <div style={styles.storyHeader}>
                   <div style={styles.storyTitle}>
-                    {story.title || 'Untitled Story'}
+                    {story.custom_title || story.data.title || 'Untitled Story'}
                   </div>
                 </div>
                 <div style={styles.storyContent}>
-                  <p>{story.description || 'No description available'}</p>
+                  <p>{story.custom_content || story.data.description || 'No description available'}</p>
+                  <p><strong>Author:</strong> {story.data.author || 'Unknown'}</p>
                 </div>
               </div>
             ))
@@ -223,79 +223,86 @@ const RSSFeed = () => {
           )}
         </div>
       )}
-
+  
       {/* User's Feeds */}
       <div>
-        {feeds.map((feed) => (
-          <div key={feed.id} style={styles.feedContainer}>
-            <div style={styles.feedHeader}>
-              <div style={styles.nodeLabel}>
-                <span style={styles.icon}>📁</span>
-                {`${feed.id ? "ID: " + feed.id : "No ID"} - ${feed.title || feed.url}`}
+        {feeds.length > 0 ? (
+          feeds.map((feed) => (
+            <div key={feed.id} style={styles.feedContainer}>
+              <div style={styles.feedHeader}>
+                <div style={styles.nodeLabel}>
+                  <span style={styles.icon}>📁</span>
+                  {`${feed.id ? "ID: " + feed.id : "No ID"} - ${feed.title || feed.url}`}
+                </div>
+                <div style={styles.feedActions}>
+                  <button
+                    style={styles.toggleStoriesButton}
+                    onClick={() => toggleFeedExpansion(feed.id)}
+                  >
+                    {expandedFeeds[feed.id] ? '^' : 'v'}
+                  </button>
+                  <input
+                    type="checkbox"
+                    checked={selectedFeeds.includes(feed.id)}
+                    onChange={() => handleFeedSelect(feed.id)}
+                    style={styles.checkbox}
+                  />
+                  <button
+                    style={styles.deleteFeedButton}
+                    onClick={() => handleDeleteFeedAndStories(feed.id)}
+                  >
+                    🗑️
+                  </button>
+                </div>
               </div>
-              <div style={styles.feedActions}>
-                <button
-                  style={styles.toggleStoriesButton}
-                  onClick={() => toggleFeedExpansion(feed.id)}
-                >
-                  {expandedFeeds[feed.id] ? '^' : 'v'}
-                </button>
-                <input
-                  type="checkbox"
-                  checked={selectedFeeds.includes(feed.id)}
-                  onChange={() => handleFeedSelect(feed.id)}
-                  style={styles.checkbox}
-                />
-                <button
-                  style={styles.deleteFeedButton}
-                  onClick={() => handleDeleteFeedAndStories(feed.id)}
-                >
-                  🗑️
-                </button>
-              </div>
-            </div>
-
-            {expandedFeeds[feed.id] && (
-              <div style={styles.storiesContainer}>
-                {isFetching && !fetchedStories[feed.id] ? (
-                  <p>Loading stories...</p>
-                ) : fetchedStories[feed.id]?.length > 0 ? (
-                  fetchedStories[feed.id].map((story) => (
-                    <div key={story.id} style={styles.storyContainer}>
-                      <div style={styles.storyHeader}>
-                        <button
-                          style={styles.toggleStoryButton}
-                          onClick={() => toggleStoryExpansion(story.id)}
-                        >
-                          {expandedStories[story.id] ? '^' : 'v'}
-                        </button>
-                        <div style={styles.storyTitle}>
-                          {story.title}
+  
+              {expandedFeeds[feed.id] && (
+                <div style={styles.storiesContainer}>
+                  {isFetching && !fetchedStories[feed.id] ? (
+                    <p>Loading stories...</p>
+                  ) : fetchedStories[feed.id]?.length > 0 ? (
+                    fetchedStories[feed.id].map((story) => (
+                      <div key={story.id} style={styles.storyContainer}>
+                        <div style={styles.storyHeader}>
+                          <button
+                            style={styles.toggleStoryButton}
+                            onClick={() => toggleStoryExpansion(story.id)}
+                          >
+                            {expandedStories[story.id] ? '^' : 'v'}
+                          </button>
+                          <div style={styles.storyTitle}>
+                            {story.custom_title || story.data?.title || 'Untitled Story'}
+                          </div>
+                          <input
+                            type="checkbox"
+                            checked={selectedStories.includes(story.id)}
+                            onChange={() => handleStorySelect(story.id, feed.id)}
+                            style={styles.checkbox}
+                          />
                         </div>
-                        <input
-                          type="checkbox"
-                          checked={selectedStories.includes(story.id)}
-                          onChange={() => handleStorySelect(story.id, feed.id)}
-                          style={styles.checkbox}
-                        />
+                        {expandedStories[story.id] && (
+                          <div style={styles.storyContent}>
+                            <p>{story.custom_content || story.data?.summary || 'No description available'}</p>
+                            <a href={story.data?.link || '#'} target="_blank" rel="noopener noreferrer">
+                              {story.data?.link ? 'Read more' : 'No link available'}
+                            </a>
+                          </div>
+                        )}
                       </div>
-                      {expandedStories[story.id] && (
-                        <div style={styles.storyContent}>
-                          <p>{story.description}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <p>No stories found for this feed.</p>
-                )}
-              </div>
-            )}
-          </div>
-        ))}
+                    ))
+                  ) : (
+                    <p>No stories found for this feed.</p>
+                  )}              
+                </div>
+              )}
+            </div>
+          ))
+        ) : (
+          <p>No feeds available. Please add a new feed.</p>
+        )}
       </div>
     </div>
-  );
+  );  
 };
 
 export default RSSFeed;

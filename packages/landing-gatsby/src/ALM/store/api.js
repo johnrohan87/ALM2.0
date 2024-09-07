@@ -8,7 +8,7 @@ export const api = createApi({
       const token = getState().auth.token;
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
-        console.log('Authorization header set:', `Bearer ${token}`);
+        //console.log('Authorization header set:', `Bearer ${token}`);
       }
       headers.set('Content-Type', 'application/json');
       return headers;

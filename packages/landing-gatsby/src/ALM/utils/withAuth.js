@@ -7,7 +7,7 @@ const withAuth = (Component, requireAdmin = false) => (props) => {
   const [initialCheckCompleted, setInitialCheckCompleted] = useState(false);
 
   useEffect(() => {
-    console.log('withAuth - Checking auth status:', { isAuthenticated, isLoading, isLoggingOut, isAdmin });
+    //console.log('withAuth - Checking auth status:', { isAuthenticated, isLoading, isLoggingOut, isAdmin });
 
     if (!isLoading && !isLoggingOut) {
       setInitialCheckCompleted(true);
@@ -22,7 +22,7 @@ const withAuth = (Component, requireAdmin = false) => (props) => {
     }
   }, [isAuthenticated, isLoading, isLoggingOut, isAdmin, requireAdmin]);
 
-  console.log('withAuth - Checking auth status:', { isAuthenticated, isLoading, isLoggingOut, isAdmin });
+  //console.log('withAuth - Checking auth status:', { isAuthenticated, isLoading, isLoggingOut, isAdmin });
 
 
   if (isLoading || !initialCheckCompleted) {
