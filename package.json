@@ -30,5 +30,7 @@
       "prettier --trailing-comma es5 --single-quote --write"
     ]
   },
-  "dependencies": {}
+  "dependencies": {
+    "gatsby-plugin-antd": "^2.2.0"
+  }
 }

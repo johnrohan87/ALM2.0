@@ -14,6 +14,14 @@ module.exports = {
         minify: false, // Breaks styles if not set to false
       },
     },
+    {
+      resolve: `gatsby-plugin-antd`,
+      options: {
+        // Optionally disable the less pre-processing
+        style: true,
+      },
+    },
+
     `gatsby-plugin-react-helmet`,
     {
       resolve: `gatsby-source-filesystem`,

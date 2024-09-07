@@ -7,6 +7,8 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './src/ALM/store/authSlice';
 import { api } from './src/ALM/store/api';
 
+import 'antd/dist/reset.css'; // Or use 'antd/dist/antd.css' for a full reset
+
 const store = configureStore({
   reducer: {
     auth: authReducer,
