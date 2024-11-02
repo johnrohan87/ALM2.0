@@ -1,24 +1,32 @@
 import React from 'react';
-import { Modal, List } from 'antd';
+import { Modal, Button } from 'antd';
 
-const DialogBox = ({ isVisible, onConfirm, onCancel, deleteTarget }) => {
+const DialogBox = ({ isVisible, onConfirm, onCancel, deleteTarget, isLoading, message }) => {
+  const { feedId, stories } = deleteTarget;
+
   return (
     <Modal
-      title="Confirm Deletion"
-      open={isVisible}
-      onOk={onConfirm} // Call the confirm action
-      onCancel={onCancel} // Call the cancel action
+      title="Delete Confirmation"
+      visible={isVisible}
+      onOk={onConfirm}
+      onCancel={onCancel}
+      footer={[
+        <Button key="cancel" onClick={onCancel} disabled={isLoading}>
+          Cancel
+        </Button>,
+        <Button key="confirm" type="primary" danger onClick={onConfirm} loading={isLoading}>
+          Confirm Deletion
+        </Button>,
+      ]}
     >
-      {deleteTarget.stories.length > 0 ? (
-        <>
-          <p>Are you sure you want to delete the following stories?</p>
-          <List
-            dataSource={deleteTarget.stories}
-            renderItem={(storyId) => <List.Item key={storyId}>Story ID: {storyId}</List.Item>}
-          />
-        </>
-      ) : (
-        <p>Are you sure you want to delete the entire feed and all associated stories?</p>
+      {feedId && stories.length > 0 && (
+        <p>Are you sure you want to delete feed (Feed ID: {feedId})? This will also delete the following associated stories: {stories.join(', ')}.</p>
+      )}
+      {feedId && stories.length === 0 && (
+        <p>Are you sure you want to delete feed (Feed ID: {feedId})? This action cannot be undone.</p>
+      )}
+      {!feedId && stories.length > 0 && (
+        <p>Are you sure you want to delete the following stor{stories.length > 1 ? 'ies' : 'y'}: {stories.join(', ')}? This action cannot be undone.</p>
       )}
     </Modal>
   );

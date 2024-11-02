@@ -1,64 +1,28 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Table, Input, Spin, Checkbox } from 'antd';
+import { Table, Checkbox, Dropdown, Menu, Button, Spin } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
+import StoryTable from './StoryTable'; // Import the StoryTable component
 import { useLazyFetchUserStoriesQuery } from '../store/api';
+import { generateColumns, filterColumns, handleColumnVisibilityChange } from '../utils/tableUtils'; // Utility functions
 
-const FeedTable = ({ feeds }) => {
-  const [filteredFeeds, setFilteredFeeds] = useState([]);
-  const [searchText, setSearchText] = useState('');
-  const [expandedFeedStories, setExpandedFeedStories] = useState({}); // Track fetched stories for each feed
-  const [visibleColumns, setVisibleColumns] = useState([]); // Track visible columns for feeds
-  const [allColumns, setAllColumns] = useState([]); // Track all feed columns
-  const [hiddenColumns, setHiddenColumns] = useState([]); // Track hidden feed columns
-  const [visibleStoryColumns, setVisibleStoryColumns] = useState({}); // Track visible columns for stories
-  const [allStoryColumns, setAllStoryColumns] = useState({}); // Track all story columns
-  const [hiddenStoryColumns, setHiddenStoryColumns] = useState({}); // Track hidden story columns
-
+const FeedTable = ({ feeds, onDeleteFeedsAndStories, onShowDeleteConfirmation, onDeleteStory }) => {
+  const [expandedFeedStories, setExpandedFeedStories] = useState({}); // Store fetched stories for each feed
+  const [visibleColumns, setVisibleColumns] = useState([]); // State for visible columns
   const [triggerFetchStories, { isFetching }] = useLazyFetchUserStoriesQuery(); // Lazy fetch stories
 
-  // Helper function to generate columns dynamically
-  const generateColumns = useCallback((data) => {
-    if (data.length === 0) return [];
-
-    const columnKeys = Object.keys(data[0]);
-
-    return columnKeys.map((key) => {
-      const isObject = typeof data[0][key] === 'object' && data[0][key] !== null;
-
-      return {
-        title: key.replace('_', ' ').toUpperCase(),
-        dataIndex: key,
-        key,
-        render: (value) => {
-          if (isObject) {
-            // Render objects as JSON strings
-            return JSON.stringify(value, null, 2);
-          }
-          return value ? value.toString() : 'N/A'; // Handle missing or undefined values
-        },
-        hidden: data.every((item) => !item[key] || item[key] === 'N/A'), // Hide by default if all values are empty or "N/A"
-      };
-    });
-  }, []);
-
-  // Initialize filtered feeds on component mount
+  // Initialize visible columns based on feed data
   useEffect(() => {
-    if (feeds.length > 0 && filteredFeeds.length === 0) {
-      setFilteredFeeds(feeds);
+    if (feeds?.length > 0 && visibleColumns.length === 0) {
+      setVisibleColumns(Object.keys(feeds[0])); // Initialize columns to show all
     }
-  }, [feeds, filteredFeeds]);
+  }, [feeds, visibleColumns]);
 
-  // Populate visible and hidden columns for feeds
-  useEffect(() => {
-    if (feeds.length > 0) {
-      const feedColumns = generateColumns(feeds);
-      const initialVisibleColumns = feedColumns.filter((col) => !col.hidden);
-      const initialHiddenColumns = feedColumns.filter((col) => col.hidden);
-
-      setVisibleColumns(initialVisibleColumns);
-      setHiddenColumns(initialHiddenColumns);
-      setAllColumns(feedColumns);
-    }
-  }, [feeds, generateColumns]);
+  // Handle column visibility toggle
+  const handleColumnToggle = (column) => {
+    setVisibleColumns((prevColumns) =>
+      handleColumnVisibilityChange(generateColumns(feeds), prevColumns, column, !prevColumns.includes(column))
+    );
+  };
 
   // Handle expanding feed to fetch stories
   const handleExpand = useCallback(
@@ -78,136 +42,58 @@ const FeedTable = ({ feeds }) => {
     [expandedFeedStories, triggerFetchStories]
   );
 
-  // Effect to set story columns when expandedFeedStories updates
-  useEffect(() => {
-    Object.keys(expandedFeedStories).forEach((feedId) => {
-      const stories = expandedFeedStories[feedId] || [];
-      const storyColumns = generateColumns(stories);
-
-      setVisibleStoryColumns((prev) => ({
-        ...prev,
-        [feedId]: storyColumns.filter((col) => !col.hidden),
-      }));
-      setHiddenStoryColumns((prev) => ({
-        ...prev,
-        [feedId]: storyColumns.filter((col) => col.hidden),
-      }));
-      setAllStoryColumns((prev) => ({
-        ...prev,
-        [feedId]: storyColumns,
-      }));
-    });
-  }, [expandedFeedStories, generateColumns]);
-
-  // Expanded row render function to show the stories associated with each feed
-  const expandedRowRender = useCallback(
-    (feed) => {
-      const stories = expandedFeedStories[feed.id] || [];
-
-      if (isFetching && !stories.length) {
-        return <Spin size="small" />;
-      }
-
-      const visibleStoryCols = visibleStoryColumns[feed.id] || [];
-      return (
-        <>
-          <div style={{ marginBottom: 10 }}>
-            <span>Show/Hide Story Columns: </span>
-            {allStoryColumns[feed.id]?.map((col) => (
-              <Checkbox
-                key={col.key}
-                checked={visibleStoryCols.some((visibleCol) => visibleCol.key === col.key)}
-                onChange={(e) => handleStoryColumnVisibilityChange(feed.id, col.key, e.target.checked)}
-                style={{ marginLeft: 10 }}
-              >
-                {col.title}
-              </Checkbox>
-            ))}
-          </div>
-
-          <Table
-            columns={visibleStoryCols} // Only show visible story columns
-            dataSource={stories}
-            pagination={false}
-            rowKey="id"
-          />
-        </>
-      );
-    },
-    [expandedFeedStories, visibleStoryColumns, allStoryColumns, isFetching]
-  );
-
-  // Toggle visibility of columns for feeds
-  const handleColumnVisibilityChange = (columnKey, checked) => {
-    if (checked) {
-      const column = allColumns.find((col) => col.key === columnKey);
-      setVisibleColumns((prev) => [...prev, column]);
-      setHiddenColumns((prev) => prev.filter((col) => col.key !== columnKey));
-    } else {
-      const column = visibleColumns.find((col) => col.key === columnKey);
-      setHiddenColumns((prev) => [...prev, column]);
-      setVisibleColumns((prev) => prev.filter((col) => col.key !== columnKey));
-    }
+  // Handle showing the delete confirmation dialog for feed
+  const handleFeedDelete = (feedId) => {
+    const associatedStories = expandedFeedStories[feedId] || []; // Get the associated stories
+    onShowDeleteConfirmation(feedId, associatedStories.map((story) => story.id)); // Delegate to parent component
   };
 
-  // Toggle visibility of columns for stories
-  const handleStoryColumnVisibilityChange = (feedId, columnKey, checked) => {
-    if (checked) {
-      const column = allStoryColumns[feedId].find((col) => col.key === columnKey);
-      setVisibleStoryColumns((prev) => ({
-        ...prev,
-        [feedId]: [...prev[feedId], column],
-      }));
-      setHiddenStoryColumns((prev) => ({
-        ...prev,
-        [feedId]: prev[feedId].filter((col) => col.key !== columnKey),
-      }));
-    } else {
-      const column = visibleStoryColumns[feedId].find((col) => col.key === columnKey);
-      setHiddenStoryColumns((prev) => ({
-        ...prev,
-        [feedId]: [...prev[feedId], column],
-      }));
-      setVisibleStoryColumns((prev) => ({
-        ...prev,
-        [feedId]: prev[feedId].filter((col) => col.key !== columnKey), // Removed the extra closing parenthesis
-      }));
-    }
+  // Handle story deletion
+  const handleStoryDelete = (storyId) => {
+    console.log('Delete confirmation for story ID:', storyId);
+    onDeleteStory(storyId); // Delegate to parent component
   };
-  
+
+  // Dynamically generate columns based on feed data
+  const allColumns = generateColumns(feeds);
+  const dynamicColumns = filterColumns(allColumns, visibleColumns);
+
+  // Primary column to hold the trashcan
+  const primaryColumn = {
+    title: '', // No title for this column
+    key: 'primary',
+    render: (_, feed) => (
+      <DeleteOutlined
+        style={{ color: 'red', cursor: 'pointer', marginRight: '8px' }} // Make the icon small and red with some margin
+        onClick={() => handleFeedDelete(feed.id)} // Show confirmation dialog when clicked
+      />
+    ),
+    onCell: (record) => ({
+      onClick: (e) => e.stopPropagation(), // Prevent cell click from expanding rows
+    }),
+  };
+
+  // Expanded row to show the StoryTable
+  const expandedRowRender = (feed) => {
+    const stories = expandedFeedStories[feed.id] || [];
+
+    if (isFetching && !stories.length) {
+      return <Spin size="small" />;
+    }
+
+    return <StoryTable stories={stories} feedId={feed.id} onDeleteStory={handleStoryDelete} />;
+  };
 
   return (
     <div>
-      <Input.Search
-        placeholder="Search in feeds"
-        value={searchText}
-        onChange={(e) => setSearchText(e.target.value)}
-        style={{ marginBottom: 20 }}
-      />
-
-      {/* Checkbox filter for hidden columns */}
-      <div style={{ marginBottom: 20 }}>
-        <span>Show/Hide Feed Columns: </span>
-        {allColumns.map((col) => (
-          <Checkbox
-            key={col.key}
-            checked={visibleColumns.some((visibleCol) => visibleCol.key === col.key)}
-            onChange={(e) => handleColumnVisibilityChange(col.key, e.target.checked)}
-            style={{ marginLeft: 10 }}
-          >
-            {col.title}
-          </Checkbox>
-        ))}
-      </div>
-
       <Table
-        columns={visibleColumns} // Only show visible columns for feeds
-        dataSource={filteredFeeds}
+        columns={[primaryColumn, ...dynamicColumns]} // Add the primary column to dynamic columns
+        dataSource={feeds}
         rowKey="id"
-        pagination={{ pageSize: 10 }}
         expandable={{
-          expandedRowRender, // Render stories when a feed is expanded
-          onExpand: handleExpand, // Fetch stories when a feed is expanded
+          expandedRowRender, // Renders the StoryTable for expanded feeds
+          onExpand: handleExpand, // Fetch stories when feed is expanded
+          expandIconColumnIndex: 1, // Ensure the built-in expand button is positioned correctly
         }}
       />
     </div>

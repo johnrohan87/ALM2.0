@@ -1,7 +1,8 @@
 import React from 'react';
-import { Table, Input } from 'antd';
+import { Input, Table, Spin } from 'antd';
 
 const PreviewFeed = ({ url, onPreviewFeed, previewData, isFetchingPreview }) => {
+  // Define the columns for the preview table
   const columns = [
     {
       title: 'Title',
@@ -27,20 +28,21 @@ const PreviewFeed = ({ url, onPreviewFeed, previewData, isFetchingPreview }) => 
   ];
 
   return (
-    <>
+    <div>
       <Input.Search
         placeholder="Enter feed URL"
         enterButton="Preview"
         value={url}
         onChange={onPreviewFeed}
-        onSearch={() => onPreviewFeed(url)}
+        style={{ marginBottom: 20 }}
       />
+
       {isFetchingPreview ? (
-        <p>Loading preview...</p>
+        <Spin size="large" style={{ marginBottom: 20 }} />
       ) : (
         previewData?.stories && <Table columns={columns} dataSource={previewData.stories} rowKey="link" />
       )}
-    </>
+    </div>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button, message, Spin } from 'antd';
 import { useSelector } from 'react-redux';
 import {
@@ -11,10 +11,11 @@ import {
 import FeedTable from '../components/FeedTable';
 import PreviewFeed from '../components/PreviewFeed';
 import DialogBox from '../components/DialogBox';
+import debounce from 'lodash.debounce';
 
 const RSSFeed = () => {
-  const token = useSelector((state) => state.auth.token);
-  const { data: feedsData, refetch: refetchFeeds, isLoading } = useFetchUserFeedsQuery(null, { skip: !token });
+  const isAuthenticated = useSelector((state) => !!state.auth.token);
+  const { data: feedsData, refetch: refetchFeeds, isLoading } = useFetchUserFeedsQuery(null, { skip: !isAuthenticated });
 
   const [triggerFetchPreviewFeed, { data: previewData, isFetching: isFetchingPreview }] = useLazyFetchPreviewFeedQuery();
   const [importFeed] = useImportFeedMutation();
@@ -22,15 +23,20 @@ const RSSFeed = () => {
   const [deleteStories] = useDeleteStoriesMutation();
 
   const [newFeedUrl, setNewFeedUrl] = useState('');
-  const [expandedFeeds, setExpandedFeeds] = useState({});
-  const [selectedFeeds, setSelectedFeeds] = useState([]);
-  const [selectedStories, setSelectedStories] = useState({});
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState({ feedId: null, stories: [] });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     console.log('Feeds data:', feedsData);
   }, [feedsData]);
+
+  const debouncedPreviewFeed = useCallback(
+    debounce((value) => {
+      triggerFetchPreviewFeed(value);
+    }, 500),
+    [triggerFetchPreviewFeed]
+  );
 
   const handleImportFeed = async () => {
     if (!newFeedUrl) {
@@ -44,56 +50,87 @@ const RSSFeed = () => {
       setNewFeedUrl('');
       refetchFeeds();
     } catch (error) {
-      message.error('Failed to import feed');
+      const errorMessage = error?.data?.message || 'Failed to import feed';
+      message.error(errorMessage);
     }
   };
 
-  const showDeleteConfirmation = (feedId) => {
-    const selectedFeedStories = selectedStories[feedId] || [];
-    setDeleteTarget({ feedId, stories: selectedFeedStories });
+  const showDeleteConfirmation = useCallback((feedId, storyIds) => {
+    if (isModalVisible || isDeleting) {
+      return;
+    }
+    console.log('Initial delete request for feed:', { feedId, stories: storyIds });
+    console.log('Delete confirmation for feed:', feedId, 'with stories:', storyIds);
+    setDeleteTarget({ feedId, stories: storyIds });
     setIsModalVisible(true);
-  };
+  }, [isModalVisible, isDeleting]);
 
-  const handleConfirmDelete = async () => {
+  const handleDeleteStory = useCallback((storyId) => {
+    if (isModalVisible || isDeleting) {
+      return;
+    }
+    console.log('Initial delete request for story:', { feedId: null, stories: [storyId] });
+    console.log('Delete confirmation for story ID:', storyId);
+    setDeleteTarget({ feedId: null, stories: [storyId] });
+    setIsModalVisible(true);
+  }, [isModalVisible, isDeleting]);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (isDeleting) {
+      return;
+    }
+    setIsDeleting(true);
+
     const { feedId, stories } = deleteTarget;
 
     try {
       if (stories.length > 0) {
-        await deleteStories(stories).unwrap();
-        setSelectedStories((prev) => ({ ...prev, [feedId]: [] }));
-        message.success('Stories deleted successfully');
-        refetchFeeds();
-      } else {
-        await deleteFeed(feedId).unwrap();
-        setSelectedFeeds((prev) => prev.filter((id) => id !== feedId));
-        refetchFeeds();
-        message.success('Feed deleted successfully');
+        console.log('Deleting stories with payload:', { story_ids: stories });
+        await deleteStories({ story_ids: stories }).unwrap();
+        console.log('Stories deleted successfully');
+        message.success(`Stories deleted successfully. Story IDs: ${stories.join(', ')}`);
       }
+
+      if (feedId) {
+        console.log('Deleting feed with payload:', { feed_id: feedId });
+        await deleteFeed({ feed_id: feedId }).unwrap();
+        console.log('Feed deleted successfully');
+        message.success(`Feed deleted successfully. Feed ID: ${feedId}`);
+      }
+
+      refetchFeeds();
       setIsModalVisible(false);
     } catch (error) {
+      console.error('Delete error:', error);
       message.error('Failed to delete feed or stories');
+    } finally {
+      setIsDeleting(false);
     }
-  };
+  }, [deleteTarget, deleteStories, deleteFeed, refetchFeeds, isDeleting]);
 
-  const handleFeedSelect = (selectedRowKeys) => {
-    setSelectedFeeds(selectedRowKeys);
-  };
-
-  const handleStorySelect = (storyId, feedId) => {
-    setSelectedStories((prevSelected) => {
-      const currentSelectedStories = prevSelected[feedId] || [];
-      const newSelectedStories = currentSelectedStories.includes(storyId)
-        ? currentSelectedStories.filter((id) => id !== storyId)
-        : [...currentSelectedStories, storyId];
-      return { ...prevSelected, [feedId]: newSelectedStories };
-    });
-  };
-
-  const toggleFeedExpansion = (feedId, expanded) => {
-    setExpandedFeeds((prev) => ({ ...prev, [feedId]: expanded }));
-  };
+  const hideModal = () => setIsModalVisible(false);
 
   const feeds = feedsData?.feeds || [];
+
+  const getDeleteConfirmationMessage = () => {
+    const { feedId, stories } = deleteTarget;
+    if (feedId && stories.length > 0) {
+      return `Are you sure you want to delete this feed (Feed ID: ${feedId})?
+
+This will also delete the following associated stories: ${stories.join(', ')}.
+
+This action cannot be undone.`;
+    } else if (feedId) {
+      return `Are you sure you want to delete this feed (Feed ID: ${feedId})?
+
+This action cannot be undone.`;
+    } else if (stories.length > 0) {
+      return `Are you sure you want to delete the following stor${stories.length > 1 ? 'ies' : 'y'}: ${stories.join(', ')}?
+
+This action cannot be undone.`;
+    }
+    return '';
+  };
 
   return (
     <div style={{ padding: 24 }}>
@@ -101,7 +138,10 @@ const RSSFeed = () => {
 
       <PreviewFeed
         url={newFeedUrl}
-        onPreviewFeed={(e) => setNewFeedUrl(e.target.value)}
+        onPreviewFeed={(e) => {
+          setNewFeedUrl(e.target.value);
+          debouncedPreviewFeed(e.target.value);
+        }}
         previewData={previewData}
         isFetchingPreview={isFetchingPreview}
       />
@@ -113,14 +153,24 @@ const RSSFeed = () => {
       {isLoading ? (
         <Spin size="large" style={{ margin: '20px 0' }} />
       ) : (
-        <FeedTable feeds={feeds} />
+        <FeedTable
+          feeds={feeds}
+          onDeleteFeedsAndStories={(feedId, storyIds) => {
+            console.log('onDeleteFeedsAndStories called with:', { feedId, storyIds });
+            showDeleteConfirmation(feedId, storyIds);
+          }}
+          onShowDeleteConfirmation={showDeleteConfirmation}
+          onDeleteStory={handleDeleteStory} // Pass the individual story delete handler
+        />
       )}
 
       <DialogBox
         isVisible={isModalVisible}
         onConfirm={handleConfirmDelete}
-        onCancel={() => setIsModalVisible(false)}
+        onCancel={hideModal}
         deleteTarget={deleteTarget}
+        isLoading={isDeleting}
+        message={getDeleteConfirmationMessage()}
       />
     </div>
   );

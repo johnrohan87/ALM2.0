@@ -1,60 +1,110 @@
-// StoryTable.js
 import React, { useState, useEffect } from 'react';
-import { Table, Checkbox } from 'antd';
-import { useLazyFetchUserStoriesQuery } from '../store/api';
-import PropTypes from 'prop-types';
+import { Table, Checkbox, Dropdown, Menu, Button, Typography } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
+import { generateColumns, filterColumns, handleColumnVisibilityChange } from '../utils/tableUtils';
 
-const StoryTable = ({ feedId, expandedFeeds, selectedStoriesForFeed, onStorySelect }) => {
-  const [triggerFetchStories, { isFetching, data: storiesData, error }] = useLazyFetchUserStoriesQuery();
+const { Paragraph } = Typography;
+
+const StoryTable = ({ stories, onDeleteStory }) => {
+  const [selectedStories, setSelectedStories] = useState([]);
+  const [visibleColumns, setVisibleColumns] = useState([]);
 
   useEffect(() => {
-    if (expandedFeeds[feedId] && !storiesData && !isFetching) {
-      triggerFetchStories({ feedId });
+    if (stories?.length > 0 && visibleColumns.length === 0) {
+      setVisibleColumns(Object.keys(stories[0]));
     }
-  }, [expandedFeeds, feedId, storiesData, triggerFetchStories, isFetching]);
+  }, [stories, visibleColumns]);
 
-  // Add logging to debug
-  useEffect(() => {
-    console.log(`StoryTable: feedId=${feedId}, selectedStoriesForFeed=${JSON.stringify(selectedStoriesForFeed)}`);
-  }, [feedId, selectedStoriesForFeed]);
+  const handleColumnToggle = (column) => {
+    setVisibleColumns((prevColumns) =>
+      handleColumnVisibilityChange(generateColumns(stories), prevColumns, column, !prevColumns.includes(column))
+    );
+  };
 
-  const columns = [
-    {
-      title: 'Story Title',
-      dataIndex: ['data', 'title'],
-      key: 'title',
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, story) => (
-        <Checkbox
-          checked={(selectedStoriesForFeed || []).includes(story.id)}
-          onChange={() => onStorySelect(story.id, feedId)}
-        />
-      ),
-    },
-  ];
+  const handleStorySelect = (storyId) => {
+    setSelectedStories((prevSelected) =>
+      prevSelected.includes(storyId) ? prevSelected.filter((id) => id !== storyId) : [...prevSelected, storyId]
+    );
+  };
 
-  if (isFetching) return <p>Loading stories...</p>;
-  if (error) return <p>Error loading stories.</p>;
-  if (!storiesData) return null;
+  const allColumns = generateColumns(stories);
+  const dynamicColumns = filterColumns(allColumns, visibleColumns).map((column) => {
+    if (column.key === 'data' || column.key === 'description') { // Assuming 'data' or 'description' are columns with long text
+      return {
+        ...column,
+        render: (text) => {
+          if (typeof text === 'object') {
+            // Convert object to string or choose a specific property to display
+            return (
+              <Paragraph ellipsis={{ rows: 2, expandable: true, symbol: 'Read More' }}>
+                {JSON.stringify(text)}
+              </Paragraph>
+            );
+          }
+          return (
+            <Paragraph ellipsis={{ rows: 2, expandable: true, symbol: 'Read More' }}>
+              {text}
+            </Paragraph>
+          );
+        },
+      };
+    }
+    return column;
+  });
+
+  const deleteColumn = {
+    title: 'Actions',
+    key: 'delete',
+    render: (_, story) => (
+      <DeleteOutlined
+        style={{ color: 'red', cursor: 'pointer' }}
+        onClick={() => {
+          console.log(`Delete icon clicked for story ID: ${story.id}`); // Debug log
+          onDeleteStory(story.id);
+        }}
+      />
+    ),
+  };
+
+  const primaryColumn = {
+    title: (
+      <Dropdown
+        overlay={
+          <Menu>
+            {allColumns.map((column) => (
+              <Menu.Item key={column.key}>
+                <Checkbox
+                  checked={visibleColumns.includes(column.key)}
+                  onChange={() => handleColumnToggle(column.key)}
+                >
+                  {column.title}
+                </Checkbox>
+              </Menu.Item>
+            ))}
+          </Menu>
+        }
+        trigger={['click']}
+      >
+        <Button>+/- Columns</Button>
+      </Dropdown>
+    ),
+    key: 'primary',
+    render: (_, story) => (
+      <Checkbox
+        checked={selectedStories.includes(story.id)}
+        onChange={() => handleStorySelect(story.id)}
+      />
+    ),
+  };
 
   return (
     <Table
-      columns={columns}
-      dataSource={storiesData.stories}
+      columns={[primaryColumn, deleteColumn, ...dynamicColumns]}
+      dataSource={stories}
       rowKey="id"
       pagination={false}
     />
   );
-};
-
-StoryTable.propTypes = {
-  feedId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  expandedFeeds: PropTypes.object.isRequired,
-  selectedStoriesForFeed: PropTypes.array.isRequired,
-  onStorySelect: PropTypes.func.isRequired,
 };
 
 export default StoryTable;
