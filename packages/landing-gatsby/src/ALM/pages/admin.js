@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../utils/authProvider';
-//import NavigationBar from "../components/NavigationBar";
+import NavigationBar from "../components/NavigationBar";
 import withAuth from '../utils/withAuth';
 
 const Admin = () => {
@@ -15,7 +15,7 @@ const Admin = () => {
   
   return (
     <div>
-      {/*<NavigationBar />*/}
+      <NavigationBar />
       <h1>Admin Panel</h1>
       <p>Welcome, {user?.name}! You have administrative access.</p>
       <div>{user ? JSON.stringify(user) : "No user info"}</div>

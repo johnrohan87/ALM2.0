@@ -13,6 +13,7 @@ import PreviewFeed from '../components/PreviewFeed';
 import DialogBox from '../components/DialogBox';
 import debounce from 'lodash.debounce';
 import withAuth from '../utils/withAuth';
+import NavigationBar from '../components/NavigationBar';
 
 const RSSFeed = () => {
   const isAuthenticated = useSelector((state) => !!state.auth.token);
@@ -134,45 +135,48 @@ This action cannot be undone.`;
   };
 
   return (
-    <div style={{ padding: 24 }}>
-      <h2>RSS Feeds</h2>
+    <div>
+      <NavigationBar />
+      <div style={{ padding: 24 }}>
+        <h2>RSS Feeds</h2>
 
-      <PreviewFeed
-        url={newFeedUrl}
-        onPreviewFeed={(e) => {
-          setNewFeedUrl(e.target.value);
-          debouncedPreviewFeed(e.target.value);
-        }}
-        previewData={previewData}
-        isFetchingPreview={isFetchingPreview}
-      />
-
-      <Button type="primary" onClick={handleImportFeed} disabled={!newFeedUrl}>
-        Import Feed
-      </Button>
-
-      {isLoading ? (
-        <Spin size="large" style={{ margin: '20px 0' }} />
-      ) : (
-        <FeedTable
-          feeds={feeds}
-          onDeleteFeedsAndStories={(feedId, storyIds) => {
-            console.log('onDeleteFeedsAndStories called with:', { feedId, storyIds });
-            showDeleteConfirmation(feedId, storyIds);
+        <PreviewFeed
+          url={newFeedUrl}
+          onPreviewFeed={(e) => {
+            setNewFeedUrl(e.target.value);
+            debouncedPreviewFeed(e.target.value);
           }}
-          onShowDeleteConfirmation={showDeleteConfirmation}
-          onDeleteStory={handleDeleteStory} // Pass the individual story delete handler
+          previewData={previewData}
+          isFetchingPreview={isFetchingPreview}
         />
-      )}
 
-      <DialogBox
-        isVisible={isModalVisible}
-        onConfirm={handleConfirmDelete}
-        onCancel={hideModal}
-        deleteTarget={deleteTarget}
-        isLoading={isDeleting}
-        message={getDeleteConfirmationMessage()}
-      />
+        <Button type="primary" onClick={handleImportFeed} disabled={!newFeedUrl}>
+          Import Feed
+        </Button>
+
+        {isLoading ? (
+          <Spin size="large" style={{ margin: '20px 0' }} />
+        ) : (
+          <FeedTable
+            feeds={feeds}
+            onDeleteFeedsAndStories={(feedId, storyIds) => {
+              console.log('onDeleteFeedsAndStories called with:', { feedId, storyIds });
+              showDeleteConfirmation(feedId, storyIds);
+            }}
+            onShowDeleteConfirmation={showDeleteConfirmation}
+            onDeleteStory={handleDeleteStory} // Pass the individual story delete handler
+          />
+        )}
+
+        <DialogBox
+          isVisible={isModalVisible}
+          onConfirm={handleConfirmDelete}
+          onCancel={hideModal}
+          deleteTarget={deleteTarget}
+          isLoading={isDeleting}
+          message={getDeleteConfirmationMessage()}
+        />
+      </div>
     </div>
   );
 };
