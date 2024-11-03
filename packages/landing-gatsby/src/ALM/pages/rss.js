@@ -12,6 +12,7 @@ import FeedTable from '../components/FeedTable';
 import PreviewFeed from '../components/PreviewFeed';
 import DialogBox from '../components/DialogBox';
 import debounce from 'lodash.debounce';
+import withAuth from '../utils/withAuth';
 
 const RSSFeed = () => {
   const isAuthenticated = useSelector((state) => !!state.auth.token);
@@ -176,4 +177,4 @@ This action cannot be undone.`;
   );
 };
 
-export default RSSFeed;
+export default withAuth(RSSFeed);
