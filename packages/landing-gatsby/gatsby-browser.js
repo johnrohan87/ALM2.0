@@ -19,7 +19,7 @@ const store = configureStore({
 });
 
 const onRedirectCallback = (appState) => {
-  const returnTo = appState?.returnTo || '/';
+  const returnTo = appState?.targetUrl || '/account';
   console.log('onRedirectCallback returnTo:', returnTo);
   navigate(returnTo);
 };

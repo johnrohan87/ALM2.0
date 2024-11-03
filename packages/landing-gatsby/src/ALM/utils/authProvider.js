@@ -15,11 +15,14 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (!auth0Loading) {
-      if (isAuthenticated && user) {
+      if (isAuthenticated && user && !auth.token) {
         getAccessTokenSilently()
           .then((accessToken) => {
-            //console.log("Access Token before dispatching:", accessToken);
             dispatch(setCredentials({ user, token: accessToken, isAuthenticated, isAdmin: user['https://voluble-boba-2e3a2e.netlify.app/roles']?.includes('Admin') }));
+            // Redirect to account page if returning from login
+            if (window.location.pathname === '/logged-out') {
+              navigate('/account');
+            }
           })
           .catch((error) => {
             console.error('Error fetching access token:', error);
@@ -32,9 +35,7 @@ export const AuthProvider = ({ children }) => {
         setIsLoading(false);
       }
     }
-  }, [isAuthenticated, user, getAccessTokenSilently, dispatch, auth0Loading]);
-
-  //console.log("AuthProvider token =", auth.token);
+  }, [isAuthenticated, user, getAccessTokenSilently, dispatch, auth0Loading, auth.token]);
 
   return (
     <AuthContext.Provider value={{
@@ -47,12 +48,15 @@ export const AuthProvider = ({ children }) => {
       logout: () => {
         console.log('AuthProvider logout');
         setIsLoggingOut(true); 
-        document.cookie.split(";").forEach((c) => {
-          document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-        });
-        auth0Logout({ returnTo: window.location.origin + '/logged-out' });
+
+        // Dispatch Redux logout to update the application state
         dispatch(reduxLogout());
-        setIsLoggingOut(false);
+
+        // Ensure state updates before redirecting
+        setTimeout(() => {
+          setIsLoggingOut(false);
+          auth0Logout({ returnTo: window.location.origin + '/logged-out' });
+        }, 500);
       },
       loginWithRedirect,
     }}>
