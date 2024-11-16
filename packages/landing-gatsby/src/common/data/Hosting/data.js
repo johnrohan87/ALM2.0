@@ -235,7 +235,7 @@ export const MONTHLY_PRICING_TABLE = [
     freePlan: true,
     name: 'Basic Account',
     description: 'For Small teams or group who need to build website ',
-    price: '$0',
+    price: '0',
     priceLabel: 'Only for first month',
     buttonLabel: 'CREATE FREE ACCOUNT',
     url: '#',
@@ -260,7 +260,7 @@ export const MONTHLY_PRICING_TABLE = [
   {
     name: 'Business Account',
     description: 'For Mediums teams or group who need to build website ',
-    price: '$9.87',
+    price: '9.87',
     priceLabel: 'Per month & subscription yearly',
     buttonLabel: 'START FREE TRIAL',
     url: '#',

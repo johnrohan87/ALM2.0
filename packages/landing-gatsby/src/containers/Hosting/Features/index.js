@@ -1,17 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useStaticQuery, graphql } from 'gatsby';
 import Fade from 'react-reveal/Fade';
 import Box from 'common/components/Box';
 import Text from 'common/components/Text';
 import Heading from 'common/components/Heading';
 import Container from 'common/components/UI/Container';
 import { FeatureItem } from '../hosting.style';
-import ShapeOne from 'common/assets/image/hosting/shape-1.svg';
-import ShapeTwo from 'common/assets/image/hosting/shape-2.svg';
-import ShapeThree from 'common/assets/image/hosting/shape-3.svg';
-import ShapeFour from 'common/assets/image/hosting/shape-4.svg';
-import ShapeFive from 'common/assets/image/hosting/shape-5.svg';
 
 const FeatureSection = ({
   sectionWrapper,
@@ -23,138 +17,53 @@ const FeatureSection = ({
   featureItemHeading,
   featureItemDes,
 }) => {
-  const Data = useStaticQuery(graphql`
-    query {
-      hostingJson {
-        FEATURES_DATA {
-          title
-          icon
-          description
-          animation
-        }
-      }
-    }
-  `);
+  const features = [
+    {
+      title: 'Multi-Device Syncing',
+      description: 'Access your feeds on any device, be it desktop, tablet, or mobile, with automatic syncing.',
+    },
+    {
+      title: 'Personalized Dashboard',
+      description: 'Customize your dashboard layout and prioritize feeds, ensuring you see the most important updates first.',
+    },
+    {
+      title: 'Real-Time Notifications',
+      description: 'Get notified whenever a new story drops in your favorite feeds.',
+    },
+  ];
 
   return (
     <Box {...sectionWrapper}>
       <Container>
         <Box {...secTitleWrapper}>
           <Fade bottom cascade>
-            <Text {...secText} content="OUR SERVICES" />
+            <Text {...secText} content="FEATURES OVERVIEW" />
             <Heading
               {...secHeading}
-              content="Website Development and Management"
+              content="Features Tailored for the Ultimate Content Experience"
             />
           </Fade>
         </Box>
 
         <Box {...row}>
-          {Data.hostingJson.FEATURES_DATA.map((featureItem, index) => (
+          {features.map((feature, index) => (
             <Box {...col} key={`feature-${index}`}>
-              {featureItem.animation ? (
-                <Fade bottom delay={index * 120}>
-                  <FeatureItem
-                    title={
-                      <Heading
-                        {...featureItemHeading}
-                        content={featureItem.title}
-                      />
-                    }
-                    description={
-                      <Text
-                        {...featureItemDes}
-                        content={featureItem.description}
-                      />
-                    }
-                    icon={<i className={featureItem.icon} />}
-                    additionalContent={
-                      <>
-                        <img
-                          className="hover-shape-1 hover-shape"
-                          src={ShapeOne}
-                          alt="Shape One"
-                        />
-                        <img
-                          className="hover-shape-2 hover-shape"
-                          src={ShapeTwo}
-                          alt="Shape Two"
-                        />
-                        <img
-                          className="hover-shape-3 hover-shape"
-                          src={ShapeThree}
-                          alt="Shape Three"
-                        />
-                        <img
-                          className="hover-shape-4 hover-shape"
-                          src={ShapeFour}
-                          alt="Shape Four"
-                        />
-                        <img
-                          className="hover-shape-5 hover-shape"
-                          src={ShapeFive}
-                          alt="Shape Five"
-                        />
-                      </>
-                    }
-                    button={
-                      <a href="#1" aria-label={`link-${index}`}>
-                        <i className="flaticon-next" />
-                      </a>
-                    }
-                  />
-                </Fade>
-              ) : (
+              <Fade bottom delay={index * 120}>
                 <FeatureItem
                   title={
                     <Heading
                       {...featureItemHeading}
-                      content={featureItem.title}
+                      content={feature.title}
                     />
                   }
                   description={
                     <Text
                       {...featureItemDes}
-                      content={featureItem.description}
+                      content={feature.description}
                     />
                   }
-                  icon={<i className={featureItem.icon} />}
-                  additionalContent={
-                    <>
-                      <img
-                        className="hover-shape-1 hover-shape"
-                        src={ShapeOne}
-                        alt="Shape One"
-                      />
-                      <img
-                        className="hover-shape-2 hover-shape"
-                        src={ShapeTwo}
-                        alt="Shape Two"
-                      />
-                      <img
-                        className="hover-shape-3 hover-shape"
-                        src={ShapeThree}
-                        alt="Shape Three"
-                      />
-                      <img
-                        className="hover-shape-4 hover-shape"
-                        src={ShapeFour}
-                        alt="Shape Four"
-                      />
-                      <img
-                        className="hover-shape-5 hover-shape"
-                        src={ShapeFive}
-                        alt="Shape Five"
-                      />
-                    </>
-                  }
-                  button={
-                    <a href="#1" aria-label={`link-${index}`}>
-                      <i className="flaticon-next" />
-                    </a>
-                  }
                 />
-              )}
+              </Fade>
             </Box>
           ))}
         </Box>

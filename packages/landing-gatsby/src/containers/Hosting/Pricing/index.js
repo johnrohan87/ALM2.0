@@ -124,16 +124,16 @@ const PricingSection = ({
       <Container>
         <Box {...secTitleWrapper}>
           <Fade bottom cascade>
-            <Text {...secText} content="PRICING PLAN" />
+            <Text {...secText} content="PRICING PLANS" />
             <Heading
               {...secHeading}
-              content="What’s our monthly pricing subscription"
+              content="Plans that Work for You"
             />
             <SwitchWrapper>
               <Switch
                 switchColor="#f0f0f0"
                 barColor="#f0f0f0"
-                labelText="Show Pricing plan annually"
+                labelText="Show annual pricing plans"
                 labelPosition="left"
                 onChange={dataHandle}
               />
@@ -163,7 +163,7 @@ const PricingSection = ({
                           />
                         </PricingHead>
                         <PricingPrice>
-                          <Text content={pricingTable.price} {...priceStyle} />
+                          <Text content={`$${pricingTable.price}`} {...priceStyle} />
                           <Text
                             content={pricingTable.priceLabel}
                             {...priceLabelStyle}
@@ -208,7 +208,7 @@ const PricingSection = ({
               <>
                 {Data.hostingJson.YEARLY_PRICING_TABLE.map(
                   (pricingTable, index) => (
-                    <GlideSlide key={`mobile-pricing-table-${index}`}>
+                    <GlideSlide key={`yearly-pricing-table-${index}`}>
                       <PricingTable
                         freePlan={pricingTable.freePlan}
                         className="pricing_table"
@@ -221,7 +221,7 @@ const PricingSection = ({
                           />
                         </PricingHead>
                         <PricingPrice>
-                          <Text content={pricingTable.price} {...priceStyle} />
+                          <Text content={`$${pricingTable.price}`} {...priceStyle} />
                           <Text
                             content={pricingTable.priceLabel}
                             {...priceLabelStyle}
@@ -245,7 +245,7 @@ const PricingSection = ({
                         <PricingList>
                           {pricingTable.listItems.map((item, index) => (
                             <ListItem
-                              key={`mobile-pricing-table-list-${index}`}
+                              key={`yearly-pricing-table-list-${index}`}
                             >
                               <Icon
                                 icon={checkmark}

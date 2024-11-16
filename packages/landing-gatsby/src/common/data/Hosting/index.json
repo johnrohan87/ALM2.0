@@ -200,162 +200,104 @@
       ]
     }
   ],
-  "MONTHLY_PRICING_TABLE": [
-    {
-      "freePlan": true,
-      "name": "Basic Account",
-      "description": "For Small teams or group who need to build website ",
-      "price": "$0",
-      "priceLabel": "Only for first month",
-      "buttonLabel": "CREATE FREE ACCOUNT",
-      "url": "#",
-      "listItems": [
-        {
-          "content": "Drag & Drop Builder"
-        },
-        {
-          "content": "1,000s of Templates Ready"
-        },
-        {
-          "content": "Blog Tools"
-        },
-        {
-          "content": "eCommerce Store "
-        },
-        {
-          "content": "30+ Webmaster Tools"
-        }
-      ]
-    },
-    {
-      "name": "Business Account",
-      "description": "For Mediums teams or group who need to build website ",
-      "price": "$9.87",
-      "priceLabel": "Per month & subscription yearly",
-      "buttonLabel": "START FREE TRIAL",
-      "url": "#",
-      "listItems": [
-        {
-          "content": "Drag & Drop Builder"
-        },
-        {
-          "content": "1,000s of Templates Ready"
-        },
-        {
-          "content": "Blog Tools"
-        },
-        {
-          "content": "eCommerce Store "
-        },
-        {
-          "content": "30+ Webmaster Tools"
-        }
-      ]
-    },
-    {
-      "name": "Premium Account",
-      "description": "For Large teams or group who need to build website ",
-      "price": "$12.98",
-      "priceLabel": "Per month & subscription yearly",
-      "buttonLabel": "START FREE TRIAL",
-      "url": "#",
-      "listItems": [
-        {
-          "content": "Drag & Drop Builder"
-        },
-        {
-          "content": "1,000s of Templates Ready"
-        },
-        {
-          "content": "Blog Tools"
-        },
-        {
-          "content": "eCommerce Store "
-        },
-        {
-          "content": "30+ Webmaster Tools"
-        }
-      ]
-    }
-  ],
-  "YEARLY_PRICING_TABLE": [
-    {
-      "freePlan": true,
-      "name": "Basic Account",
-      "description": "For a single client or team who need to build website ",
-      "price": "$0",
-      "priceLabel": "Only for first month",
-      "buttonLabel": "CREATE FREE ACCOUNT",
-      "url": "#",
-      "listItems": [
-        {
-          "content": "Drag & Drop Builder"
-        },
-        {
-          "content": "1,000s of Templates Ready"
-        },
-        {
-          "content": "Blog Tools"
-        },
-        {
-          "content": "eCommerce Store "
-        },
-        {
-          "content": "30+ Webmaster Tools"
-        }
-      ]
-    },
-    {
-      "name": "Business Account",
-      "description": "For Small teams or group who need to build website ",
-      "price": "$6.00",
-      "priceLabel": "Per month & subscription yearly",
-      "buttonLabel": "START FREE TRIAL",
-      "url": "#",
-      "listItems": [
-        {
-          "content": "Unlimited secure storage"
-        },
-        {
-          "content": "2,000s of Templates Ready"
-        },
-        {
-          "content": "Blog Tools"
-        },
-        {
-          "content": "24/7 phone support"
-        },
-        {
-          "content": "50+ Webmaster Tools"
-        }
-      ]
-    },
-    {
-      "name": "Premium Account",
-      "description": "For Large teams or group who need to build website ",
-      "price": "$9.99",
-      "priceLabel": "Per month & subscription yearly",
-      "buttonLabel": "START FREE TRIAL",
-      "url": "#",
-      "listItems": [
-        {
-          "content": "Drag & Drop Builder"
-        },
-        {
-          "content": "3,000s of Templates Ready"
-        },
-        {
-          "content": "Advanced branding"
-        },
-        {
-          "content": "Knowledge base support"
-        },
-        {
-          "content": "80+ Webmaster Tools"
-        }
-      ]
-    }
-  ],
+  
+    "MONTHLY_PRICING_TABLE": [
+      {
+        "freePlan": true,
+        "name": "Free Plan",
+        "description": "Basic plan for individual users to get started with feed aggregation.",
+        "price": "0",
+        "priceLabel": "Free forever",
+        "buttonLabel": "GET STARTED FOR FREE",
+        "url": "#",
+        "listItems": [
+          { "content": "Access to basic RSS feed aggregation" },
+          { "content": "Personalized feed dashboard" },
+          { "content": "Save articles for offline reading" },
+          { "content": "Multi-device syncing" },
+          { "content": "Ad-supported experience" }
+        ]
+      },
+      {
+        "name": "Premium Plan",
+        "description": "For individuals or teams looking for enhanced features.",
+        "price": "9.99",
+        "priceLabel": "Per month, billed annually",
+        "buttonLabel": "START PREMIUM TRIAL",
+        "url": "#",
+        "listItems": [
+          { "content": "Everything in Free Plan" },
+          { "content": "Advanced filtering and tagging" },
+          { "content": "Ad-free experience" },
+          { "content": "Real-time notifications" },
+          { "content": "Priority support" }
+        ]
+      },
+      {
+        "name": "Business Plan",
+        "description": "For businesses needing multiple users and analytics.",
+        "price": "19.99",
+        "priceLabel": "Per month, billed annually",
+        "buttonLabel": "GET BUSINESS PLAN",
+        "url": "#",
+        "listItems": [
+          { "content": "Everything in Premium Plan" },
+          { "content": "Multi-user support" },
+          { "content": "Advanced analytics and reporting" },
+          { "content": "Custom branding options" },
+          { "content": "Dedicated account manager" }
+        ]
+      }
+    ],
+    "YEARLY_PRICING_TABLE": [
+      {
+        "freePlan": true,
+        "name": "Free Plan",
+        "description": "Basic plan for individual users to get started with feed aggregation.",
+        "price": "0",
+        "priceLabel": "Free forever",
+        "buttonLabel": "GET STARTED FOR FREE",
+        "url": "#",
+        "listItems": [
+          { "content": "Access to basic RSS feed aggregation" },
+          { "content": "Personalized feed dashboard" },
+          { "content": "Save articles for offline reading" },
+          { "content": "Multi-device syncing" },
+          { "content": "Ad-supported experience" }
+        ]
+      },
+      {
+        "name": "Premium Plan",
+        "description": "For individuals or teams looking for enhanced features.",
+        "price": "99.99",
+        "priceLabel": "Billed annually",
+        "buttonLabel": "START PREMIUM TRIAL",
+        "url": "#",
+        "listItems": [
+          { "content": "Everything in Free Plan" },
+          { "content": "Advanced filtering and tagging" },
+          { "content": "Ad-free experience" },
+          { "content": "Real-time notifications" },
+          { "content": "Priority support" }
+        ]
+      },
+      {
+        "name": "Business Plan",
+        "description": "For businesses needing multiple users and analytics.",
+        "price": "199.99",
+        "priceLabel": "Billed annually",
+        "buttonLabel": "GET BUSINESS PLAN",
+        "url": "#",
+        "listItems": [
+          { "content": "Everything in Premium Plan" },
+          { "content": "Multi-user support" },
+          { "content": "Advanced analytics and reporting" },
+          { "content": "Custom branding options" },
+          { "content": "Dedicated account manager" }
+        ]
+      }
+    ]
+  ,
   "TESTIMONIALS": [
     {
       "review": "Best working experience  with this amazing team & in future, we want to work together",

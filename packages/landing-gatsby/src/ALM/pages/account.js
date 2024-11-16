@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 //import { navigate } from "gatsby";
 //import { useSelector } from 'react-redux';
 import { useAuth } from "../utils/authProvider";
@@ -6,7 +6,7 @@ import NavigationBar from "../components/NavigationBar";
 import withAuth from "../utils/withAuth";
 
 const AccountComponent = () => {
-  const { user, token, isLoading, isAuthenticated, logout } = useAuth();
+  const { user, token, isLoading, isAuthenticated } = useAuth();
 
   if (isLoading) {
     return <div>Loading your profile...</div>;
