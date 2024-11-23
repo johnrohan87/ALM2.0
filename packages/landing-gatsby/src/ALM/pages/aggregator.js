@@ -3,18 +3,14 @@ import { Button, message, Spin } from 'antd';
 import { useSelector } from 'react-redux';
 import {
   useFetchUserFeedsQuery,
-  useLazyFetchPreviewFeedQuery,
-  useImportFeedMutation,
   useDeleteFeedMutation,
   useDeleteStoriesMutation,
   useSaveStoryMutation,
   useAddToUserFeedMutation,
-  useAddStoryToUserFeedMutation,
 } from '../store/api';
 import FeedTable from '../components/FeedTable';
-import PreviewFeed from '../components/PreviewFeed';
+import Preview from './preview';
 import DialogBox from '../components/DialogBox';
-import SavedStoriesView from '../components/SavedStoriesView';
 import debounce from 'lodash.debounce';
 import withAuth from '../utils/withAuth';
 import NavigationBar from '../components/NavigationBar';
@@ -23,47 +19,23 @@ const AggregatorPage = () => {
   const isAuthenticated = useSelector((state) => !!state.auth.token);
   const { data: feedsData, refetch: refetchFeeds, isLoading } = useFetchUserFeedsQuery(null, { skip: !isAuthenticated });
 
-  const [triggerFetchPreviewFeed, { data: previewData, isFetching: isFetchingPreview }] = useLazyFetchPreviewFeedQuery();
-  const [importFeed] = useImportFeedMutation();
   const [deleteFeed] = useDeleteFeedMutation();
   const [deleteStories] = useDeleteStoriesMutation();
   const [saveStory] = useSaveStoryMutation();
   const [addToUserFeed] = useAddToUserFeedMutation();
-  const [addStoryToUserFeed] = useAddStoryToUserFeedMutation();
 
-  const [newFeedUrl, setNewFeedUrl] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState({ feedId: null, stories: [] });
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentView, setCurrentView] = useState('allFeeds');
+  const [selectedFeeds, setSelectedFeeds] = useState([]);
+  const [selectedStories, setSelectedStories] = useState([]);
 
   useEffect(() => {
-    console.log('Feeds data:', feedsData);
-  }, [feedsData]);
-
-  const debouncedPreviewFeed = useCallback(
-    debounce((value) => {
-      triggerFetchPreviewFeed(value);
-    }, 500),
-    [triggerFetchPreviewFeed]
-  );
-
-  const handleImportFeed = async () => {
-    if (!newFeedUrl) {
-      message.warning('Please enter a valid feed URL');
-      return;
-    }
-
-    try {
-      await importFeed({ url: newFeedUrl }).unwrap();
-      message.success('Feed imported successfully');
-      setNewFeedUrl('');
+    if (currentView === 'allFeeds' && isAuthenticated) {
       refetchFeeds();
-    } catch (error) {
-      const errorMessage = error?.data?.message || 'Failed to import feed';
-      message.error(errorMessage);
     }
-  };
+  }, [currentView, isAuthenticated, refetchFeeds]);
 
   const handleSaveStory = useCallback(async (storyId) => {
     try {
@@ -84,16 +56,6 @@ const AggregatorPage = () => {
       message.error('Failed to add feed to your RSS feed');
     }
   }, [addToUserFeed]);
-
-  const handleAddStoryToUserFeed = useCallback(async (storyId) => {
-    try {
-      await addStoryToUserFeed({ story_id: storyId }).unwrap();
-      message.success('Story added to your RSS feed successfully');
-    } catch (error) {
-      console.error('Error adding story to user feed:', error);
-      message.error('Failed to add story to your RSS feed');
-    }
-  }, [addStoryToUserFeed]);
 
   const showDeleteConfirmation = useCallback((feedId, storyIds) => {
     if (isModalVisible || isDeleting) {
@@ -144,6 +106,40 @@ const AggregatorPage = () => {
 
   const feeds = feedsData?.feeds || [];
 
+  const handleFeedCheckboxChange = (feedId, checked) => {
+    setSelectedFeeds((prevSelectedFeeds) =>
+      checked ? [...prevSelectedFeeds, feedId] : prevSelectedFeeds.filter((id) => id !== feedId)
+    );
+  };
+  
+  const handleStoryCheckboxChange = (storyId, checked) => {
+    setSelectedStories((prevSelectedStories) =>
+      checked ? [...prevSelectedStories, storyId] : prevSelectedStories.filter((id) => id !== storyId)
+    );
+  };
+  
+  const handleSaveSelectedStories = useCallback(async () => {
+    try {
+      await Promise.all(selectedStories.map((storyId) => saveStory({ story_id: storyId }).unwrap()));
+      message.success('Selected stories saved successfully');
+      setSelectedStories([]);
+    } catch (error) {
+      console.error('Error saving selected stories:', error);
+      message.error('Failed to save selected stories');
+    }
+  }, [selectedStories, saveStory]);
+  
+  const handleAddSelectedFeedsToUserFeed = useCallback(async () => {
+    try {
+      await Promise.all(selectedFeeds.map((feedId) => addToUserFeed({ feed_id: feedId }).unwrap()));
+      message.success('Selected feeds added to your RSS feed successfully');
+      setSelectedFeeds([]);
+    } catch (error) {
+      console.error('Error adding selected feeds to user feed:', error);
+      message.error('Failed to add selected feeds to your RSS feed');
+    }
+  }, [selectedFeeds, addToUserFeed]);  
+
   const getDeleteConfirmationMessage = () => {
     const { feedId, stories } = deleteTarget;
     if (feedId && stories.length > 0) {
@@ -172,27 +168,21 @@ This action cannot be undone.`;
 
         <div style={{ marginBottom: '20px' }}>
           <Button onClick={() => setCurrentView('allFeeds')} style={{ marginRight: '10px' }}>All Feeds</Button>
-          <Button onClick={() => setCurrentView('savedStories')} style={{ marginRight: '10px' }}>Saved Stories</Button>
-          <Button onClick={() => setCurrentView('myFeeds')} style={{ marginRight: '10px' }}>My RSS Feeds</Button>
+          <Button onClick={() => setCurrentView('previewFeed')} style={{ marginRight: '10px' }}>Add Feeds & Stories</Button>
+        </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <Button onClick={handleSaveSelectedStories} style={{ marginRight: '10px' }} disabled={selectedStories.length === 0}>
+            Save Selected Stories
+          </Button>
+          <Button onClick={handleAddSelectedFeedsToUserFeed} style={{ marginRight: '10px' }} disabled={selectedFeeds.length === 0}>
+            Add Selected Feeds to My RSS Feed
+          </Button>
         </div>
 
         {currentView === 'allFeeds' && (
           <>
             <h3>All Feeds & Stories</h3>
-            <PreviewFeed
-              url={newFeedUrl}
-              onPreviewFeed={(e) => {
-                setNewFeedUrl(e.target.value);
-                debouncedPreviewFeed(e.target.value);
-              }}
-              previewData={previewData}
-              isFetchingPreview={isFetchingPreview}
-            />
-
-            <Button type="primary" onClick={handleImportFeed} disabled={!newFeedUrl}>
-              Import Feed
-            </Button>
-
             {isLoading ? (
               <Spin size="large" style={{ margin: '20px 0' }} />
             ) : (
@@ -205,14 +195,15 @@ This action cannot be undone.`;
                 onDeleteStory={handleDeleteStory}
                 onSaveStory={handleSaveStory}
                 onAddToUserFeed={handleAddToUserFeed}
-                onAddStoryToUserFeed={handleAddStoryToUserFeed}
+                onFeedCheckboxChange={handleFeedCheckboxChange}
+                onStoryCheckboxChange={handleStoryCheckboxChange}
               />
             )}
           </>
         )}
 
-        {currentView === 'savedStories' && (
-          <SavedStoriesView />
+        {currentView === 'previewFeed' && (
+          <Preview />
         )}
 
         <DialogBox
@@ -227,4 +218,5 @@ This action cannot be undone.`;
     </div>
   );
 }
+
 export default withAuth(AggregatorPage);

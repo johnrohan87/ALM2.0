@@ -127,13 +127,13 @@ export const api = createApi({
       },
     }),
     addStoryToUserFeed: builder.mutation({
-      query: ({ story_id }) => ({
+      query: ({ story, feed }) => ({
         url: 'add_story_to_user_feed',
         method: 'POST',
-        body: { story_id },
+        body: { story, feed },
       }),
       async onQueryStarted(arg, { queryFulfilled }) {
-        console.log('Adding story to user feed with ID:', arg.story_id);
+        console.log('Adding story to user feed with data:', arg);
         try {
           await queryFulfilled;
           console.log('Story added to user feed successfully');
