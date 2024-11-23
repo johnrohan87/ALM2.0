@@ -39,12 +39,12 @@ export const api = createApi({
         body: feedData,
       }),
       async onQueryStarted(arg, { queryFulfilled }) {
-        console.log('Importing feed with data:', arg); // Debugging log
+        console.log('Importing feed with data:', arg);
         try {
           await queryFulfilled;
-          console.log('Feed imported successfully'); // Success log
+          console.log('Feed imported successfully');
         } catch (error) {
-          console.error('Error importing feed:', error); // Error log
+          console.error('Error importing feed:', error);
         }
       },
     }),
@@ -54,12 +54,12 @@ export const api = createApi({
         method: 'GET',
       }),
       async onQueryStarted(arg, { queryFulfilled }) {
-        console.log('Fetching preview feed for URL:', arg); // Debugging log
+        console.log('Fetching preview feed for URL:', arg);
         try {
           await queryFulfilled;
-          console.log('Preview feed fetched successfully'); // Success log
+          console.log('Preview feed fetched successfully');
         } catch (error) {
-          console.error('Error fetching preview feed:', error); // Error log
+          console.error('Error fetching preview feed:', error);
         }
       },
     }),
@@ -70,12 +70,12 @@ export const api = createApi({
         body: { story_ids },
       }),
       async onQueryStarted(arg, { queryFulfilled }) {
-        console.log('Deleting stories with IDs:', arg.story_ids); // Debugging log
+        console.log('Deleting stories with IDs:', arg.story_ids);
         try {
           await queryFulfilled;
-          console.log('Stories deleted successfully'); // Success log
+          console.log('Stories deleted successfully');
         } catch (error) {
-          console.error('Error deleting stories:', error); // Error log
+          console.error('Error deleting stories:', error);
         }
       },
     }),
@@ -85,12 +85,60 @@ export const api = createApi({
         method: 'DELETE',
       }),
       async onQueryStarted(arg, { queryFulfilled }) {
-        console.log('Deleting feed with ID:', arg.feed_id); // Debugging log
+        console.log('Deleting feed with ID:', arg.feed_id);
         try {
           await queryFulfilled;
-          console.log('Feed deleted successfully'); // Success log
+          console.log('Feed deleted successfully');
         } catch (error) {
-          console.error('Error deleting feed:', error); // Error log
+          console.error('Error deleting feed:', error);
+        }
+      },
+    }),
+    saveStory: builder.mutation({
+      query: ({ story_id }) => ({
+        url: 'save_story',
+        method: 'POST',
+        body: { story_id },
+      }),
+      async onQueryStarted(arg, { queryFulfilled }) {
+        console.log('Saving story with ID:', arg.story_id);
+        try {
+          await queryFulfilled;
+          console.log('Story saved successfully');
+        } catch (error) {
+          console.error('Error saving story:', error);
+        }
+      },
+    }),
+    addToUserFeed: builder.mutation({
+      query: ({ feed_id }) => ({
+        url: 'add_to_user_feed',
+        method: 'POST',
+        body: { feed_id },
+      }),
+      async onQueryStarted(arg, { queryFulfilled }) {
+        console.log('Adding feed to user feed with ID:', arg.feed_id);
+        try {
+          await queryFulfilled;
+          console.log('Feed added to user feed successfully');
+        } catch (error) {
+          console.error('Error adding feed to user feed:', error);
+        }
+      },
+    }),
+    addStoryToUserFeed: builder.mutation({
+      query: ({ story_id }) => ({
+        url: 'add_story_to_user_feed',
+        method: 'POST',
+        body: { story_id },
+      }),
+      async onQueryStarted(arg, { queryFulfilled }) {
+        console.log('Adding story to user feed with ID:', arg.story_id);
+        try {
+          await queryFulfilled;
+          console.log('Story added to user feed successfully');
+        } catch (error) {
+          console.error('Error adding story to user feed:', error);
         }
       },
     }),
@@ -99,9 +147,13 @@ export const api = createApi({
 
 export const {
   useFetchUserFeedsQuery,
+  useFetchUserStoriesQuery,
   useLazyFetchUserStoriesQuery,
   useImportFeedMutation,
   useLazyFetchPreviewFeedQuery,
   useDeleteStoriesMutation,
   useDeleteFeedMutation,
+  useSaveStoryMutation,
+  useAddToUserFeedMutation,
+  useAddStoryToUserFeedMutation,
 } = api;
