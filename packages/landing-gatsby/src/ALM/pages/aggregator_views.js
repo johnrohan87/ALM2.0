@@ -10,28 +10,29 @@ import {
   useGetAllFeedTokensQuery,
 } from '../store/api';
 import FeedTable from '../components/FeedTable';
+import DynamicDataRenderer from '../components/DynamicDataRenderer';
 import Preview from './preview';
 import DialogBox from '../components/DialogBox';
 import debounce from 'lodash.debounce';
 import withAuth from '../utils/withAuth';
 
-const AggregatorViews = ({ 
-          currentView,
-          feeds,
-          isLoading,
-          handleDeleteFeed,
-          handleDeleteStory,
-          handleDeleteSelectedStories,
-          selectedStories,
-          handleStoryCheckboxChange,
-          isModalVisible,
-          handleConfirmDelete,
-          showDeleteConfirmation,
-          hideModal,
-          deleteTarget,
-          isDeleting,
-          setCurrentView,
-     }) => {
+const AggregatorViews = ({
+  currentView,
+  feeds,
+  isLoading,
+  handleDeleteFeed,
+  handleDeleteStory,
+  handleDeleteSelectedStories,
+  selectedStories,
+  handleStoryCheckboxChange,
+  isModalVisible,
+  handleConfirmDelete,
+  showDeleteConfirmation,
+  hideModal,
+  deleteTarget,
+  isDeleting,
+  setCurrentView,
+}) => {
   const isAuthenticated = useSelector((state) => !!state.auth.token);
   const { data: feedsData, refetch: refetchFeeds, isLoading: isLoadingFeeds } = useFetchUserFeedsQuery(null, { skip: !isAuthenticated });
 
@@ -41,21 +42,23 @@ const AggregatorViews = ({
   const [publicToken, setPublicToken] = useState(null);
 
   const [requestUserToken, { isLoading: isRequestingToken }] = useRequestUserTokenMutation();
-  const { data: publicFeedData, refetch: refetchPublicFeed } = useFetchPublicFeedQuery(publicToken, {
+  const { data: publicFeedData, refetch: refetchPublicFeed, isLoading: isLoadingPublicFeed } = useFetchPublicFeedQuery(publicToken, {
     skip: !publicToken,
   });
   const { data: allFeedTokens, refetch: refetchAllFeedTokens, isLoading: isLoadingTokens } = useGetAllFeedTokensQuery(null, {
-    skip: currentView !== 'publicFeed',
+    skip: currentView !== 'publicTokensAccess',
   });
 
+  // Fetch all tokens when "Public Tokens and Access" is selected
   useEffect(() => {
-    if (currentView === 'publicFeed') {
+    if (currentView === 'publicTokensAccess') {
       refetchAllFeedTokens();
     }
   }, [currentView, refetchAllFeedTokens]);
 
+  // Set default token if tokens are fetched
   useEffect(() => {
-    if (allFeedTokens && allFeedTokens.feeds && allFeedTokens.feeds.length > 0) {
+    if (allFeedTokens?.feeds?.length > 0) {
       setPublicToken(allFeedTokens.feeds[0].public_token);
     }
   }, [allFeedTokens]);
@@ -99,7 +102,6 @@ const AggregatorViews = ({
     }
   };
 
-
   return (
     <div>
       <div style={{ padding: 24 }}>
@@ -107,27 +109,9 @@ const AggregatorViews = ({
         <div style={{ marginBottom: '20px' }}>
           <Button onClick={() => setCurrentView('userFeeds')} style={{ marginRight: '10px' }}>User Feeds</Button>
           <Button onClick={() => setCurrentView('previewFeed')} style={{ marginRight: '10px' }}>Add Feeds & Stories</Button>
+          <Button onClick={() => setCurrentView('publicTokensAccess')} style={{ marginRight: '10px' }}>Public Tokens and Access</Button>
           <Button onClick={() => setCurrentView('publicFeed')} style={{ marginRight: '10px' }}>View Public Feed</Button>
         </div>
-
-        {isAuthenticated && (
-          <div style={{ marginBottom: '20px' }}>
-            <input
-              type="text"
-              placeholder="Enter Feed ID"
-              value={selectedFeedId}
-              onChange={(e) => setSelectedFeedId(e.target.value)}
-              style={{ marginRight: '10px' }}
-            />
-            <Button
-              type="primary"
-              onClick={handleRequestToken}
-              loading={isRequestingToken}
-            >
-              Generate Token
-            </Button>
-          </div>
-        )}
 
         {currentView === 'userFeeds' && (
           <>
@@ -156,43 +140,44 @@ const AggregatorViews = ({
           />
         )}
 
-        {publicToken && (
-          <div>
-            <h3>Public Token Generated</h3>
-            <p>Token: {publicToken}</p>
-            <Button onClick={refetchPublicFeed} style={{ marginTop: '10px' }}>Refresh Public Feed</Button>
-          </div>
-        )}
-
-        <div style={{ marginBottom: '20px' }}>
-          <Button onClick={handleDeleteSelectedStories} style={{ marginRight: '10px' }} disabled={selectedStories.length === 0}>
-            Delete Selected Stories
-          </Button>
-        </div>
-
-        {currentView === 'publicFeed' && allFeedTokens && allFeedTokens.feeds && (
+        {currentView === 'publicTokensAccess' && allFeedTokens && allFeedTokens.feeds && (
           <>
-            <h3>Public Feed</h3>
+            <h3>Public Tokens and Access</h3>
             {isLoadingTokens ? (
               <Spin size="large" style={{ margin: '20px 0' }} />
             ) : (
               <div>
                 {allFeedTokens.feeds.map((feed) => (
                   <div key={feed.feed_id} style={{ marginBottom: '20px' }}>
-                    <p>Feed ID:{feed.feed_id} URL:{feed.feed_url}</p>
+                    <p>Feed ID: {feed.feed_id} URL: {feed.feed_url}</p>
                     <p>Public Token: {feed.public_token}</p>
                     <p>Public URL: {feed.public_url}</p>
-                    {feed.stories && feed.stories.length > 0 ? (
-                      <ul>
-                        {feed.stories.map((story) => (
-                          <li key={story.id}>{story.title}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p>No stories available for this feed.</p>
-                    )}
                   </div>
                 ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {currentView === 'publicFeed' && publicFeedData && (
+          <>
+            <h3>Public Feed</h3>
+            {isLoadingPublicFeed ? (
+              <Spin size="large" style={{ margin: '20px 0' }} />
+            ) : (
+              <div>
+                <p>Feed ID: {publicFeedData.id}</p>
+                <p>Feed URL: {publicFeedData.url}</p>
+                <p>Associated USER: {publicFeedData.user_id}</p>
+                {publicFeedData.stories?.length > 0 ? (
+                  publicFeedData.stories.map((story) => (
+                    <div key={story.id} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
+                      <DynamicDataRenderer data={story} />
+                    </div>
+                  ))
+                ) : (
+                  <p>No stories available for this feed.</p>
+                )}
               </div>
             )}
           </>
@@ -214,11 +199,11 @@ const AggregatorViews = ({
 const getDeleteConfirmationMessage = (deleteTarget) => {
   if (!deleteTarget) return '';
   const { feedId, stories } = deleteTarget;
-  if (feedId && stories.length > 0) {
+  if (feedId && stories?.length > 0) {
     return `Are you sure you want to delete this feed (Feed ID: ${feedId})?\n\nThis will also delete the following associated stories: ${stories.join(', ')}.\n\nThis action cannot be undone.`;
   } else if (feedId) {
     return `Are you sure you want to delete this feed (Feed ID: ${feedId})?\n\nThis action cannot be undone.`;
-  } else if (stories.length > 0) {
+  } else if (stories?.length > 0) {
     return `Are you sure you want to delete the following stor${stories.length > 1 ? 'ies' : 'y'}: ${stories.join(', ')}?\n\nThis action cannot be undone.`;
   }
   return '';
