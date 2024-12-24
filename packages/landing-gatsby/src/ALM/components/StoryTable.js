@@ -69,7 +69,7 @@ const StoryTable = ({ stories, onDeleteStory }) => {
   const primaryColumn = {
     title: (
       <Dropdown
-        overlay={
+        menu={
           <Menu>
             {allColumns.map((column) => (
               <Menu.Item key={column.key}>

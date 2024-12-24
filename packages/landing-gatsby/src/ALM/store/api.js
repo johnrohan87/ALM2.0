@@ -142,6 +142,25 @@ export const api = createApi({
         }
       },
     }),
+    requestUserToken: builder.mutation({
+      query: ({ feed_id }) => ({
+        url: 'generate_feed_token',
+        method: 'POST',
+        body: { feed_id },
+      }),
+    }),
+    fetchPublicFeed: builder.query({
+      query: (publicToken) => ({
+        url: `public_user_feed/${publicToken}`,
+        method: 'GET',
+      }),
+    }),
+    getAllFeedTokens: builder.query({
+      query: () => ({
+        url: 'get_all_feed_tokens',
+        method: 'GET',
+      }),
+    }),
   }),
 });
 
@@ -156,4 +175,7 @@ export const {
   useSaveStoryMutation,
   useAddToUserFeedMutation,
   useAddStoryToUserFeedMutation,
+  useRequestUserTokenMutation,
+  useFetchPublicFeedQuery,
+  useGetAllFeedTokensQuery,
 } = api;
