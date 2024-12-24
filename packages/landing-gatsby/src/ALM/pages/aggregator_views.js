@@ -179,7 +179,9 @@ const AggregatorViews = ({
               <div>
                 {allFeedTokens.feeds.map((feed) => (
                   <div key={feed.feed_id} style={{ marginBottom: '20px' }}>
-                    <p>Feed URL: {feed.feed_url}</p>
+                    <p>Feed ID:{feed.feed_id} URL:{feed.feed_url}</p>
+                    <p>Public Token: {feed.public_token}</p>
+                    <p>Public URL: {feed.public_url}</p>
                     {feed.stories && feed.stories.length > 0 ? (
                       <ul>
                         {feed.stories.map((story) => (
