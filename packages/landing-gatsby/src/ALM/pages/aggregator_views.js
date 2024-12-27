@@ -40,28 +40,56 @@ const AggregatorViews = ({
   const [importFeed] = useImportFeedMutation();
   const [selectedFeedId, setSelectedFeedId] = useState('');
   const [publicToken, setPublicToken] = useState(null);
+  // storage for PublicFeed View
+  const [selectedPublicToken, setSelectedPublicToken] = useState(null);
+  const [selectedFeedData, setSelectedFeedData] = useState(null);
 
   const [requestUserToken, { isLoading: isRequestingToken }] = useRequestUserTokenMutation();
   const { data: publicFeedData, refetch: refetchPublicFeed, isLoading: isLoadingPublicFeed } = useFetchPublicFeedQuery(publicToken, {
     skip: !publicToken,
   });
   const { data: allFeedTokens, refetch: refetchAllFeedTokens, isLoading: isLoadingTokens } = useGetAllFeedTokensQuery(null, {
-    skip: currentView !== 'publicTokensAccess',
+    skip: false,
   });
 
-  // Fetch all tokens when "Public Tokens and Access" is selected
   useEffect(() => {
-    if (currentView === 'publicTokensAccess') {
+    if (['publicTokensAccess', 'publicFeed'].includes(currentView) && refetchAllFeedTokens) {
       refetchAllFeedTokens();
     }
   }, [currentView, refetchAllFeedTokens]);
+  
 
-  // Set default token if tokens are fetched
   useEffect(() => {
-    if (allFeedTokens?.feeds?.length > 0) {
+    if (selectedPublicToken && refetchPublicFeed) {
+      try {
+        refetchPublicFeed({ publicToken: selectedPublicToken });
+      } catch (error) {
+        console.error('Error refetching public feed:', error);
+      }
+    }
+  }, [selectedPublicToken, refetchPublicFeed]);
+  
+
+  useEffect(() => {
+    console.log('Refetch Function:', refetchAllFeedTokens);
+    console.log('All Feed Tokens Data:', allFeedTokens);
+  }, [refetchAllFeedTokens, allFeedTokens]);
+
+  const feedOptions = allFeedTokens?.feeds || [];
+
+
+  const handleTokenSelection = (token) => {
+    if (token) {
+      setSelectedPublicToken(token); // Ensure the token is valid before setting
+      setSelectedFeedData(null); // Clear previous feed data
+    }
+  };
+
+  useEffect(() => {
+    if (!selectedPublicToken && allFeedTokens?.feeds?.length > 0) {
       setPublicToken(allFeedTokens.feeds[0].public_token);
     }
-  }, [allFeedTokens]);
+  }, [allFeedTokens, selectedPublicToken]);
 
   const debouncedPreviewFeed = useCallback(
     debounce((value) => {
@@ -159,29 +187,49 @@ const AggregatorViews = ({
           </>
         )}
 
-        {currentView === 'publicFeed' && publicFeedData && (
+        // Updated Public Feed View
+        {currentView === 'publicFeed' && (
           <>
             <h3>Public Feed</h3>
             {isLoadingPublicFeed ? (
               <Spin size="large" style={{ margin: '20px 0' }} />
             ) : (
               <div>
-                <p>Feed ID: {publicFeedData.id}</p>
-                <p>Feed URL: {publicFeedData.url}</p>
-                <p>Associated USER: {publicFeedData.user_id}</p>
-                {publicFeedData.stories?.length > 0 ? (
-                  publicFeedData.stories.map((story) => (
-                    <div key={story.id} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
-                      <DynamicDataRenderer data={story} />
-                    </div>
-                  ))
+                <label>Select a Public Token:</label>
+                <select
+                  value={selectedPublicToken || ''}
+                  onChange={(e) => handleTokenSelection(e.target.value)} // Correctly handle token selection
+                  style={{ marginBottom: '20px', display: 'block' }}
+                >
+                  <option value="" disabled>
+                    Select a token
+                  </option>
+                  {feedOptions.map((feed) => (
+                    <option key={feed.public_token} value={feed.public_token}>
+                      {feed.feed_url}
+                    </option>
+                  ))}
+                </select>
+
+                {selectedPublicToken && publicFeedData ? (
+                  <>
+                    <h4>Feed Information</h4>
+                    <p>Feed URL: {publicFeedData.feed_url}</p>
+                    {publicFeedData.stories && publicFeedData.stories.length > 0 ? (
+                      <DynamicDataRenderer data={publicFeedData.stories} />
+                    ) : (
+                      <p>No stories available for this feed.</p>
+                    )}
+                  </>
                 ) : (
-                  <p>No stories available for this feed.</p>
+                  <p>Please select a token to view the feed.</p>
                 )}
               </div>
             )}
           </>
         )}
+
+
 
         <DialogBox
           isVisible={isModalVisible}
