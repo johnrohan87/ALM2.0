@@ -161,6 +161,22 @@ export const api = createApi({
         method: 'GET',
       }),
     }),
+    useUpdateFeed: builder.mutation({
+      query: (feedData) => ({
+        url: 'update_feed',
+        method: 'PUT',
+        body: feedData,
+      }),
+      async onQueryStarted(arg, { queryFulfilled }) {
+        console.log('Updating feed with data:', arg);
+        try {
+          const result = await queryFulfilled;
+          console.log('Feed updated successfully:', result.data);
+        } catch (error) {
+          console.error('Error updating feed:', error);
+        }
+      },
+    }),
   }),
 });
 
@@ -178,4 +194,5 @@ export const {
   useRequestUserTokenMutation,
   useFetchPublicFeedQuery,
   useGetAllFeedTokensQuery,
+  useUpdateFeed,
 } = api;
