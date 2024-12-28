@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Table, Checkbox, Dropdown, Menu, Button, Spin } from 'antd';
+import { Table, Checkbox, Button, Spin } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import StoryTable from './StoryTable'; // Import the StoryTable component
 import { useLazyFetchUserStoriesQuery } from '../store/api';
 import { generateColumns, filterColumns, handleColumnVisibilityChange } from '../utils/tableUtils'; // Utility functions
 
-const FeedTable = ({ feeds, onDeleteFeedsAndStories, onDeleteStory }) => {
+const FeedTable = ({ feeds, onDeleteFeedsAndStories, onDeleteStory, selectedStories, onStoryCheckboxChange }) => {
   const [expandedFeedStories, setExpandedFeedStories] = useState({}); // Store fetched stories for each feed
   const [visibleColumns, setVisibleColumns] = useState([]); // State for visible columns
   const [triggerFetchStories, { isFetching }] = useLazyFetchUserStoriesQuery(); // Lazy fetch stories
@@ -42,6 +42,10 @@ const FeedTable = ({ feeds, onDeleteFeedsAndStories, onDeleteStory }) => {
     [expandedFeedStories, triggerFetchStories]
   );
 
+  const handleStoryCheckboxChange = (storyId, isChecked) => {
+    onStoryCheckboxChange(storyId, isChecked);
+  };
+
   // Handle showing the delete confirmation dialog for feed
   const handleFeedDelete = (feedId) => {
     const associatedStories = expandedFeedStories[feedId] || []; // Get the associated stories
@@ -58,29 +62,7 @@ const FeedTable = ({ feeds, onDeleteFeedsAndStories, onDeleteStory }) => {
   const allColumns = generateColumns(feeds);
   const dynamicColumns = filterColumns(allColumns, visibleColumns);
 
-  // Additional columns for UserFeed data
-  const additionalColumns = [
-    {
-      title: 'Is Following',
-      dataIndex: 'is_following',
-      key: 'is_following',
-      render: (isFollowing) => (isFollowing ? 'Yes' : 'No'),
-    },
-    {
-      title: 'Save All New Stories',
-      dataIndex: 'save_all_new_stories',
-      key: 'save_all_new_stories',
-      render: (saveAllNewStories) => (saveAllNewStories ? 'Yes' : 'No'),
-    },
-    {
-      title: 'User Feed Created At',
-      dataIndex: 'user_feed_created_at',
-      key: 'user_feed_created_at',
-      render: (createdAt) => new Date(createdAt).toLocaleString(),
-    },
-  ];
-
-  // Primary column to hold the trashcan
+  // Primary column to hold the trashcan and checkboxes
   const primaryColumn = {
     title: '', // No title for this column
     key: 'primary',
@@ -103,7 +85,15 @@ const FeedTable = ({ feeds, onDeleteFeedsAndStories, onDeleteStory }) => {
       return <Spin size="small" />;
     }
 
-    return <StoryTable stories={stories} feedId={feed.id} onDeleteStory={handleStoryDelete} />;
+    return (
+      <StoryTable
+        stories={stories}
+        feedId={feed.id}
+        onDeleteStory={handleStoryDelete}
+        selectedStories={selectedStories}
+        onStoryCheckboxChange={handleStoryCheckboxChange}
+      />
+    );
   };
 
   return (

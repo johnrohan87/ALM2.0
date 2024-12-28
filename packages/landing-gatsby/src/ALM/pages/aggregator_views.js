@@ -7,6 +7,7 @@ import {
   useFetchUserFeedsQuery,
   useLazyFetchPreviewFeedQuery,
   useImportFeedMutation,
+  useDeleteStoriesMutation,
   useGetAllFeedTokensQuery,
 } from '../store/api';
 import FeedTable from '../components/FeedTable';
@@ -22,9 +23,6 @@ const AggregatorViews = ({
   isLoading,
   handleDeleteFeed,
   handleDeleteStory,
-  handleDeleteSelectedStories,
-  selectedStories,
-  handleStoryCheckboxChange,
   isModalVisible,
   handleConfirmDelete,
   showDeleteConfirmation,
@@ -39,6 +37,8 @@ const AggregatorViews = ({
   const [triggerFetchPreviewFeed, { data: previewData, isFetching: isFetchingPreview }] = useLazyFetchPreviewFeedQuery();
   const [importFeed] = useImportFeedMutation();
   const [selectedFeedId, setSelectedFeedId] = useState('');
+  const [deleteStories, { isLoading: isDeletingStories }] = useDeleteStoriesMutation();
+  const [selectedStories, setSelectedStories] = useState([]);
   const [publicToken, setPublicToken] = useState(null);
   // storage for PublicFeed View
   const [selectedPublicToken, setSelectedPublicToken] = useState(null);
@@ -130,6 +130,39 @@ const AggregatorViews = ({
     }
   };
 
+  /////////////////////////////
+  //Delete functionality below
+  /////////////////////////////
+
+  const handleStoryCheckboxChange = useCallback((storyId, isChecked) => {
+    setSelectedStories((prev) =>
+      isChecked ? [...prev, storyId] : prev.filter((id) => id !== storyId)
+    );
+  }, []);
+
+  // Updated delete logic and debug logging
+const handleDeleteSelectedStories = useCallback(async () => {
+  if (selectedStories.length === 0) {
+    message.warning('No stories selected for deletion.');
+    return;
+  }
+
+  try {
+    console.log('Attempting to delete stories:', selectedStories);
+
+    await deleteStories({ story_ids: selectedStories }).unwrap();
+    message.success('Selected stories deleted successfully.');
+
+    // Clear the selected stories
+    setSelectedStories([]);
+    refetchFeeds(); // Optional: Refetch feeds to update the UI after deletion
+  } catch (error) {
+    console.error('Error deleting selected stories:', error);
+    message.error('Failed to delete selected stories.');
+  }
+}, [selectedStories, deleteStories, refetchFeeds]);
+
+
   return (
     <div>
       <div style={{ padding: 24 }}>
@@ -149,11 +182,22 @@ const AggregatorViews = ({
             ) : (
               <FeedTable
                 feeds={feeds || []}
+                selectedStories={selectedStories}
                 onDeleteFeedsAndStories={showDeleteConfirmation}
                 onDeleteStory={handleDeleteStory}
                 onStoryCheckboxChange={handleStoryCheckboxChange}
               />
             )}
+            <div style={{ marginBottom: '20px' }}>
+              <Button
+                type="primary"
+                danger
+                onClick={() => handleDeleteSelectedStories(selectedStories)}
+                disabled={selectedStories.length === 0 || isDeletingStories}
+              >
+                Delete Selected Stories
+              </Button>
+            </div>
           </>
         )}
 
@@ -187,8 +231,9 @@ const AggregatorViews = ({
           </>
         )}
 
-        // Updated Public Feed View
-        {currentView === 'publicFeed' && (
+        
+        {// Updated Public Feed View
+        currentView === 'publicFeed' && (
           <>
             <h3>Public Feed</h3>
             {isLoadingPublicFeed ? (

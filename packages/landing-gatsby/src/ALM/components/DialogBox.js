@@ -1,8 +1,8 @@
 import React from 'react';
 import { Modal, Button } from 'antd';
 
-const DialogBox = ({ isVisible, onConfirm, onCancel, deleteTarget, isLoading, message }) => {
-  const { feedId, stories } = deleteTarget;
+const DialogBox = ({ isVisible, onConfirm, onCancel, deleteTarget = {}, isLoading, message }) => {
+  const { feedId, stories = [] } = deleteTarget;
 
   return (
     <Modal

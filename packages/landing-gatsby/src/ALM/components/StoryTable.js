@@ -5,8 +5,7 @@ import { generateColumns, filterColumns, handleColumnVisibilityChange } from '..
 
 const { Paragraph } = Typography;
 
-const StoryTable = ({ stories, onDeleteStory }) => {
-  const [selectedStories, setSelectedStories] = useState([]);
+const StoryTable = ({ stories, selectedStories, onStoryCheckboxChange, onDeleteStory }) => {
   const [visibleColumns, setVisibleColumns] = useState([]);
 
   useEffect(() => {
@@ -18,12 +17,6 @@ const StoryTable = ({ stories, onDeleteStory }) => {
   const handleColumnToggle = (column) => {
     setVisibleColumns((prevColumns) =>
       handleColumnVisibilityChange(generateColumns(stories), prevColumns, column, !prevColumns.includes(column))
-    );
-  };
-
-  const handleStorySelect = (storyId) => {
-    setSelectedStories((prevSelected) =>
-      prevSelected.includes(storyId) ? prevSelected.filter((id) => id !== storyId) : [...prevSelected, storyId]
     );
   };
 
@@ -92,7 +85,7 @@ const StoryTable = ({ stories, onDeleteStory }) => {
     render: (_, story) => (
       <Checkbox
         checked={selectedStories.includes(story.id)}
-        onChange={() => handleStorySelect(story.id)}
+        onChange={(e) => onStoryCheckboxChange(story.id, e.target.checked)}
       />
     ),
   };
