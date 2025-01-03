@@ -9,7 +9,6 @@ const NavigationBar = () => {
       <nav style={navStyle}>
         <Link to="/account" style={linkStyle}>Home</Link>
         {isAdmin && <Link to="/admin" style={linkStyle}>Admin</Link>}
-        <Link to="/rss" style={linkStyle}>RSS</Link>
         <Link to="/aggregator" style={linkStyle}>RSS Aggregator</Link>
         <button onClick={logout} style={buttonStyle}>Log Out</button>
       </nav>

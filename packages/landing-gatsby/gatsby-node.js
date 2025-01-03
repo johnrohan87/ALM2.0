@@ -1,42 +1,22 @@
-/**
- * Implement Gatsby's Node APIs in this file.
- *
- * See: https://www.gatsbyjs.org/docs/node-apis/
- */
-
-// You can delete this file if you're not using it
 const path = require('path');
 
 exports.createPages = async ({ actions }) => {
   const { createPage } = actions;
 
-  createPage({
-    path: '/login',
-    component: path.resolve('./src/ALM/pages/login.js'),
-  });
-  createPage({
-    path: '/logged-out',
-    component: path.resolve('./src/ALM/pages/loggedout.js'),
-  });
-  createPage({
-    path: '/admin',
-    component: path.resolve('./src/ALM/pages/admin.js'),
-  });
-  createPage({
-    path: '/account',
-    component: path.resolve('./src/ALM/pages/account.js'),
-  });
-  createPage({
-    path: '/aggregator',
-    component: path.resolve('./src/ALM/pages/aggregator.js'),
-  });
-  createPage({
-    path: '/rss',
-    component: path.resolve('./src/ALM/pages/rss.js'),
-  });
-  createPage({
-    path: '/callback',
-    component: path.resolve('./src/ALM/pages/callback.js'),
+  const pages = [
+    { path: '/login', component: path.resolve('./src/ALM/pages/login.js') },
+    { path: '/logged-out', component: path.resolve('./src/ALM/pages/loggedout.js') },
+    { path: '/admin', component: path.resolve('./src/ALM/pages/admin.js') },
+    { path: '/account', component: path.resolve('./src/ALM/pages/account.js') },
+    { path: '/aggregator', component: path.resolve('./src/ALM/pages/aggregator.js') },
+    { path: '/callback', component: path.resolve('./src/ALM/pages/callback.js') },
+  ];
+
+  pages.forEach(({ path: pagePath, component }) => {
+    createPage({
+      path: pagePath,
+      component,
+    });
   });
 };
 
@@ -46,7 +26,8 @@ exports.onCreateWebpackConfig = ({ actions, stage, plugins, getConfig }) => {
       modules: [path.resolve(__dirname, 'src'), 'node_modules'],
     },
   });
-  if (stage === "build-html") {
+
+  if (stage === 'build-html') {
     actions.setWebpackConfig({
       module: {
         rules: [
@@ -56,8 +37,9 @@ exports.onCreateWebpackConfig = ({ actions, stage, plugins, getConfig }) => {
           },
         ],
       },
-    })
+    });
   }
+
   if (stage === 'build-javascript' || stage === 'develop') {
     const config = getConfig();
 

@@ -1,85 +1,92 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { message } from 'antd';
+import React, { useEffect, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { message, Button, Spin } from 'antd';
 import {
   useFetchUserFeedsQuery,
   useDeleteFeedMutation,
+  useDeleteStoriesMutation,
 } from '../store/api';
-import withAuth from '../utils/withAuth';
 import NavigationBar from '../components/NavigationBar';
-import AggregatorViews from './aggregator_views';
+import FeedPreviewer from '../components/FeedPreviewer';
+import FeedTable from '../components/FeedTable';
+import DialogBox from '../components/DialogBox';
+import withAuth from '../utils/withAuth';
 
-const AggregatorPage = () => {
+const AggregatorPage = ({data}) => {
   const isAuthenticated = useSelector((state) => !!state.auth.token);
-  const { data: feedsData, refetch: refetchFeeds, isLoading } = useFetchUserFeedsQuery(null, { skip: !isAuthenticated });
+  const { data: feedsData, refetch: refreshFeeds, isLoading: isLoadingFeeds } = useFetchUserFeedsQuery(null, {
+    skip: !isAuthenticated,
+  });
 
+  const [localFeeds, setLocalFeeds] = useState([]);
   const [deleteFeed] = useDeleteFeedMutation();
-
+  const [deleteStories] = useDeleteStoriesMutation();
+  const [selectedStories, setSelectedStories] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState({ feedId: null });
+  const [deleteTarget, setDeleteTarget] = useState({ feedId: null, storyIds: [] });
   const [isDeleting, setIsDeleting] = useState(false);
-  const [currentView, setCurrentView] = useState('userFeeds');
 
   useEffect(() => {
-    if (currentView === 'userFeeds' && isAuthenticated) {
-      refetchFeeds();
-    }
-  }, [currentView, isAuthenticated, refetchFeeds]);
+    refreshFeeds().then(({ data }) => {
+      console.log("Refreshed feeds from backend:", data?.feeds);
+      setLocalFeeds(data?.feeds || []);
+    });
+  }, [refreshFeeds]);
 
-  const handleDeleteFeed = useCallback((feedId) => {
-    setDeleteTarget({ feedId });
-    setIsModalVisible(true);
-  }, []);
+  const handleDelete = useCallback(async (feedId) => {
+    if (isDeleting) return;
 
-  const showDeleteConfirmation = useCallback((feedId) => {
-    setDeleteTarget({ feedId });
-    setIsModalVisible(true);
-  }, []);
-
-  const handleConfirmDelete = useCallback(async () => {
-    if (isDeleting) {
-      return;
-    }
     setIsDeleting(true);
 
-    const { feedId } = deleteTarget;
-
     try {
-      if (feedId) {
-        await deleteFeed({ feed_id: feedId }).unwrap();
-        message.success(`Feed deleted successfully. Feed ID: ${feedId}`);
-      }
+      await deleteFeed({ feed_id: feedId }).unwrap();
+      message.success(`Feed deleted successfully. Feed ID: ${feedId}`);
 
-      refetchFeeds();
-      setIsModalVisible(false);
+      setLocalFeeds((prevFeeds) => prevFeeds.filter((feed) => feed.id !== feedId));
+      await refreshFeeds();
     } catch (error) {
-      console.error('Delete error:', error);
-      message.error('Failed to delete feed');
+      console.error("Error during deletion:", error);
+      message.error("Failed to delete feed.");
     } finally {
       setIsDeleting(false);
     }
-  }, [deleteTarget, deleteFeed, refetchFeeds, isDeleting]);
+  }, [deleteFeed, refreshFeeds, isDeleting]);
 
-  const hideModal = () => setIsModalVisible(false);
-
-  const feeds = feedsData?.feeds || [];
+  const handleRefreshFeeds = async () => {
+    try {
+      const updatedFeeds = await refreshFeeds();
+      console.log('Updating local data with -', updatedFeeds.data?.feeds)
+      setLocalFeeds(updatedFeeds.data?.feeds || []);
+    } catch (error) {
+      console.error("Error refreshing feeds:", error);
+    }
+  };
 
   return (
     <div>
       <NavigationBar />
-      <AggregatorViews
-        currentView={currentView}
-        feeds={feeds}
-        isLoading={isLoading}
-        showDeleteConfirmation={showDeleteConfirmation}
-        handleDeleteFeed={handleDeleteFeed}
-        isModalVisible={isModalVisible}
-        handleConfirmDelete={handleConfirmDelete}
-        hideModal={hideModal}
-        deleteTarget={deleteTarget}
-        isDeleting={isDeleting}
-        setCurrentView={setCurrentView}
-      />
+      <div style={{ padding: 24 }}>
+        <h2>Aggregator Page</h2>
+        <FeedPreviewer onFeedAdded={(newFeed) => setLocalFeeds((feeds) => [...feeds, newFeed])} refreshFeeds={refreshFeeds} />
+        {isLoadingFeeds ? (
+          <Spin size="large" style={{ margin: '20px 0' }} />
+        ) : (
+          <FeedTable
+            feeds={localFeeds}
+            selectedStories={selectedStories}
+            onDelete={(feedId) => handleDelete(feedId)}
+            onRefreshFeeds={handleRefreshFeeds}
+          />
+        )}
+        <DialogBox
+          isVisible={isModalVisible}
+          onConfirm={() => handleDelete(deleteTarget.feedId, deleteTarget.storyIds)}
+          onCancel={() => setIsModalVisible(false)}
+          deleteTarget={deleteTarget}
+          isLoading={isDeleting}
+          message="Are you sure you want to delete this feed?"
+        />
+      </div>
     </div>
   );
 };

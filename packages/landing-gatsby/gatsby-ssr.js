@@ -6,6 +6,7 @@ import { AuthProvider } from './src/ALM/utils/authProvider';
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './src/ALM/store/authSlice';
 import { api } from './src/ALM/store/api';
+import 'antd/dist/reset.css'; // Or use 'antd/dist/antd.css' for full Ant Design styling reset
 
 const store = configureStore({
   reducer: {
@@ -27,7 +28,7 @@ export const wrapRootElement = ({ element }) => (
     domain={process.env.GATSBY_AUTH0_DOMAIN}
     clientId={process.env.GATSBY_AUTH0_CLIENT_ID}
     authorizationParams={{
-      redirect_uri: typeof window !== 'undefined' ? window.location.origin + '/callback' : '',
+      redirect_uri: typeof window !== 'undefined' ? `${window.location.origin}/callback` : '',
       audience: process.env.GATSBY_AUTH0_AUDIENCE,
       scope: 'openid profile email',
     }}
