@@ -1,12 +1,14 @@
 import React, { useState } from "react";
-import { Table, Spin } from "antd";
+import { Table, Spin, Popconfirm, Button } from "antd";
 import FeedManagementComponent from "./FeedManagementComponent";
 import { useLazyFetchUserStoriesQuery } from "../store/api";
 import StoryTable from "./StoryTable";
+import useDeletionHandler from "../hooks/useDeletionHandler";
 
 const FeedTable = ({ feeds, onRefreshFeeds }) => {
   const [expandedFeedStories, setExpandedFeedStories] = useState({});
   const [triggerFetchStories, { isFetching: isFetchingStories }] = useLazyFetchUserStoriesQuery();
+  const { deleteFeedAndSync } = useDeletionHandler(onRefreshFeeds);
 
   const expandedRowRender = (feed) => {
     const stories = expandedFeedStories[feed.id] || [];
@@ -30,12 +32,26 @@ const FeedTable = ({ feeds, onRefreshFeeds }) => {
     }
   };
 
+  const handleDeleteFeed = async (feedId) => {
+    await deleteFeedAndSync(feedId);
+  };
+
   return (
     <Table
       columns={[
         { title: "Feed URL", dataIndex: "url", key: "url" },
         { title: "Management", key: "management", render: (_, feed) => (
-          <FeedManagementComponent feed={feed} onRefresh={onRefreshFeeds} />
+          <div>
+            <FeedManagementComponent feed={feed} onRefresh={onRefreshFeeds} />
+            <Popconfirm
+              title="Are you sure you want to delete this feed?"
+              onConfirm={() => handleDeleteFeed(feed.id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger>Delete Feed</Button>
+            </Popconfirm>
+          </div>                
         ) },
       ]}
       dataSource={feeds}

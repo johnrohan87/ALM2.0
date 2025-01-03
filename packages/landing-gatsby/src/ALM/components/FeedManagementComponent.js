@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { Checkbox, Button, Popconfirm, message } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import { EyeOutlined, EyeInvisibleOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useUpdateFeedMutation, useDeleteFeedMutation } from "../store/api";
 
 const FeedManagementComponent = ({ feed = {}, onRefresh }) => {
   const [updateFeed] = useUpdateFeedMutation();
   const [deleteFeed] = useDeleteFeedMutation();
+  const [isTokenVisible, setIsTokenVisible] = useState(false);
 
   const saveAllNewStories = feed.save_all_new_stories ?? false;
   const isFollowing = feed.is_following ?? false;
@@ -63,6 +64,10 @@ const FeedManagementComponent = ({ feed = {}, onRefresh }) => {
     }
   };
 
+  const toggleTokenVisibility = () => {
+    setIsTokenVisible((prev) => !prev);
+  };
+
   if (!feed || !feed.id) {
     return <div>No feed data available.</div>;
   }
@@ -94,6 +99,23 @@ const FeedManagementComponent = ({ feed = {}, onRefresh }) => {
             {feed.public_token ? "Remove Token" : "Generate Token"}
           </Button>
         </Popconfirm>
+        {/* Reveal token on click */}
+        {feed.public_token && (
+          <div style={{ marginTop: "10px" }}>
+            <Button
+              type="link"
+              onClick={toggleTokenVisibility}
+              icon={isTokenVisible ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+            >
+              {isTokenVisible ? "Hide Token" : "Reveal Token"}
+            </Button>
+            {isTokenVisible && (
+              <div style={{ marginTop: "5px", color: "#1890ff" }}>
+                <strong>Token:</strong> {feed.public_token}
+              </div>
+            )}
+          </div>
+        )}
       </div>
       <div>
         <Popconfirm
