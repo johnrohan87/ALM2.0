@@ -4,7 +4,7 @@ import Home from '../ALM/pages/hosting';
 import Login from '../ALM/pages/login';
 import Account from '../ALM/pages/account';
 import Admin from '../ALM/pages/admin';
-import Rss from '../ALM/pages/rss';
+//import Rss from '../ALM/pages/rss';
 
 const IndexRoutes = () => {
     return (
@@ -13,7 +13,6 @@ const IndexRoutes = () => {
             <Login path="/login" />
             <Account path="/account" />
             <Admin path="/admin" />
-            <Rss path="/rss" />
         </Router>
     );
 };

@@ -1,0 +1,39 @@
+.dynamic-preview-table-container {
+  padding: 16px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+}
+
+.dynamic-preview-table-container h2 {
+  margin-bottom: 8px;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.dynamic-preview-table-container p {
+  margin-bottom: 16px;
+  color: #666;
+}
+
+.dynamic-row {
+  font-size: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  padding: 12px;
+  background-color: #fff;
+  transition: background-color 0.3s ease;
+}
+
+.dynamic-row:hover {
+  background-color: #f0f8ff;
+}
+
+.ant-table-cell {
+  white-space: pre-wrap;
+}
+
+.ant-btn-link {
+  padding: 0;
+  font-size: 12px;
+}

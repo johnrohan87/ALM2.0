@@ -43,14 +43,14 @@ const FeedTable = ({ feeds, onRefreshFeeds }) => {
         { title: "Management", key: "management", render: (_, feed) => (
           <div>
             <FeedManagementComponent feed={feed} onRefresh={onRefreshFeeds} />
-            <Popconfirm
+            {/*<Popconfirm
               title="Are you sure you want to delete this feed?"
               onConfirm={() => handleDeleteFeed(feed.id)}
               okText="Yes"
               cancelText="No"
             >
               <Button danger>Delete Feed</Button>
-            </Popconfirm>
+            </Popconfirm>*/}
           </div>                
         ) },
       ]}
