@@ -1,43 +1,48 @@
-import React from 'react';
-import { Table, Checkbox, Button, Popconfirm } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import React, { useState } from "react";
+import { Table } from "antd";
+import StoryManagementComponent from "./StoryManagementComponent";
 
-const StoryTable = ({ stories, feedId, onStoryCheckboxChange, onDeleteStory }) => {
-  // Columns definition for stories
+const StoryTable = ({ stories: initialStories, feedId }) => {
+  const [stories, setStories] = useState(initialStories);
+
+  const handleStoryUpdated = (updatedStory, deletedStoryId) => {
+    setStories((prevStories) => {
+      if (deletedStoryId) {
+        // Filter out the deleted story
+        return prevStories.filter((story) => story.id !== deletedStoryId);
+      } else if (updatedStory) {
+        // Update the specific story in the state
+        return prevStories.map((story) =>
+          story.id === updatedStory.id
+            ? { ...story, ...updatedStory }
+            : story
+        );
+      }
+      return prevStories; // No changes if neither condition is met
+    });
+  };
+
   const columns = [
     {
-      title: 'Select',
-      key: 'select',
+      title: "Title",
+      dataIndex: ["data", "title"],
+      key: "title",
+      render: (title) => <span>{title || "No Title"}</span>,
+    },
+    {
+      title: "Published",
+      dataIndex: ["data", "published"],
+      key: "published",
+      render: (published) => <span>{published || "No Date"}</span>,
+    },
+    {
+      title: "Actions",
+      key: "actions",
       render: (_, story) => (
-        <Checkbox
-          onChange={(e) => onStoryCheckboxChange(story.id, e.target.checked)}
+        <StoryManagementComponent
+          story={story}
+          onStoryUpdated={handleStoryUpdated}
         />
-      ),
-    },
-    {
-      title: 'Title',
-      dataIndex: ['data', 'title'],
-      key: 'title',
-      render: (title) => <span>{title || 'No Title'}</span>,
-    },
-    {
-      title: 'Published',
-      dataIndex: ['data', 'published'],
-      key: 'published',
-      render: (published) => <span>{published || 'No Date'}</span>,
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, story) => (
-        <Popconfirm
-          title="Are you sure you want to delete this story?"
-          onConfirm={() => onDeleteStory(story.id)}
-          okText="Yes"
-          cancelText="No"
-        >
-          <DeleteOutlined style={{ color: 'red', cursor: 'pointer' }} />
-        </Popconfirm>
       ),
     },
   ];
@@ -48,7 +53,7 @@ const StoryTable = ({ stories, feedId, onStoryCheckboxChange, onDeleteStory }) =
       <Table
         columns={columns}
         dataSource={stories}
-        rowKey="id"
+        rowKey="id" // Ensure the rowKey matches the story ID
         pagination={{ pageSize: 5 }}
       />
     </div>

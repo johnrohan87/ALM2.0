@@ -15,7 +15,7 @@ const FeedTable = ({ feeds, onRefreshFeeds }) => {
     if (isFetchingStories && !stories.length) {
       return <Spin size="small" />;
     }
-    return <StoryTable stories={stories} />;
+    return <StoryTable stories={stories} feedId={feed.id}/>;
   };
 
   const handleExpand = async (expanded, feed) => {

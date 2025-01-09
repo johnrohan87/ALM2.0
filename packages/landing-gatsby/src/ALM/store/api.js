@@ -64,6 +64,14 @@ export const api = createApi({
         body: { story_ids },
       }),
     }),
+    updateStory: builder.mutation({
+      query: ({ storyId, data }) => ({
+        url: `stories/${storyId}`,
+        method: "PATCH",
+        body: data,
+      }),
+    }),
+    
 
     // Public Feed Endpoints
     fetchPublicFeed: builder.query({
@@ -108,6 +116,7 @@ export const {
   useLazyFetchUserStoriesQuery,
   useAddStoryMutation,
   useDeleteStoriesMutation,
+  useUpdateStoryMutation,
 
   // Public Feeds
   useFetchPublicFeedQuery,
