@@ -45,11 +45,13 @@ export const api = createApi({
 
     // Stories Endpoints
     fetchUserStories: builder.query({
-      query: ({ feedId }) => `stories${feedId ? `?feed_id=${feedId}` : ''}`,
-    }),
+      query: ({ feedId, page = 1, limit = 10 }) => 
+        `stories?feed_id=${feedId}&page=${page}&limit=${limit}`,
+    }),    
     fetchLazyUserStories: builder.query({
-      query: (feedId) => `stories?feed_id=${feedId}`,
-    }),
+      query: ({ feedId, page = 1, limit = 10 }) =>
+        `stories?feed_id=${feedId}&page=${page}&limit=${limit}`,
+    }),    
     addStory: builder.mutation({
       query: (storyData) => ({
         url: 'stories',
@@ -75,6 +77,9 @@ export const api = createApi({
 
     // Public Feed Endpoints
     fetchPublicFeed: builder.query({
+      query: (token) => `feeds/public/${token}`,
+    }),
+    useLazyFetchPublicFeed: builder.query({
       query: (token) => `feeds/public/${token}`,
     }),
 
@@ -120,6 +125,7 @@ export const {
 
   // Public Feeds
   useFetchPublicFeedQuery,
+  useLazyFetchPublicFeedQuery,
 
   // Tokens
   useRequestFeedTokenMutation,
