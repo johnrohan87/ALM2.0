@@ -59,7 +59,7 @@ export const api = createApi({
     }),
     deleteStories: builder.mutation({
       query: ({ story_ids }) => ({
-        url: 'delete_stories',
+        url: 'stories',
         method: 'DELETE',
         body: { story_ids },
       }),

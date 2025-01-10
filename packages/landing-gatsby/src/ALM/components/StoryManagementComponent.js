@@ -41,7 +41,7 @@ const StoryManagementComponent = ({ story, onStoryUpdated }) => {
     try {
       await deleteStories({ story_ids: [story.id] }).unwrap();
       message.success("Story deleted successfully.");
-      if (onStoryUpdated) onStoryUpdated(null, story.id); // Notify parent to remove story
+      if (onStoryUpdated) onStoryUpdated(null, story.id);
     } catch (error) {
       console.error("Error deleting story:", error);
       message.error("Failed to delete story. Please try again.");
