@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, message, Spin, Dropdown, Menu, Checkbox } from "antd";
+import ExpandableText from "./ExpandableText";
 import StoryManagementComponent from "./StoryManagementComponent";
 import { useLazyFetchUserStoriesQuery, useDeleteStoriesMutation } from "../store/api";
 
@@ -110,7 +111,7 @@ const StoryTable = ({ feedId }) => {
 
   const renderField = (value) => {
     if (!value) return <span>N/A</span>;
-    if (typeof value === "string") return value;
+    if (typeof value === "string") return <ExpandableText text={value} />;
     if (Array.isArray(value)) {
       return value.map((item, index) =>
         typeof item === "object" ? (

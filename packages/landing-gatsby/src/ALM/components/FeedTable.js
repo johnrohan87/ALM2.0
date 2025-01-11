@@ -61,22 +61,6 @@ const FeedTable = ({ feeds, onRefreshFeeds }) => {
       key: "url",
     },
     {
-      title: "Public Token",
-      dataIndex: "public_token",
-      key: "public_token",
-      render: (token) => (
-        <span>
-          {token}{" "}
-          <Button
-            type="link"
-            onClick={() => navigator.clipboard.writeText(token)}
-          >
-            Copy Token
-          </Button>
-        </span>
-      ),
-    },
-    {
       title: "Format",
       key: "format",
       render: (_, feed) => (

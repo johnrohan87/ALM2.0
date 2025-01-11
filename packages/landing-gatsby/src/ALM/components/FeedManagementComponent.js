@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Checkbox, Button, Popconfirm, message } from "antd";
-import { EyeOutlined, EyeInvisibleOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EyeOutlined, EyeInvisibleOutlined, DeleteOutlined, CopyOutlined } from "@ant-design/icons";
 import { useUpdateFeedMutation, useDeleteFeedMutation } from "../store/api";
 
 const FeedManagementComponent = ({ feed = {}, onRefresh }) => {
@@ -64,6 +64,13 @@ const FeedManagementComponent = ({ feed = {}, onRefresh }) => {
     }
   };
 
+  const handleCopyToken = () => {
+    if (feed.public_token) {
+      navigator.clipboard.writeText(feed.public_token);
+      message.success("Token copied to clipboard!");
+    }
+  };
+
   const toggleTokenVisibility = () => {
     setIsTokenVisible((prev) => !prev);
   };
@@ -111,7 +118,14 @@ const FeedManagementComponent = ({ feed = {}, onRefresh }) => {
             </Button>
             {isTokenVisible && (
               <div style={{ marginTop: "5px", color: "#1890ff" }}>
-                <strong>Token:</strong> {feed.public_token}
+                <Button
+                  type="link"
+                  onClick={handleCopyToken}
+                  style={{ marginLeft: "10px" }}
+                >
+                  <strong>Token:</strong> {feed.public_token}
+                  <CopyOutlined />
+                </Button>
               </div>
             )}
           </div>
