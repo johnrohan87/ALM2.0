@@ -9,6 +9,7 @@ const FeedTable = ({ feeds, onRefreshFeeds }) => {
   const [triggerFetchStories, { isFetching: isFetchingStories }] = useLazyFetchUserStoriesQuery();
   const [fetchPublicFeed, { isFetching: isFetchingFeed }] = useLazyFetchPublicFeedQuery();
   const [format, setFormat] = useState("json"); // Track selected format for feeds
+  const [cachedFeeds, setCachedFeeds] = useState({});
 
   const handleExpand = async (expanded, feed) => {
     if (expanded && !expandedFeedStories[feed.id]) {
@@ -27,24 +28,30 @@ const FeedTable = ({ feeds, onRefreshFeeds }) => {
 
   const handleFormatChange = async (token, newFormat) => {
     try {
+      console.log(`Fetching feed in ${newFormat} format with token: ${token}`);
       const result = await fetchPublicFeed(token).unwrap();
-
+  
       if (newFormat === "rss") {
-        const blob = new Blob([result], { type: "application/rss+xml" });
-        const url = URL.createObjectURL(blob);
-        window.open(url, "_blank");
+        if (typeof result === "string" && result.startsWith("<?xml")) {
+          const blob = new Blob([result], { type: "application/rss+xml" });
+          const url = URL.createObjectURL(blob);
+          console.log("RSS Data:", result);
+          window.open(url, "_blank");
+        } else {
+          console.error("Invalid RSS data format:", result);
+          message.error("Failed to fetch valid RSS data.");
+        }
       } else {
-        message.info("Fetched feed in JSON format. Check the console for data.");
-        console.log(result);
+        console.log("JSON Data:", result);
+        message.info("Fetched feed in JSON format.");
       }
-
-      setFormat(newFormat);
     } catch (error) {
       console.error("Error fetching feed format:", error);
       message.error("Failed to fetch feed in selected format.");
     }
-  };
+  };  
 
+  
   const expandedRowRender = (feed) => {
     const stories = expandedFeedStories[feed.id] || [];
     return isFetchingStories && !stories.length ? (

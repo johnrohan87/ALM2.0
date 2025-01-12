@@ -4,13 +4,23 @@ export const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.GATSBY_HEROKU_BASEURL,
-    prepareHeaders: (headers, { getState }) => {
+    prepareHeaders: (headers, { getState, endpoint }) => {
       const token = getState().auth.token;
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
       }
-      headers.set('Content-Type', 'application/json');
+      if (endpoint === 'useLazyFetchPublicFeedQuery') {
+        headers.set('Accept', 'application/rss+xml');
+      } else {
+        headers.set('Content-Type', 'application/json');
+      }
       return headers;
+    },
+    responseHandler: (response) => {
+      const contentType = response.headers.get('content-type');
+      return contentType && contentType.includes('application/rss+xml')
+        ? response.text()
+        : response.json();
     },
   }),
   endpoints: (builder) => ({
@@ -79,9 +89,13 @@ export const api = createApi({
     fetchPublicFeed: builder.query({
       query: (token) => `feeds/public/${token}`,
     }),
-    useLazyFetchPublicFeed: builder.query({
-      query: (token) => `feeds/public/${token}`,
-    }),
+    useLazyFetchPublicFeedQuery: builder.query({
+      query: (token) => ({
+        url: `feeds/public/${token}?format=rss`,
+        headers: { Accept: 'application/rss+xml' },
+        responseHandler: (response) => response.text(),
+      }),
+    }),  
 
     // Token Endpoints
     requestFeedToken: builder.mutation({
