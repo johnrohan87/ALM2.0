@@ -9,7 +9,7 @@ export const api = createApi({
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
       }
-      if (endpoint === 'useLazyFetchPublicFeedQuery') {
+      if (endpoint === 'useLazyFetchPublicRSSFeedQuery') {
         headers.set('Accept', 'application/rss+xml');
       } else {
         headers.set('Content-Type', 'application/json');
@@ -83,20 +83,23 @@ export const api = createApi({
         body: data,
       }),
     }),
-    
 
     // Public Feed Endpoints
-    fetchPublicFeed: builder.query({
-      query: (token) => `feeds/public/${token}`,
-    }),
-    useLazyFetchPublicFeedQuery: builder.query({
+    fetchPublicRSSFeed: builder.query({
       query: (token) => ({
-        url: `feeds/public/${token}?format=rss`,
+        url: `feeds/public/rss/${token}`,
         headers: { Accept: 'application/rss+xml' },
-        responseHandler: (response) => response.text(),
+        responseHandler: (response) => response.text(), // Handle RSS as plain text
       }),
-    }),  
-
+    }),
+    fetchPublicJSONFeed: builder.query({
+      query: (token) => ({
+        url: `feeds/public/json/${token}`,
+        headers: { Accept: 'application/json' },
+        responseHandler: (response) => response.json(), // Handle JSON as an object
+      }),
+    }),
+     
     // Token Endpoints
     requestFeedToken: builder.mutation({
       query: ({ feed_id }) => ({
@@ -138,8 +141,8 @@ export const {
   useUpdateStoryMutation,
 
   // Public Feeds
-  useFetchPublicFeedQuery,
-  useLazyFetchPublicFeedQuery,
+  useLazyFetchPublicRSSFeedQuery,
+  useLazyFetchPublicJSONFeedQuery,
 
   // Tokens
   useRequestFeedTokenMutation,

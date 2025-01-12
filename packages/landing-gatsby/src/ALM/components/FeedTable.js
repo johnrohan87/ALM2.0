@@ -1,20 +1,20 @@
 import React, { useState } from "react";
-import { Table, Button, Spin, message } from "antd";
+import { Table, Button, message, Spin } from "antd";
 import FeedManagementComponent from "./FeedManagementComponent";
-import { useLazyFetchUserStoriesQuery, useLazyFetchPublicFeedQuery } from "../store/api";
+import { useLazyFetchPublicRSSFeedQuery, useLazyFetchPublicJSONFeedQuery } from "../store/api";
 import StoryTable from "./StoryTable";
 
 const FeedTable = ({ feeds, onRefreshFeeds }) => {
   const [expandedFeedStories, setExpandedFeedStories] = useState({});
-  const [triggerFetchStories, { isFetching: isFetchingStories }] = useLazyFetchUserStoriesQuery();
-  const [fetchPublicFeed, { isFetching: isFetchingFeed }] = useLazyFetchPublicFeedQuery();
-  const [format, setFormat] = useState("json"); // Track selected format for feeds
-  const [cachedFeeds, setCachedFeeds] = useState({});
+  const [fetchPublicRSSFeed] = useLazyFetchPublicRSSFeedQuery();
+  const [fetchPublicJSONFeed] = useLazyFetchPublicJSONFeedQuery();
+  const [isFetchingStories, setIsFetchingStories] = useState(false);
 
   const handleExpand = async (expanded, feed) => {
     if (expanded && !expandedFeedStories[feed.id]) {
+      setIsFetchingStories(true);
       try {
-        const result = await triggerFetchStories(feed.id).unwrap();
+        const result = await fetchPublicRSSFeed(feed.public_token).unwrap();
         setExpandedFeedStories((prev) => ({
           ...prev,
           [feed.id]: result.stories || [],
@@ -22,36 +22,30 @@ const FeedTable = ({ feeds, onRefreshFeeds }) => {
       } catch (error) {
         console.error("Error fetching stories:", error);
         message.error("Failed to fetch stories. Please try again.");
+      } finally {
+        setIsFetchingStories(false);
       }
     }
   };
 
-  const handleFormatChange = async (token, newFormat) => {
+  const handleFormatChange = async (token, format) => {
     try {
-      console.log(`Fetching feed in ${newFormat} format with token: ${token}`);
-      const result = await fetchPublicFeed(token).unwrap();
-  
-      if (newFormat === "rss") {
-        if (typeof result === "string" && result.startsWith("<?xml")) {
-          const blob = new Blob([result], { type: "application/rss+xml" });
-          const url = URL.createObjectURL(blob);
-          console.log("RSS Data:", result);
-          window.open(url, "_blank");
-        } else {
-          console.error("Invalid RSS data format:", result);
-          message.error("Failed to fetch valid RSS data.");
-        }
-      } else {
+      if (format === "rss") {
+        const result = await fetchPublicRSSFeed(token).unwrap();
+        const blob = new Blob([result], { type: "application/rss+xml" });
+        const url = URL.createObjectURL(blob);
+        window.open(url, "_blank");
+      } else if (format === "json") {
+        const result = await fetchPublicJSONFeed(token).unwrap();
         console.log("JSON Data:", result);
-        message.info("Fetched feed in JSON format.");
+        message.success("Fetched feed in JSON format.");
       }
     } catch (error) {
-      console.error("Error fetching feed format:", error);
-      message.error("Failed to fetch feed in selected format.");
+      console.error("Error fetching feed:", error);
+      message.error("Failed to fetch feed in the selected format.");
     }
-  };  
+  };
 
-  
   const expandedRowRender = (feed) => {
     const stories = expandedFeedStories[feed.id] || [];
     return isFetchingStories && !stories.length ? (
@@ -72,16 +66,10 @@ const FeedTable = ({ feeds, onRefreshFeeds }) => {
       key: "format",
       render: (_, feed) => (
         <div>
-          <Button
-            loading={isFetchingFeed}
-            onClick={() => handleFormatChange(feed.public_token, "json")}
-          >
+          <Button onClick={() => handleFormatChange(feed.public_token, "json")}>
             JSON
           </Button>
-          <Button
-            loading={isFetchingFeed}
-            onClick={() => handleFormatChange(feed.public_token, "rss")}
-          >
+          <Button onClick={() => handleFormatChange(feed.public_token, "rss")}>
             RSS
           </Button>
         </div>
