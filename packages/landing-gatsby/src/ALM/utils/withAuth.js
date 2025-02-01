@@ -1,30 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import { navigate } from 'gatsby';
-import { useAuth } from './authProvider';
+import React, { useEffect, useState } from "react";
+import { navigate } from "gatsby";
+import { useAuth } from "./authProvider";
+import Spinner from "../components/Spinner/Spinner";
 
 const withAuth = (Component, requireAdmin = false) => (props) => {
-  const { isAuthenticated, isLoading, isLoggingOut, isAdmin, loginWithRedirect } = useAuth();
+  const { isAuthenticated, isLoading, isAdmin, loginWithRedirect } = useAuth();
   const [initialCheckCompleted, setInitialCheckCompleted] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !isLoggingOut) {
+
+    if (!isLoading) {
+      if (requireAdmin && isAdmin === undefined) return;
       setInitialCheckCompleted(true);
 
-      if (!isAuthenticated && !isLoggingOut) {
-        console.log('withAuth - Redirecting to OAuth login...');
+      if (!isAuthenticated) {
+        console.log("withAuth - Redirecting to OAuth login...");
         loginWithRedirect({ appState: { targetUrl: window.location.pathname } });
-      } else if (isAuthenticated && requireAdmin && !isAdmin) {
-        console.log('withAuth - Redirecting to account...');
-        navigate('/account');
+      } else if (requireAdmin && !isAdmin) {
+        console.log("withAuth - Redirecting to account...");
+        navigate("/account");
       }
     }
-  }, [isAuthenticated, isLoading, isLoggingOut, isAdmin, loginWithRedirect]);
+  }, [isAuthenticated, isLoading, isAdmin, loginWithRedirect]);
 
-  if (isLoading || !initialCheckCompleted) {
-    return <p>Loading...</p>;
+  if (isLoading || !initialCheckCompleted || (requireAdmin && isAdmin === undefined)) {
+    console.log("[withAuth] Waiting for authentication state to resolve...");
+    return (
+      <div style={{ textAlign: "center", padding: "20px" }}>
+        <Spinner />
+        <p>Loading authentication state...</p>
+      </div>
+    );
   }
 
-  return (isAuthenticated && (!requireAdmin || isAdmin)) ? <Component {...props} /> : null;
+  return isAuthenticated && (!requireAdmin || isAdmin) ? <Component {...props} /> : null;
 };
 
 export default withAuth;

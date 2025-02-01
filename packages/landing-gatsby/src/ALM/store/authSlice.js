@@ -6,6 +6,7 @@ export const authSlice = createSlice({
     user: null,
     token: null,
     isAuthenticated: false,
+    isAdmin: false,
     isLoading: false,
   },
   reducers: {
@@ -13,11 +14,13 @@ export const authSlice = createSlice({
       state.user = payload.user;
       state.token = payload.token;
       state.isAuthenticated = !!payload.token;
+      state.isAdmin = payload.isAdmin || false;
     },
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
+      state.isAdmin = false;
     },
   },
 });

@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { setCredentials, logout as reduxLogout } from '../store/authSlice';
-import { useAuth0 } from '@auth0/auth0-react';
-import { navigate } from 'gatsby';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setCredentials, logout as reduxLogout } from "../store/authSlice";
+import { useAuth0 } from "@auth0/auth0-react";
+import { navigate } from "gatsby";
 
 const AuthContext = createContext();
 
@@ -18,38 +18,42 @@ export const AuthProvider = ({ children }) => {
   } = useAuth0();
 
   const auth = useSelector((state) => state.auth);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth0Loading) {
-      if (isAuthenticated && user && !auth.token) {
-        getAccessTokenSilently()
-          .then((accessToken) => {
+    const updateAuthState = async () => {
+      if (!auth0Loading) {
+        if (isAuthenticated && user) {
+          try {
+            const accessToken = await getAccessTokenSilently();
+            const userRoles = user["https://voluble-boba-2e3a2e.netlify.app/roles"] || [];
+            const isAdmin = userRoles.includes("Admin");
+
             dispatch(
               setCredentials({
                 user,
                 token: accessToken,
                 isAuthenticated,
-                isAdmin: user['https://voluble-boba-2e3a2e.netlify.app/roles']?.includes('Admin'),
+                isAdmin,
               })
             );
-            if (window.location.pathname === '/logged-out') {
-              navigate('/account');
-            }
-          })
-          .catch((error) => {
-            console.error('Error fetching access token:', error);
+
+            setTimeout(() => {
+              setIsLoading(false);
+            }, 50);
+          } catch (error) {
+            console.error("Error fetching access token:", error);
             dispatch(reduxLogout());
-          })
-          .finally(() => {
             setIsLoading(false);
-          });
-      } else {
-        setIsLoading(false);
+          }
+        } else {
+          setIsLoading(false);
+        }
       }
-    }
-  }, [isAuthenticated, user, getAccessTokenSilently, dispatch, auth0Loading, auth.token]);
+    };
+
+    updateAuthState();
+  }, [isAuthenticated, user, getAccessTokenSilently, dispatch, auth0Loading]);
 
   return (
     <AuthContext.Provider
@@ -59,14 +63,9 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: auth.isAuthenticated,
         isAdmin: auth.isAdmin,
         isLoading: auth0Loading || isLoading,
-        isLoggingOut,
         logout: () => {
-          setIsLoggingOut(true);
           dispatch(reduxLogout());
-          setTimeout(() => {
-            setIsLoggingOut(false);
-            auth0Logout({ returnTo: window.location.origin + '/logged-out' });
-          }, 500);
+          auth0Logout({ returnTo: window.location.origin + "/logged-out" });
         },
         loginWithRedirect,
       }}
