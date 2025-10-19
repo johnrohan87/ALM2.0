@@ -24,6 +24,23 @@ export const api = createApi({
     },
   }),
   endpoints: (builder) => ({
+    // Admin Endpoints
+    fetchUsers: builder.query({
+      query: () => `admin/users`,
+    }),
+    updateUser: builder.mutation({
+      query: ({ userId, data }) => ({
+        url: `admin/users/${userId}`,
+        method: "PATCH",
+        body: data,
+      }),
+    }),
+    deleteUser: builder.mutation({
+      query: (userId) => ({
+        url: `admin/users/${userId}`,
+        method: "DELETE",
+      }),
+    }),
     // Feeds Endpoints
     fetchUserFeeds: builder.query({
       query: (filter) => {
@@ -127,6 +144,10 @@ export const api = createApi({
 });
 
 export const {
+  // Admin
+  useFetchUsersQuery,
+  useUpdateUserMutation,
+  useDeleteUserMutation,
   // Feeds
   useFetchUserFeedsQuery,
   usePreviewFeedMutation,
